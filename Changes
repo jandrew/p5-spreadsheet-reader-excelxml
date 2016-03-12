@@ -1,0 +1,14 @@
+Revision history for {{$dist->name}}
+
+Uses the change tracking convention
++ New feature.
+- Removed/deprecated feature.
+! Bug fix.
+* Place holder
+
+NOTE: This software is designated as beta quality until this notice is removed.  The goal is to 
+be method matched to Spreadsheet::ParseExcel prior to the 1.0 release.
+
+{{$NEXT}}
+	
+	+ Initial release to move Spreadsheet::XLSX::Reader::LibXML off of XML::LibXML support
