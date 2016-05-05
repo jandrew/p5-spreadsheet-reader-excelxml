@@ -16,9 +16,10 @@ use Carp qw( confess longmess );
 use Clone qw( clone );
 use Data::Dumper;
 use Encode qw( encode decode );
-use IO::Handle 1.25;
-use IO::File 1.14;
-use IO::Seekable 1.10;
+use IO::Handle;
+use FileHandle;
+#~ use IO::File 1.16;
+#~ use IO::Seekable 1.10;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
@@ -117,7 +118,7 @@ sub start_the_file_over{
 	$self->_set_position_stack( [] );
 	
 	# Start at the beginning
-	$self->seek(0, 0);
+	$self->_seek(0, 0);
 	###LogSD	$phone->talk( level => 'debug', message =>[ "The object is reset" ] );
 	
 	#start reading
