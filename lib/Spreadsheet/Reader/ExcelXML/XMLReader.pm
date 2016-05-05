@@ -18,6 +18,7 @@ use Data::Dumper;
 use Encode qw( encode decode );
 use IO::Handle 1.25;
 use IO::File 1.14;
+use IO::Seekable 1.10;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
