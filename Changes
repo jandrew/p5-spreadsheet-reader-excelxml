@@ -11,7 +11,7 @@ be method matched to Spreadsheet::ParseExcel prior to the 1.0 release.
 
 {{$NEXT}}
 	
-	+ fixed several travis-ci fails mostly due to os differences and imported classes
+	! fixed several travis-ci fails mostly due to os differences and imported classes
 	+ Finished the main Spreadsheet::Reader::ExcelXML pod (documentation)
 
 v0.1_1    2016-05-05 05:42:17-07:00 America/Los_Angeles (TRIAL RELEASE)

@@ -16,14 +16,13 @@ use Carp qw( confess longmess );
 use Clone qw( clone );
 use Data::Dumper;
 use Encode qw( encode decode );
-use IO::Handle 1.35;
+use IO::Handle 1.25;
 use IO::File 1.16;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
 ###LogSD	use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::ExcelXML::Types qw( IOFileType );
-#~ use Spreadsheet::Reader::ExcelXML::Workbook;
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
 
