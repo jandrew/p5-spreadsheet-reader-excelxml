@@ -456,11 +456,11 @@ B<Example:> name_the_workbook_uses_to_access_the_method => B<Link to the default
 
 get_formatter_region => L<Spreadsheet::Reader::FmtDefault/get_excel_region>
 
-has_target_encoding => L<Spreadsheet::Reader::Format/has_target_encoding>
+has_target_encoding => L<Spreadsheet::Reader::FmtDefault/has_target_encoding>
 
-get_target_encoding => L<Spreadsheet::Reader::Format/get_target_encoding>
+get_target_encoding => L<Spreadsheet::Reader::FmtDefault/get_target_encoding>
 
-set_target_encoding => L<Spreadsheet::Reader::Format/set_target_encoding( $encoding )>
+set_target_encoding => L<Spreadsheet::Reader::FmtDefault/set_target_encoding( $encoding )>
 
 change_output_encoding => L<Spreadsheet::Reader::Format/change_output_encoding( $string )>
 

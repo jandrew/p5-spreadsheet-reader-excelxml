@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.1_35');
+use version 0.77; our $VERSION = version->declare('v0.1_37');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;

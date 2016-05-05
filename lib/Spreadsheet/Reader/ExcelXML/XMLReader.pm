@@ -118,7 +118,7 @@ sub start_the_file_over{
 	$self->_set_position_stack( [] );
 	
 	# Start at the beginning
-	$self->_seek(0, 0);
+	$self->seek(0, 0);
 	###LogSD	$phone->talk( level => 'debug', message =>[ "The object is reset" ] );
 	
 	#start reading
@@ -2030,7 +2030,7 @@ B<Returns:> a perl data structure with the xml organization removed
 
 =over
 
-B<Definition:> This will build an xml file and load it to a L<File::Temp> qw/ :seekable / 
+B<Definition:> This will build an xml file and load it to a L<IO::Handle>-E<gt>new_tmpfile 
 object.  The xml is built on whole extracted xml strings defined by @node_list.  
 If none of the node list elements is found in the parsed file then the first 
 listed element from the node list will be used to create an empty self closing 
