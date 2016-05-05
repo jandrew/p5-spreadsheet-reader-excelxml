@@ -17,7 +17,7 @@ use Clone qw( clone );
 use Data::Dumper;
 use Encode qw( encode decode );
 use IO::Handle 1.25;
-use IO::File 1.16;
+use IO::File 1.14;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;

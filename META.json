@@ -16,14 +16,14 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "IO::File" : "1.16",
+            "IO::File" : "1.14",
             "IO::Handle" : "1.25"
          }
       },
       "configure" : {
          "requires" : {
             "ExtUtils::MakeMaker" : "7.04",
-            "IO::File" : "1.16",
+            "IO::File" : "1.14",
             "IO::Handle" : "1.25",
             "MooseX::ShortCut::BuildInstance" : "1.040",
             "Spreadsheet::Reader::Format" : "1.002"
@@ -39,7 +39,7 @@
             "DateTime::Format::Flexible" : "0",
             "DateTimeX::Format::Excel" : "0",
             "Encode" : "0",
-            "IO::File" : "1.16",
+            "IO::File" : "1.14",
             "IO::Handle" : "1.25",
             "Modern::Perl" : "0",
             "Moose" : "0",
@@ -65,7 +65,7 @@
          "requires" : {
             "File::Copy" : "0",
             "File::Temp" : "0",
-            "IO::File" : "1.16",
+            "IO::File" : "1.14",
             "IO::Handle" : "1.25",
             "Spreadsheet::ParseExcel" : "0",
             "Test::Moose" : "0",

@@ -5,7 +5,7 @@ author:
 build_requires:
   File::Copy: '0'
   File::Temp: '0'
-  IO::File: '1.16'
+  IO::File: '1.14'
   IO::Handle: '1.25'
   Spreadsheet::ParseExcel: '0'
   Test::Moose: '0'
@@ -13,7 +13,7 @@ build_requires:
   Test::TypeTiny: '0'
 configure_requires:
   ExtUtils::MakeMaker: '7.04'
-  IO::File: '1.16'
+  IO::File: '1.14'
   IO::Handle: '1.25'
   MooseX::ShortCut::BuildInstance: '1.040'
   Spreadsheet::Reader::Format: '1.002'
@@ -127,7 +127,7 @@ requires:
   DateTime::Format::Flexible: '0'
   DateTimeX::Format::Excel: '0'
   Encode: '0'
-  IO::File: '1.16'
+  IO::File: '1.14'
   IO::Handle: '1.25'
   Modern::Perl: '0'
   Moose: '0'
