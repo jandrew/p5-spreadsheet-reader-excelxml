@@ -20,7 +20,7 @@ BEGIN{
 	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
 }
 $| = 1;
-use	Test::Most tests => 144;
+use	Test::Most tests => 143;
 use	Test::Moose;
 use Data::Dumper;
 use	lib	'../../../../Log-Shiras/lib',
@@ -310,7 +310,7 @@ my  		@class_methods = qw(
 				new						import					parse
 				error					set_error				clear_error				set_warnings
 				should_spew_longmess	spewing_longmess		if_warn					has_error
-				get_error_inst			has_error_inst			set_formatter_inst		get_excel_region
+				get_error_inst			has_error_inst			set_formatter_inst
 				
 				get_formatter_region	has_target_encoding		get_target_encoding		set_workbook_for_formatter
 				set_target_encoding		change_output_encoding	get_defined_conversion	set_defined_excel_formats

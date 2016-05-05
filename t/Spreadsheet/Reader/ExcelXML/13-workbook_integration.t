@@ -20,7 +20,7 @@ BEGIN{
 	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
 }
 $| = 1;
-use	Test::Most tests => 159;
+use	Test::Most tests => 158;
 use	Test::Moose;
 use Data::Dumper;
 use	MooseX::ShortCut::BuildInstance v1.40 qw( build_instance );#
@@ -350,7 +350,7 @@ my  		@class_methods = qw(
 				get_formatter_region			has_target_encoding				get_target_encoding
 				set_target_encoding				change_output_encoding			set_defined_excel_formats
 				get_defined_conversion			parse_excel_format_string		set_date_behavior
-				set_european_first				set_formatter_cache_behavior	get_excel_region
+				set_european_first				set_formatter_cache_behavior	build_workbook
 				set_file						counting_from_zero				boundary_flag_setting
 				is_empty_the_end				get_values_only					starts_at_the_edge
 				get_group_return_type			get_empty_return_type			cache_positions
@@ -365,7 +365,7 @@ my  		@class_methods = qw(
 				modified_by						date_created					date_modified
 				has_shared_strings_interface	get_shared_string				start_the_ss_file_over
 				has_styles_interface			get_format						start_at_the_beginning
-				in_the_list						demolish_the_workbook			build_workbook
+				in_the_list						demolish_the_workbook			
 			);# It makes a lot of sense not to pass all of these to the top level
 ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space => 'main', );
 ###LogSD		$phone->talk( level => 'info', message => [ "easy questions ..." ] );

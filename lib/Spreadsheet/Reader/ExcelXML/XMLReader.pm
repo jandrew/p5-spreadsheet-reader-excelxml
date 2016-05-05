@@ -16,6 +16,7 @@ use Carp qw( confess longmess );
 use Clone qw( clone );
 use Data::Dumper;
 use Encode qw( encode decode );
+use IO::Handle;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;

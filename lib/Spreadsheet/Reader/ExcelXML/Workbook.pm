@@ -250,11 +250,11 @@ has formatter_inst =>(
 							set_date_behavior				set_date_behavior
 							set_european_first				set_european_first
 							set_formatter_cache_behavior	set_cache_behavior
-							get_excel_region				get_excel_region
 							set_workbook_for_formatter		set_workbook_inst
 						),
 					},
 	);
+							#~ get_excel_region				get_excel_region
 
 has file =>(
 		isa			=> XLSXFile|IOFileType,

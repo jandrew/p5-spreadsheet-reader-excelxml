@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.1_1');
+use version 0.77; our $VERSION = version->declare('v0.1_3');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -686,15 +686,12 @@ as;
 	
 	( should_warn => 0 )
 
-B<Range:> The minimum list of methods to implement for your own instance is;
-
-	error set_error clear_error set_warnings if_warn should_spew_longmess spewing_longmess
-	
-The error instance must be able to extract the error string from a passed error 
+B<Range:> See the 'Exported methods' section below for methods required by the workbook.  
+The error instance must also be able to extract the error string from a passed error 
 object as well.  For now the current implementation will attempt ->as_string first 
 and then ->message if an object is passed.
 
-B<attribute methods> Methods provided to adjust this attribute
+B<attribute methods> Methods provided to manage this attribute
 
 =over
 
@@ -714,7 +711,9 @@ B<Definition:> indicates in the error instance has been set
 
 =back
 
-Additionally the following methods are exported (delegated) to the workbook level 
+B<Exported methods:>
+
+The following methods are exported (delegated) to the workbook level 
 from the stored instance of this class.  Links are provided to the default implemenation;
 
 =over
@@ -750,12 +749,12 @@ a role that interprets the excel L<format string
 into a L<Type::Tiny> coercion.  The default case is actually built from a number of 
 different elements using L<MooseX::ShortCut::BuildInstance> on the fly so you can 
 just call out the replacement base class or role rather than fully building 
-the formatter prior to calling new.  However the naming of the interface
+the formatter prior to calling new on the workbook.  However the naming of the interface
 |http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> is locked and should not be 
-tampered with since it manages the method to be imported into the workbook;
+tampered with since it manages the methods to be imported into the workbook;
 
 B<Default> An instance built with L<MooseX::ShortCut::BuildInstance> from the following 
-arguments
+arguments (note the instance itself is not built here)
 	{
 		superclasses => ['Spreadsheet::Reader::ExcelXML::FmtDefault'], # base class
 		add_roles_in_sequence =>[qw(
@@ -765,11 +764,11 @@ arguments
 		package => 'FormatInstance', # a formality more than anything
 	}
 
-B<Range:> It is not reccomended to replace the interface since that is where the formatter 
-requirements are managed.  To replace the base class, or core role you must provide all the 
-delegated methods available to the workbook.
+B<Range:> A replacement formatter instance or a set of arguments that will lead to building an acceptable 
+formatter instance.  See the 'Exported methods'section below for all methods required methods for the 
+workbook.  The FormatInterface is required by name so a replacement of that role requires the same name.
 
-B<attribute methods> Methods provided to adjust this attribute
+B<attribute methods> Methods provided to manage this attribute
 
 =over
 
@@ -789,25 +788,43 @@ B<Definition:> sets the formatter instance
 
 =back
 
+B<Exported methods:>
+
 Additionally the following methods are exported (delegated) to the workbook level 
 from the stored instance of this class.  Links are provided to the default implemenation;
 
 =over
 
-Example U<Link to the source of the method> => name_the_workbook_uses_to_access_the_method
+B<Example:> name_the_workbook_uses_to_access_the_method => B<Link to the default source of the method> 
 
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/get_excel_region> => get_formatter_region
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/has_target_encoding> => has_target_encoding
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/get_target_encoding> => get_target_encoding
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/set_target_encoding> => set_target_encoding
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/change_output_encoding> => change_output_encoding
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/set_defined_excel_formats> => set_defined_excel_formats
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/get_defined_conversion> => get_defined_conversion
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/parse_excel_format_string> => parse_excel_format_string
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/set_date_behavior> => set_date_behavior
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/set_european_first> => set_european_first
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/set_cache_behavior> => set_formatter_cache_behavior
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/get_excel_region> => get_excel_region
+get_formatter_region => L<Spreadsheet::Reader::FmtDefault/get_excel_region>
+
+has_target_encoding => L<Spreadsheet::Reader::Format/has_target_encoding>
+
+get_target_encoding => L<Spreadsheet::Reader::Format/get_target_encoding>
+
+set_target_encoding => L<Spreadsheet::Reader::Format/set_target_encoding( $encoding )>
+
+change_output_encoding => L<Spreadsheet::Reader::Format/change_output_encoding( $string )>
+
+set_defined_excel_formats => L<Spreadsheet::Reader::FmtDefault/set_defined_excel_formats>
+
+get_defined_conversion => L<Spreadsheet::Reader::Format/get_defined_conversion( $position )>
+
+parse_excel_format_string => L<Spreadsheet::Reader::Format/parse_excel_format_string( $string, $name )>
+
+set_date_behavior => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_date_behavior>
+
+set_european_first => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_european_first>
+
+set_formatter_cache_behavior => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_cache_behavior>
+
+get_excel_region => L<Spreadsheet::Reader::FmtDefault/get_excel_region>
+
+							set_european_first				set_european_first
+							set_formatter_cache_behavior	set_cache_behavior
+							get_excel_region				get_excel_region
+							set_workbook_for_formatter		set_workbook_inst
 
 =back
 
