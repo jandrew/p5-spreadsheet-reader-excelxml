@@ -1,4 +1,5 @@
 #########1 Test File for Spreadsheet::Reader::ExcelXML::Types         7#########8#########9
+#!/usr/bin/env perl
 my ( $lib, $test_file );
 BEGIN{
 	$ENV{PERL_TYPE_TINY_XS} = 0;
@@ -15,10 +16,12 @@ BEGIN{
 		$lib		= '../../../../' . $lib;
 		$test_file	= '../../../test_files/';
 	}
+	use Carp 'longmess';
+	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
 }
 $| = 1;
 
-use	Test::Most tests => 49;
+use	Test::Most tests => 31;
 use	Test::TypeTiny;
 #~ use	Test::Moose;
 use Data::Dumper;
@@ -42,21 +45,20 @@ use	lib
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
 use Spreadsheet::Reader::ExcelXML::Types v0.1 qw(
-		XMLFile						XLSXFile					
-		NegativeNum					ZeroOrUndef					NotNegativeNum
+		XMLFile						XLSXFile					SpecialZeroScientific
 		IOFileType					ErrorString					CellID
-		PositiveNum					Excel_number_0				SpecialZeroScientific
 		to_SpecialZeroScientific	SpecialOneScientific		to_SpecialOneScientific
 		SpecialTwoScientific		to_SpecialTwoScientific		SpecialThreeScientific
 		to_SpecialThreeScientific	SpecialFourScientific		to_SpecialFourScientific
 		SpecialFiveScientific		to_SpecialFiveScientific	SpecialDecimal
 		to_SpecialDecimal
-	);#PassThroughType FileName EpochYear 
+	);#PassThroughType FileName EpochYear 				
+		#~ NegativeNum					ZeroOrUndef					NotNegativeNum
+		#~ PositiveNum					Excel_number_0				
 my	@types_list = (
-		XLSXFile,					XMLFile	,										
-		CellID,						PositiveNum,				NegativeNum,
-		ZeroOrUndef,				NotNegativeNum,				IOFileType,
-		ErrorString,
+		XLSXFile,					XMLFile	,					CellID,
+		IOFileType,					ErrorString,
+		
 	);#PassThroughType,			FileName,					EpochYear,
 my	$test_dir	= ( @ARGV ) ? $ARGV[0] : $test_file;
 my	$xlsx_file	= $test_dir . 'TestBook.xlsx';
@@ -72,10 +74,6 @@ my			$question_ref =[
 				[ $xlsx_file, $file_handle, $fh, 'badfile.not',],# XLSXFile
 				[ $xml_file, 'badfile.not',],#~ XMLFile
 				[ 'A1', 'CCC10000', 'A0' ],#~ CellID
-				[ 1, 2, 0.1234, -3 ], #~ PositiveNum
-				[ -1, -2, -0.1234, 0 ],#~ NegativeNum
-				[ 0, undef, 's', 2 ],#~ ZeroOrUndef
-				[ 1, 2, 0.1234, 0, -1],#~ NotNegativeNum
 				[ $fh, $file_handle, $xlsx_file, $xml_file, $real_file],#~ IOFileType
 				[ 'Watch out world', WithErrorString->new, WithErrorMessage->new ],#~ ErrorString
 				#~ Excel_number_0?
@@ -87,12 +85,6 @@ my			$answer_ref = [
 					qr/The string -badfile.not- does not have an xlsx|xlsm|xml file extension/, ],
 				[undef, qr/The string -badfile.not- does not have an xml file extension/, ],
 				[undef, undef, qr/Value "A0" did not pass type constraint "CellID"/, ],
-				[undef, undef, undef, qr/Value "-3" did not pass type constraint "PositiveNum"/, ],
-				[undef, undef, undef, qr/Value "0" did not pass type constraint "NegativeNum"/, ],
-				[	undef, undef,
-					qr/Value "s" did not pass type constraint "ZeroOrUndef"/,
-					qr/Value "2" did not pass type constraint "ZeroOrUndef"/, ],
-				[undef, undef, undef, undef, qr/Value "-1" did not pass type constraint "NotNegativeNum"/, ],
 				[undef, undef, undef, undef, qr/badfile\.is" did not pass type constraint "IOFileType"/, ],
 				[undef, undef, undef, ],
 			];
@@ -134,8 +126,6 @@ is			$type_error, undef,
 			}
 			}
 			}
-ok			Excel_number_0->assert_coerce( 'jabberwoky' ),
-							"A run on the Excel_number_0 coercion";
 is			to_SpecialZeroScientific( 5.00000000000001e-006 ), '5E-06',
 							"Test the processing of SpecialZeroScientific";
 is			SpecialZeroScientific->assert_coerce( 5.00000000000001e-006 ), '5E-06',

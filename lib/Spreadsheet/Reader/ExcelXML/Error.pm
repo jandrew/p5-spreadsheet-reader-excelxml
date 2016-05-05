@@ -6,12 +6,8 @@ use Moose;
 use Carp qw( cluck longmess );
 use MooseX::StrictConstructor;
 use MooseX::HasDefaults::RO;
-use Types::Standard qw(
-		Str
-		Bool
-    );
-#~ use Devel::StackTrace;
-use lib	'../../../../../lib',;
+use Types::Standard qw( Str Bool );
+use lib	'../../../../lib',;
 use Spreadsheet::Reader::ExcelXML::Types qw( ErrorString );
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
@@ -23,6 +19,7 @@ has error_string =>(
 		clearer		=> 'clear_error',
 		reader		=> 'error',
 		writer		=> 'set_error',
+		predicate	=> 'has_error',
 		init_arg 	=> undef,
 		coerce		=> 1,
 		trigger	=> sub{
@@ -41,9 +38,8 @@ has error_string =>(
 				warn "$error_string\n";
 			}
 		},
-		predicate => 'has_error',
 	);
-
+	
 has should_warn =>(
 		isa		=> Bool,
 		default	=> 0,
@@ -89,41 +85,41 @@ Spreadsheet::Reader::ExcelXML::Error - Moose class for remembering the last erro
 	
     #!/usr/bin/env perl
     $|=1;
-    use MooseX::ShortCut::BuildInstance qw( build_instance );
-    use Spreadsheet::XLSX::Reader::LibXML::Error;
+	use MooseX::ShortCut::BuildInstance qw( build_instance );
+	use Spreadsheet::Reader::ExcelXML::Error;
 
-    my  $action = build_instance(
-            add_attributes =>{ 
-                error_inst =>{
-                    handles =>[ qw( error set_error clear_error set_warnings if_warn ) ],
-                },
-            },
-			error_inst => Spreadsheet::XLSX::Reader::LibXML::Error->new(
+	my 	$action = build_instance(
+			add_attributes =>{ 
+				error_inst =>{
+					handles =>[ qw( error set_error clear_error set_warnings if_warn ) ],
+				},
+			},
+			error_inst => Spreadsheet::Reader::ExcelXML::Error->new(
 				should_warn => 1,# 0 to turn off cluck when the error is set
 			),
-        );
-    print $action->dump;
-          $action->set_error( "You did something wrong" );
-    print $action->dump;
-    print $action->error . "\n";
+		);
+	print	$action->dump;
+			$action->set_error( "You did something wrong" );
+	print	$action->dump;
+	print	$action->error . "\n";
 	
     ##############################################################################
     # SYNOPSIS Screen Output
     # 01: $VAR1 = bless( {
     # 02:             'error_inst' => bless( {
     # 03:                                 'should_warn' => 1,
-    # 04:                                 'log_space' => 'Spreadsheet::XLSX::Reader::LogSpace'
-    # 04:                             }, 'Spreadsheet::XLSX::Reader::Error' )
+    # 04:                                 'spew_longmess' => 1
+    # 04:                             }, 'Spreadsheet::Reader::ExcelXML::Error' )
     # 05:         }, 'ANONYMOUS_SHIRAS_MOOSE_CLASS_1' );
-    # 06: You did something wrong at ~~lib/Spreadsheet/XLSX/Reader/LibXML/Error.pm line 31.
-    # 08:    Spreadsheet::XLSX::Reader::Error::__ANON__('Spreadsheet::XLSX::Reader::Error=HASH(0x45e818)', 'You did something wrong') called at writer Spreadsheet::XLSX::Reader::Error::set_error of attribute error_string (defined at ../lib/Spreadsheet/XLSX/Reader/Error.pm line 42) line 13
-    # 09:    Spreadsheet::XLSX::Reader::Error::set_error('Spreadsheet::XLSX::Reader::Error'=HASH(0x45e818)', 'You did something wrong') called at C:/strawberry/perl/site/lib/Moose/Meta/Method/Delegation.pm line 110
-    # 10:    ANONYMOUS_SHIRAS_MOOSE_CLASS_1::set_error('ANONYMOUS_SHIRAS_MOOSE_CLASS_1=HASH(0x45e890)', 'You did something wrong') called at error_example.pl line 18
-    # 11: $VAR1 = bless( {
-    # 12:             'error_inst' => bless( {
-    # 13:                                 'should_warn' => 1,
-    # 14:                                 'error_string' => 'You did something wrong'
-    # 15:                             }, 'Spreadsheet::XLSX::Reader::Error' )
+    # 06: You did something wrong at ~~error_string (defined at ../../../../lib/Spreadsheet/Reader/ExcelXML/Error.pm line 43) line 13.
+    # 08:    Spreadsheet::Reader::ExcelXML::Error::::set_error(Spreadsheet::Reader::ExcelXML::Error=HASH(0x31e398), "You did something wrong") called at ~~ line 110
+    # 09:    ANONYMOUS_SHIRAS_MOOSE_CLASS_1::set_error(ANONYMOUS_SHIRAS_MOOSE_CLASS_1=HASH(0x3300f0), "You did something wrong") called at error_example.pl line 18
+    # 10: $VAR1 = bless( {
+    # 11:             'error_inst' => bless( {
+    # 12:                                 'should_warn' => 1,
+    # 13:                                 'error_string' => 'You did something wrong'
+    # 14:                                 'spew_longmess' => 1,
+    # 15:                             }, 'Spreadsheet::Reader::ExcelXML::Error' )
     # 16:         }, 'ANONYMOUS_SHIRAS_MOOSE_CLASS_1' );
     # 17: You did something wrong
     ##############################################################################
@@ -132,9 +128,9 @@ Spreadsheet::Reader::ExcelXML::Error - Moose class for remembering the last erro
 
 This documentation is written to explain ways to use this module when writing your own excel 
 parser.  To use the general package for excel parsing out of the box please review the 
-documentation for L<Workbooks|Spreadsheet::XLSX::Reader::LibXML>,
-L<Worksheets|Spreadsheet::XLSX::Reader::LibXML::Worksheet>, and 
-L<Cells|Spreadsheet::XLSX::Reader::LibXML::Cell>
+documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This L<Moose> class contains two L<attributes|Moose::Manual::Attributes>.  It is intended 
 to be used through (by) L<delegation|Moose::Manual::Delegation> in other classes.  The first 
@@ -258,8 +254,8 @@ B<Definition:> Returns the current setting of this attribute
 
 =over
 
-L<github Spreadsheet::XLSX::Reader::LibXML/issues
-|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML/issues>
+L<github Spreadsheet::Reader::ExcelXML/issues
+|https://github.com/jandrew/p5-spreadsheet-reader-excelxml/issues>
 
 =back
 
@@ -269,6 +265,7 @@ L<github Spreadsheet::XLSX::Reader::LibXML/issues
 
 B<1.> get clases in this package to return error numbers and or error strings and 
 then provide opportunity for this class to localize.
+
 B<2.> Get the @CARP_NOT section to work and skip most of the Moose level reporting
 
 =back
@@ -291,25 +288,13 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-This software is copyrighted (c) 2014, 2015 by Jed Lund
+This software is copyrighted (c) 2016 by Jed Lund
 
 =head1 DEPENDENCIES
 
 =over
 
-L<version> - 0.77
-
-L<Moose>
-
-L<Carp> - cluck
-
-L<MooseX::StrictConstructor>
-
-L<MooseX::HasDefaults::RO>
-
-L<Types::Standard>
-
-L<Spreadsheet::XLSX::Reader::LibXML::Types> - v0.34
+L<Spreadsheet::Reader::ExcelXML> - the package
 
 =back
 
@@ -317,11 +302,13 @@ L<Spreadsheet::XLSX::Reader::LibXML::Types> - v0.34
 
 =over
 
-L<Spreadsheet::ParseExcel> - Excel 2003 and earlier
+L<Spreadsheet::Read> - generic Spreadsheet reader
 
-L<Spreadsheet::XLSX> - 2007+
+L<Spreadsheet::ParseExcel> - Excel binary version 2003 and earlier (.xls files)
 
-L<Spreadsheet::ParseXLSX> - 2007+
+L<Spreadsheet::XLSX> - Excel version 2007 and later
+
+L<Spreadsheet::ParseXLSX> - Excel version 2007 and later
 
 L<Log::Shiras|https://github.com/jandrew/Log-Shiras>
 

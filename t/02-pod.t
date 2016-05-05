@@ -12,6 +12,8 @@ for my $next ( <*> ){
 }
 pod_file_ok( $up . 	'README.pod',
 						"The README file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML.pm',
+						"The Spreadsheet::Reader::ExcelXML file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Cell.pm',
 						"The Spreadsheet::Reader::ExcelXML::Cell file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/CellToColumnRow.pm',
@@ -20,12 +22,6 @@ pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Chartsheet.pm',
 						"The Spreadsheet::Reader::ExcelXML::Chartsheet file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Error.pm',
 						"The Spreadsheet::Reader::ExcelXML::Error file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/FmtDefault.pm',
-						"The Spreadsheet::Reader::ExcelXML::FmtDefault file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/FormatInterface.pm',
-						"The Spreadsheet::Reader::ExcelXML::FormatInterface file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ParseExcelFormatStrings.pm',
-						"The Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Row.pm',
 						"The Spreadsheet::Reader::ExcelXML::Row file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/SharedStrings.pm',
@@ -34,6 +30,8 @@ pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Styles.pm',
 						"The Spreadsheet::Reader::ExcelXML::Styles file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Types.pm',
 						"The Spreadsheet::Reader::ExcelXML::Types file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Workbook.pm',
+						"The Spreadsheet::Reader::ExcelXML::Workbook file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/WorkbookFileInterface.pm',
 						"The Spreadsheet::Reader::ExcelXML::WorkbookFileInterface file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/WorkbookMetaInterface.pm',
@@ -48,20 +46,32 @@ pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/WorksheetToRow.pm',
 						"The Spreadsheet::Reader::ExcelXML::WorksheetToRow file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader.pm',
 						"The Spreadsheet::Reader::ExcelXML::XMLReader file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLToPerlData.pm',
-						"The Spreadsheet::Reader::ExcelXML::XMLToPerlData file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/ExtractFile.pm',
-						"The Spreadsheet::Reader::ExcelXML::XMLReader::ExtractFile file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/FileWorksheet.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/NamedSharedStrings.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/NamedStyles.pm',
 						"The Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/NamedWorksheet.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/PositionSharedStrings.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/PositionStyles.pm',
 						"The Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/WorkbookMeta.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/WorkbookProps.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookProps file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/WorkbookRels.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/XMLReader/WorkbookXML.pm',
+						"The Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML file has good POD" );
 pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ZipReader.pm',
 						"The Spreadsheet::Reader::ExcelXML::ZipReader file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ZipReader/ExtractFile.pm',
-						"The Spreadsheet::Reader::ExcelXML::ZipReader::ExtractFile file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/Workbook.pm',
-						"The Spreadsheet::Reader::ExcelXML::Workbook file has good POD" );
-pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML.pm',
-						"The Spreadsheet::Reader::ExcelXML file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ZipReader/WorkbookMeta.pm',
+						"The Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ZipReader/WorkbookRels.pm',
+						"The Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels file has good POD" );
+pod_file_ok( $up . 	'lib/Spreadsheet/Reader/ExcelXML/ZipReader/WorkbookProps.pm',
+						"The Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps file has good POD" );
 done_testing();

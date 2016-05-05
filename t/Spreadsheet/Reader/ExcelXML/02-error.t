@@ -1,6 +1,10 @@
 #########1 Test File for Spreadsheet::Reader::ExcelXML::Error         7#########8#########9
 #!/usr/bin/env perl
-BEGIN{ $ENV{PERL_TYPE_TINY_XS} = 0; }
+BEGIN{ 
+	$ENV{PERL_TYPE_TINY_XS} = 0;
+	#~ use Carp 'longmess';
+	#~ $SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
+}
 $| = 1;
 
 use	Test::Most tests => 12;

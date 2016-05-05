@@ -1,16 +1,21 @@
-#########1 Test File for Spreadsheet::XLSX::Reader::LibXML::CellToColumnRow     8#########9
-#!env perl
-BEGIN{ $ENV{PERL_TYPE_TINY_XS} = 0; };
+#########1 Test File for Spreadsheet::Reader::ExcelXML::CellToColumnRow         8#########9
+#!/usr/bin/env perl
+my ( $lib, $test_file );
+BEGIN{ 
+	$ENV{PERL_TYPE_TINY_XS} = 0;
+	use Carp 'longmess';
+	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
+};
 $| = 1;
 
-use	Test::Most tests => 79;
+use	Test::Most tests => 81;
 use	Test::Moose;
 use	MooseX::ShortCut::BuildInstance qw( build_instance should_re_use_classes );
 should_re_use_classes( 1 );
 use Types::Standard qw( Bool );
 use	lib
-		'../../../../../../Log-Shiras/lib',
-		'../../../../../lib',;
+		'../../../../../Log-Shiras/lib',
+		'../../../../lib',;
 #~ use Log::Shiras::Switchboard qw( :debug );#
 ###LogSD	my	$operator = Log::Shiras::Switchboard->get_operator(#
 ###LogSD						name_space_bounds =>{
@@ -24,8 +29,8 @@ use	lib
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
 ###LogSD	use Log::Shiras::UnhideDebug;
-use	Spreadsheet::XLSX::Reader::LibXML::CellToColumnRow;
-use	Spreadsheet::XLSX::Reader::LibXML::Error;
+use	Spreadsheet::Reader::ExcelXML::CellToColumnRow;
+use	Spreadsheet::Reader::ExcelXML::Error;
 ###LogSD	use	Log::Shiras::LogSpace;
 my  ( 
 			$test_instance,
@@ -33,8 +38,8 @@ my  (
 my  		@class_attributes = qw(
 			);
 my  		@class_methods = qw(
-				parse_column_row
-				build_cell_label
+				parse_column_row	build_cell_label	get_used_position
+				get_excel_position	
 			);
 my			$question_ref =[
 				'A1', 'B1','C1','D1','E1', 'F1','G1','H1',
@@ -90,15 +95,15 @@ my			$error_ref =[
 ###LogSD		$phone->talk( level => 'info', message => [ "initial questions ..." ] );
 lives_ok{
 			$test_instance = build_instance(
-				package => 'Spreadsheet::XLSX::Reader::LibXML::CellToColumnRow::TestClass',
+				package => 'Spreadsheet::Reader::ExcelXML::CellToColumnRow::TestClass',
 				add_roles_in_sequence =>[ 
 			###LogSD	'Log::Shiras::LogSpace',
-					'Spreadsheet::XLSX::Reader::LibXML::CellToColumnRow',
+					'Spreadsheet::Reader::ExcelXML::CellToColumnRow',
 				],
 				add_attributes =>{ 
 					error_inst =>{
 						handles =>[ qw( error set_error clear_error set_warnings if_warn ) ],
-						default	=>	sub{ Spreadsheet::XLSX::Reader::LibXML::Error->new(
+						default	=>	sub{ Spreadsheet::Reader::ExcelXML::Error->new(
 										#~ should_warn => 1,
 										should_warn => 0,# to turn off cluck when the error is set
 									) },
@@ -117,7 +122,7 @@ lives_ok{
 }										"Prep a new CellToColumnRow instance";
 map{ 
 has_attribute_ok
-			$test_instance, $_,			"Check that Spreadsheet::XLSX::Reader::LibXML::CellToColumnRow has the -$_- attribute"
+			$test_instance, $_,			"Check that Spreadsheet::Reader::ExcelXML::CellToColumnRow has the -$_- attribute"
 } 			@class_attributes;
 map{
 can_ok		$test_instance, $_,

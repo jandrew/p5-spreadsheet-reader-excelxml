@@ -8,16 +8,13 @@ use Type::Utils -all;
 use Type::Library 1.000
 	-base,
 	-declare => qw(
-		XMLFile						XLSXFile															
-		NegativeNum					ZeroOrUndef					NotNegativeNum
+		XMLFile						XLSXFile					CellID
 		IOFileType					ErrorString					SubString
-		CellID						PositiveNum					Excel_number_0
 		SpecialZeroScientific		SpecialOneScientific		SpecialTwoScientific
 		SpecialThreeScientific		SpecialFourScientific		SpecialFiveScientific
 		SpecialDecimal
-	);#
+	);
 use IO::File;
-IO::File->input_record_separator( '<' );# Warning this is global!
 BEGIN{ extends "Types::Standard" };
 my $try_xs =
 		exists($ENV{PERL_TYPE_TINY_XS}) ? !!$ENV{PERL_TYPE_TINY_XS} :
@@ -38,9 +35,9 @@ if( $try_xs and exists $INC{'Type/Tiny/XS.pm'} ){
 	
 declare XMLFile,
 	as Str,
-	where{ $_ =~ /\.xml$/i and -r $_},
+	where{ $_ =~ /\.(xml|rels)$/i and -r $_},
 	message{
-		( $_ !~ /\.xml$/i ) ?
+		( $_ !~ /\.(xml|rels)$/i ) ?
 			"The string -$_- does not have an xml file extension" :
 		( !-r $_ ) ?
 			"Could not find / read the file: $_" :
@@ -66,38 +63,28 @@ declare XLSXFile,
     };
 	
 declare IOFileType,
-	as InstanceOf[ 'IO::File', 'File::Temp' ];
+	as InstanceOf[ 'IO::File' ];#, 'File::Temp'
 	
 coerce IOFileType,
 	from GlobRef,
-	via{  bless $_, 'IO::File' };
+	via{	my $fh = bless( $_, 'IO::File' );
+			$fh->binmode();
+			return $fh;							};
 	
 coerce IOFileType,
 	from XMLFile,
-	via{  IO::File->new( $_, 'r' ); };
+	via{	my $fh = IO::File->new( $_, 'r' );
+			$fh->binmode();
+			return $fh;							};
 	
 coerce IOFileType,
 	from XLSXFile,
-	via{  IO::File->new( $_, 'r' ); };
+	via{	my $fh = IO::File->new( $_, 'r' );
+			$fh->binmode();
+			return $fh;							};
 
 declare CellID,
 	as StrMatch[ qr/^[A-Z]{1,3}[1-9]\d*$/ ];
-	
-declare PositiveNum,
-	as Num,
-	where{ $_ > 0 };
-
-declare NegativeNum,
-	as Num,
-	where{ $_ < 0 };
-	
-declare ZeroOrUndef,
-	as Maybe[Num],
-	where{ !$_ };
-	
-declare NotNegativeNum,
-	as Num,
-	where{ $_ > -1 };
 
 declare SubString,
 	as Str;
@@ -255,13 +242,28 @@ coerce SpecialDecimal,
 		#~ print "$significant_decimal\n";
 		return $significant_decimal;
 	};
+	
+#~ declare PositiveNum,
+	#~ as Num,
+	#~ where{ $_ > 0 };
 
+#~ declare NegativeNum,
+	#~ as Num,
+	#~ where{ $_ < 0 };
+	
+#~ declare ZeroOrUndef,
+	#~ as Maybe[Num],
+	#~ where{ !$_ };
+	
+#~ declare NotNegativeNum,
+	#~ as Num,
+	#~ where{ $_ > -1 };
 
 #########1 Excel Defined Converions     4#########5#########6#########7#########8#########9
 
-declare_coercion Excel_number_0,
-	to_type Any, from Maybe[Any],
-	via{ $_ };
+#~ declare_coercion Excel_number_0,
+	#~ to_type Any, from Maybe[Any],
+	#~ via{ $_ };
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
 
@@ -292,7 +294,7 @@ L<Cells|Spreadsheet::Reader::ExcelXML::Cell>.
 
 This is a L<Type::Library|Type::Tiny::Manual::Libraries> for this package.  There are no 
 real tricks here outside of the standard Type::Tiny stuf.  For the cool number and date 
-formatting implementation see L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings>.
+formatting implementation see L<Spreadsheet::Reader::Format::ParseExcelFormatStrings>.
 
 =head1 TYPES
 
@@ -426,7 +428,7 @@ value
 =over
 
 L<github Spreadsheet::XLSX::Reader::LibXML/issues
-|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML/issues>
+|https://github.com/jandrew/p5-spreadsheet-reader-excelxml/issues>
 
 =back
 
@@ -456,13 +458,13 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-This software is copyrighted (c) 2014, 2015 by Jed Lund
+This software is copyrighted (c) 2016 by Jed Lund
 
 =head1 DEPENDENCIES
 
 =over
 
-L<Spreadsheet::XLSX::Reader::LibXML>
+L<Spreadsheet::Reader::ExcelXML> - the package
 
 =back
 
@@ -470,11 +472,13 @@ L<Spreadsheet::XLSX::Reader::LibXML>
 
 =over
 
-L<Spreadsheet::ParseExcel> - Excel 2003 and earlier
+L<Spreadsheet::Read> - generic Spreadsheet reader
 
-L<Spreadsheet::XLSX> - 2007+
+L<Spreadsheet::ParseExcel> - Excel binary version 2003 and earlier (.xls files)
 
-L<Spreadsheet::ParseXLSX> - 2007+
+L<Spreadsheet::XLSX> - Excel version 2007 and later
+
+L<Spreadsheet::ParseXLSX> - Excel version 2007 and later
 
 L<Log::Shiras|https://github.com/jandrew/Log-Shiras>
 
