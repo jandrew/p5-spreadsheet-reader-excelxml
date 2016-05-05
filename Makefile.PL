@@ -5,33 +5,21 @@
 use strict;
 use warnings;
 
-use 5.010;
+use 5.012;
 use ExtUtils::MakeMaker 7.04;
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Read xml/xlsx based Excel files",
   "AUTHOR" => "Jed Lund <jandrew\@cpan.org>",
-  "BUILD_REQUIRES" => {
-    "IO::File" => "1.14",
-    "IO::Handle" => "1.25",
-    "IO::Seekable" => "1.10"
-  },
   "CONFIGURE_REQUIRES" => {
-    "Archive::Zip" => "1.30",
-    "ExtUtils::MakeMaker" => "7.04",
-    "IO::File" => "1.14",
-    "IO::Handle" => "1.25",
-    "IO::Seekable" => "1.10",
-    "Modern::Perl" => "1.20150127",
-    "MooseX::ShortCut::BuildInstance" => "1.040",
-    "Spreadsheet::Reader::Format" => "1.002"
+    "ExtUtils::MakeMaker" => "7.04"
   },
   "DISTNAME" => "Spreadsheet-Reader-ExcelXML",
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.010",
+  "MIN_PERL_VERSION" => "5.012",
   "NAME" => "Spreadsheet::Reader::ExcelXML",
   "PREREQ_PM" => {
-    "Archive::Zip" => 0,
+    "Archive::Zip" => "1.30",
     "Capture::Tiny" => 0,
     "Carp" => 0,
     "Clone" => 0,
@@ -42,13 +30,13 @@ my %WriteMakefileArgs = (
     "IO::File" => "1.14",
     "IO::Handle" => "1.25",
     "IO::Seekable" => "1.10",
-    "Modern::Perl" => 0,
+    "Modern::Perl" => "1.20150127",
     "Moose" => 0,
     "Moose::Role" => 0,
     "MooseX::HasDefaults::RO" => 0,
     "MooseX::ShortCut::BuildInstance" => "1.040",
     "MooseX::StrictConstructor" => 0,
-    "Spreadsheet::Reader::Format" => 0,
+    "Spreadsheet::Reader::Format" => "1.002",
     "Spreadsheet::Reader::Format::FmtDefault" => 0,
     "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
     "Text::ParseWords" => "3.27",
@@ -63,22 +51,19 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "File::Copy" => 0,
     "File::Temp" => 0,
-    "IO::File" => "1.14",
-    "IO::Handle" => "1.25",
-    "IO::Seekable" => "1.10",
     "Spreadsheet::ParseExcel" => 0,
     "Test::Moose" => 0,
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-  "VERSION" => "v0.1_27",
+  "VERSION" => "v0.1_29",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t"
   }
 );
 
 my %FallbackPrereqs = (
-  "Archive::Zip" => 0,
+  "Archive::Zip" => "1.30",
   "Capture::Tiny" => 0,
   "Carp" => 0,
   "Clone" => 0,
@@ -91,14 +76,14 @@ my %FallbackPrereqs = (
   "IO::File" => "1.14",
   "IO::Handle" => "1.25",
   "IO::Seekable" => "1.10",
-  "Modern::Perl" => 0,
+  "Modern::Perl" => "1.20150127",
   "Moose" => 0,
   "Moose::Role" => 0,
   "MooseX::HasDefaults::RO" => 0,
   "MooseX::ShortCut::BuildInstance" => "1.040",
   "MooseX::StrictConstructor" => 0,
   "Spreadsheet::ParseExcel" => 0,
-  "Spreadsheet::Reader::Format" => 0,
+  "Spreadsheet::Reader::Format" => "1.002",
   "Spreadsheet::Reader::Format::FmtDefault" => 0,
   "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
   "Test::Moose" => 0,

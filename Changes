@@ -10,7 +10,9 @@ NOTE: This software is designated as beta quality until this notice is removed. 
 be method matched to Spreadsheet::ParseExcel prior to the 1.0 release.
 
 {{$NEXT}}
-	
+
+	+ Added perl 5.024 testing
+	! Giving up on 5.010 support for now (Can't get IO::Handle to seek)
 	! fixed several travis-ci fails mostly due to os differences and imported classes
 	+ Finished the main Spreadsheet::Reader::ExcelXML pod (documentation)
 
