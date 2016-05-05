@@ -24,7 +24,6 @@ $| = 1;
 use	Test::Most tests => 106;
 use	Test::Moose;
 use IO::File;
-#~ use XML::LibXML::Reader;
 use	MooseX::ShortCut::BuildInstance qw( build_instance );
 use Types::Standard qw( HasMethods Int Str );
 use	lib

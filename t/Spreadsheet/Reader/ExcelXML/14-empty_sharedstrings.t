@@ -25,7 +25,6 @@ $| = 1;
 use	Test::Most tests => 16;
 use	Test::Moose;
 use IO::File;
-use XML::LibXML::Reader;
 use Data::Dumper;
 use	MooseX::ShortCut::BuildInstance 1.040 qw(
 		build_instance		should_re_use_classes	set_args_cloning
