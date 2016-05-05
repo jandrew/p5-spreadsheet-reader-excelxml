@@ -18,7 +18,8 @@ my %WriteMakefileArgs = (
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "7.04",
     "IO::File" => "1.16",
-    "IO::Handle" => "1.35"
+    "IO::Handle" => "1.35",
+    "MooseX::ShortCut::BuildInstance" => "1.040"
   },
   "DISTNAME" => "Spreadsheet-Reader-ExcelXML",
   "LICENSE" => "perl",

@@ -15,6 +15,7 @@ configure_requires:
   ExtUtils::MakeMaker: '7.04'
   IO::File: '1.16'
   IO::Handle: '1.35'
+  MooseX::ShortCut::BuildInstance: '1.040'
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 5.043, CPAN::Meta::Converter version 2.150005'
 license: perl
