@@ -15,9 +15,6 @@ use Types::Standard qw(
 		ConsumerOf			is_ArrayRef
     );
 use lib	'../../../../lib',;
-#~ use Data::Dumper;
-#~ use	List::Util 1.33;
-#~ use	File::Temp;
 ###LogSD use Log::Shiras::Telephone;
 ###LogSD use Log::Shiras::UnhideDebug;
 use	MooseX::ShortCut::BuildInstance 1.040 qw(
@@ -900,7 +897,7 @@ sub _build_file_interface{
 		#~ $built_instance->set_workbook_inst( $self );
 		return $built_instance;
 	}else{
-		$self->set_error( "Unable to load XML::LibXML with the attribute: $interface_type" );
+		$self->set_error( "Unable to load Spreadsheet::Reader::ExcelXML::XMLReader with the attribute: $interface_type" );
 		return undef;
 	}
 }

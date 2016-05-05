@@ -13,8 +13,8 @@ BEGIN{
 		}
 	}
 	if( $start_deeper ){
-		$lib		= '../../../../' . $lib;
-		$test_file	= '../../../test_files/'
+		$lib		= '../../../' . $lib;
+		$test_file	= '../../test_files/'
 	}
 	use Carp 'longmess';
 	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
@@ -24,8 +24,7 @@ $| = 1;
 use	Test::Most tests => 120;
 use	Test::Moose;
 use Data::Dumper;
-use	lib	'../../../../../Log-Shiras/lib',
-		'../../../../lib',
+use	lib	'../../../../Log-Shiras/lib',
 		$lib,
 	;
 #~ use Log::Shiras::Switchboard v0.21 qw( :debug );#
@@ -121,7 +120,7 @@ lives_ok{
 			$parser->set_warnings( 1 );
 }										"Prep a test parser instance";
 ###LogSD		$phone->talk( level => 'trace', message => [ "$parser:", $parser ] );
-like			$parser->error(), qr/Unable to load XML::LibXML with the attribute: shared_strings_interface/,
+like			$parser->error(), qr/Unable to load Spreadsheet::Reader::ExcelXML::XMLReader with the attribute: shared_strings_interface/,
 										"Write any error messages from the file load";
 ok			@worksheets = $workbook->worksheets(),
 										"Loaded worksheet objects ok";
