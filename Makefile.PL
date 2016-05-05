@@ -16,6 +16,7 @@ my %WriteMakefileArgs = (
     "IO::Handle" => "1.25"
   },
   "CONFIGURE_REQUIRES" => {
+    "Archive::Zip" => "1.30",
     "ExtUtils::MakeMaker" => "7.04",
     "IO::File" => "1.14",
     "IO::Handle" => "1.25",
@@ -65,7 +66,7 @@ my %WriteMakefileArgs = (
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-  "VERSION" => "v0.1_19",
+  "VERSION" => "v0.1_23",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t"
   }
