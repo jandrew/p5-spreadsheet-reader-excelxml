@@ -20,6 +20,7 @@ my %WriteMakefileArgs = (
     "ExtUtils::MakeMaker" => "7.04",
     "IO::File" => "1.14",
     "IO::Handle" => "1.25",
+    "Modern::Perl" => "1.20150127",
     "MooseX::ShortCut::BuildInstance" => "1.040",
     "Spreadsheet::Reader::Format" => "1.002"
   },
@@ -66,7 +67,7 @@ my %WriteMakefileArgs = (
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-  "VERSION" => "v0.1_23",
+  "VERSION" => "v0.1_25",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t"
   }
