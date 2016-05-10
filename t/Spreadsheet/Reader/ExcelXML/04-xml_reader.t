@@ -72,9 +72,9 @@ my  		@class_methods = qw(
 				has_position					get_file_type					start_the_file_over
 				parse_element					advance_element_position		next_sibling
 				skip_siblings					squash_node						current_named_node
-				is_end_of_file					extract_file					current_node_parsed
-				has_nodes
-			);############# No checking for delegated workbook methods! -> must be certified in requires for roles
+				extract_file					current_node_parsed				not_end_of_file
+				collecting_merge_data
+			);############# No checking for delegated workbook methods! -> must be certified in requires for roles    is_end_of_file					
 my			$answer_ref = [
 				{	
 					'list' =>[ { 'raw_text' => 'Hello' } ],
@@ -390,8 +390,8 @@ is_deeply	$test_ref, $answer_ref->[$_],
 			}( 0..16);
 ok			$test_instance->start_the_file_over,
 										'Test re-starting the file';
-ok			$test_instance->advance_element_position( 'si', 16 ),
-										"Advance to the 16th 'si' position";# exit 1;
+is(			($test_instance->advance_element_position( 'si', 16 ))[0], 1,
+										"Advance to the 16th 'si' position");# exit 1;
 			my $test_ref = $test_instance->parse_element;
 #~ explain		$test_ref;# exit 1;
 is_deeply	$test_ref, $answer_ref->[15], 
@@ -413,23 +413,34 @@ is_deeply	$test_ref, $answer_ref->[17],
 										"Check for the correct result after 'squash_node'";
 ok			$test_instance->start_the_file_over,
 										'Test re-starting the file';
-ok			$test_instance->advance_element_position( 'si', 16 ),
-										"Advance to the 16th 'si' position";
+ok(			($test_instance->advance_element_position( 'si', 16 ))[0],
+										"Advance to the 16th 'si' position");
 			$test_ref = $test_instance->parse_element( 2 );
 #~ explain		$test_ref; exit 1;
 is_deeply	$test_ref, $answer_ref->[18], 
 										"Test matching 'si' position -15- (from zero) to a depth of: 2";
 ok			$test_instance->start_the_file_over,
 										'Test re-starting the file';
-ok			$test_instance->advance_element_position( 'b', 2 ),
-										"Advance to the 2nd 'b' position";
+###LogSD		if( 0 ){
+###LogSD		$operator->add_name_space_bounds( {
+###LogSD			Test =>{
+###LogSD				XMLReader =>{
+###LogSD					UNBLOCK =>{
+###LogSD						log_file => 'trace',
+###LogSD					},
+###LogSD				},
+###LogSD			},
+###LogSD		} );
+###LogSD		}
+ok(			($test_instance->advance_element_position( 'b', 2 ))[0],
+										"Advance to the 2nd 'b' position");# exit 1;
 			$test_ref = $test_instance->parse_element;
-#~ explain		$test_ref;
+explain		$test_ref;# exit 1;
 is_deeply	$test_ref, $answer_ref->[19], 
 										"Test matching the results of the second 'b' node";# exit 1;
 			map{
-is			$test_instance->next_sibling, $answer_ref->[19 + $_]->[0],
-										"Advance to the next_sibling iteration -$_- with result: $answer_ref->[19 + $_]->[0]";
+is(			($test_instance->next_sibling)[0], $answer_ref->[19 + $_]->[0],
+										"Advance to the next_sibling iteration -$_- with result: $answer_ref->[19 + $_]->[0]");
 			$test_ref = $test_instance->parse_element;
 #~ explain		$test_ref;
 			$test_ref = $test_instance->squash_node( $test_ref );
@@ -439,10 +450,10 @@ is_deeply	$test_ref, $answer_ref->[19 + $_]->[1],
 			}(1..6);# exit 1;
 ok			$test_instance->start_the_file_over,
 										'Test re-starting the file';
-ok			$test_instance->advance_element_position( 'b' ),
-										"Advance to the 1st 'b' position";
-ok			$test_instance->skip_siblings,
-										"skip the remaining siblings";
+ok(			($test_instance->advance_element_position( 'b' ))[0],
+										"Advance to the 1st 'b' position");
+ok(			($test_instance->skip_siblings)[0],
+										"skip the remaining siblings");
 			$test_ref = $test_instance->parse_element;
 #~ explain		$test_ref; exit 1;
 			$test_ref = $test_instance->squash_node( $test_ref );

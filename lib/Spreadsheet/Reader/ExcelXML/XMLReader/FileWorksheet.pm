@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet-$VERSION";
 
 use	5.010;
@@ -10,7 +10,7 @@ requires qw(
 		start_the_file_over				squash_node						parse_element
 		spreading_merged_values			should_skip_hidden				has_shared_strings_interface
 		get_shared_string				are_spaces_empty				get_empty_return_type
-		get_values_only					
+		get_values_only					collecting_merge_data			collecting_column_formats
 	);
 use Clone 'clone';
 use Carp qw( confess );
@@ -42,7 +42,7 @@ sub advance_row_position{
 	###LogSD			$self->get_all_space . '::FileWorksheet::advance_row_position', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Moving row forward -$increment- times", ] );
-	my $result =  $self->advance_element_position( 'row', $increment );
+	my( $result, $node_name, $node_level ) =  $self->advance_element_position( 'row', $increment );
 	###LogSD		$phone->talk( level => 'debug ', message => [
 	###LogSD			"advance result is:" . ($result//'fail') ] );
 	return undef if !$result;
@@ -76,8 +76,9 @@ sub build_row_data{
 		$full_row_ref = $alt_row;
 	}
 	my $new_ref;
-	$new_ref->{row_number} = $full_row_ref->{attributes}->{r};
-	$new_ref->{row_formats} = $full_row_ref->{attributes};
+	@$new_ref{qw( row_number row_formats )} = exists $full_row_ref->{attributes} ?
+		( $full_row_ref->{attributes}->{r}, $full_row_ref->{attributes} ) :
+		( $full_row_ref->{r}, $full_row_ref ) ;
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"updated Full row:", $full_row_ref,
 	###LogSD		"New row ref initialized as:", $new_ref ] );
@@ -165,7 +166,7 @@ sub build_row_data{
 	}
 	
 	# Scrub merge cells, column formats, and then empty values
-	my $max_column = $new_ref->{row_span}->[1] < $last_value_column ?
+	my $max_column = ( $last_value_column and $new_ref->{row_span}->[1] < $last_value_column) ?
 						$last_value_column : $new_ref->{row_span}->[1];
 	my( $cell_stack, $position_stack );
 	my $merge_range = $self->_get_row_merge_map( $new_ref->{row_number} );
@@ -335,11 +336,12 @@ sub load_unique_bits{
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Currently at named node:", $current_named_node, ] );
 	my	$result = 1;
+	my( $node_name, $node_level, $node_ref );
 	if( $current_named_node->{name} eq 'dimension' ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"already at the dimension node" ] );
 	}else{
-		$result = $self->advance_element_position( 'dimension' );
+		( $result, $node_name ) = $self->advance_element_position( 'dimension' );
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"attempt to get to the dimension node result: $result" ] );
 	}
@@ -370,99 +372,106 @@ sub load_unique_bits{
 		$self->set_error( "No sheet dimensions provided" );
 	}
 	
+	# Work without a net !!!!!
+	$self->change_stack_storage_to( 0 );
+	
 	#pull column stats
-	$current_named_node = $self->current_named_node;
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Currently at named node:", $current_named_node, ] );
-	$result = 1;
-	if( $current_named_node->{name} eq 'cols' ){
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"already at the cols node" ] );
-	}elsif( $self->advance_element_position( 'cols' ) ){
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Moved forward to cols" ] );
-	}else{
-		$self->start_the_file_over;
-		$result = $self->advance_element_position( 'cols' );
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"attempt to get to the cols node result: " . ($result//'fail') ] );
-	}
-	if( $result ){
-		my $column_data = $self->parse_element;
-		###LogSD	$phone->talk( level => 'trace', message => [
-		###LogSD		"parsed column elements to:", $column_data ] );
-		my $column_store = [];
-		for my $definition ( @{$column_data->{list}} ){
-			next if !is_HashRef( $definition ) or !is_HashRef( $definition->{attributes} );
-			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"Processing:", $definition ] );
-			my $row_ref;
-			map{ $row_ref->{$_} = $definition->{attributes}->{$_} if defined $definition->{attributes}->{$_} } qw( width customWidth bestFit hidden );
-			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"Updated row ref:", $row_ref ] );
-			for my $col ( $definition->{attributes}->{min} .. $definition->{attributes}->{max} ){
-				$column_store->[$col] = $row_ref;
-				###LogSD	$phone->talk( level => 'debug', message => [
-				###LogSD		"Updated column store is:", $column_store ] );
-			}
+	###LogSD	$phone->talk( level => 'trace', message => [
+	###LogSD		"Checking if column data should be collected: " . $self->collecting_column_formats ] );
+	if( $self->collecting_column_formats ){
+		if( $node_name eq 'EOF' ){
+			$self->start_the_file_over;
 		}
-		###LogSD	$phone->talk( level => 'trace', message => [
-		###LogSD		"Final column store is:", $column_store ] );
-		$good_load = 1;
-		$self->_set_column_formats( $column_store );
+		( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'cols' );
+		###LogSD	$phone->talk( level => 'debug', message => [
+		###LogSD		"Arrived at node named -$node_name- with result: $result", ] );
+		if( $result ){
+				
+			# Build the node and add it to the stack
+			my $node_ref = $self->initial_node_build( $node_name, $node_ref );
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Returned from initial node build with node:", $node_ref ] );
+			$self->add_node_to_stack( $node_ref );
+			
+			# Pull the data
+			my $column_data = $self->parse_element;
+			###LogSD	$phone->talk( level => 'trace', message => [
+			###LogSD		"parsed column elements to:", $column_data ] );
+			
+			# Process the data
+			my $column_store = [];
+			for my $definition ( @{$column_data->{list}} ){
+				next if !is_HashRef( $definition ) or !is_HashRef( $definition->{attributes} );
+				###LogSD	$phone->talk( level => 'trace', message => [
+				###LogSD		"Processing:", $definition ] );
+				my $row_ref;
+				map{ $row_ref->{$_} = $definition->{attributes}->{$_} if defined $definition->{attributes}->{$_} } qw( width customWidth bestFit hidden );
+				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD		"Updated row ref:", $row_ref ] );
+				for my $col ( $definition->{attributes}->{min} .. $definition->{attributes}->{max} ){
+					$column_store->[$col] = $row_ref;
+					###LogSD	$phone->talk( level => 'trace', message => [
+					###LogSD		"Updated column store is:", $column_store ] );
+				}
+			}
+			###LogSD	$phone->talk( level => 'trace', message => [
+			###LogSD		"Final column store is:", $column_store ] );
+			$good_load = 1;
+			$self->_set_column_formats( $column_store );
+		}
 	}
 	
 	# Get sheet meta data merge information
 	my	$merge_ref = [];
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Loading the mergeCell" ] );
-	$current_named_node = $self->current_named_node;
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Currently at named node:", $current_named_node, ] );
-	$result = 1;
-	if( $current_named_node and $current_named_node->{name} eq 'mergeCells' ){
+	###LogSD	$phone->talk( level => 'trace', message => [
+	###LogSD		"Checking if merged data should be collected: " . $self->collecting_merge_data ] );
+	if( $self->collecting_merge_data ){
+		if( $node_name eq 'EOF' ){
+			$self->start_the_file_over;
+		}
+		( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'mergeCells' );
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"already at the mergeCells node" ] );
-	}elsif( $self->advance_element_position( 'mergeCells' ) ){
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Moved forward to mergeCells" ] );
-	}else{
-		$self->start_the_file_over;
-		$result = $self->advance_element_position( 'mergeCells' );
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"attempt to get to the mergeCells node result: " . ($result//'undef') ] );
-	}
-	if( $result ){
-		my $merge_range = $self->parse_element;
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Processing all merge ranges:", $merge_range ] );
-		$merge_range = $self->squash_node( $merge_range );
-		###LogSD	$phone->talk( level => 'trace', message => [
-		###LogSD		"squashed merge range:", $merge_range ] );
-		my $final_ref = [];
-		for my $merge_ref ( @{$merge_range->{list}} ){
+		###LogSD		"Arrived at node named -$node_name- with result: $result", ] );
+			
+		if( $result ){
+				
+			# Build the node and add it to the stack
+			my $node_ref = $self->initial_node_build( $node_name, $node_ref );
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Returned from initial node build with node:", $node_ref ] );
+			$self->add_node_to_stack( $node_ref );
+			
+			my $merge_range = $self->parse_element;
 			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"parsed merge element to:", $merge_ref ] );
-			my ( $start, $end ) = split /:/, $merge_ref->{ref};
-			my ( $start_col, $start_row ) = $self->_parse_column_row( $start );
-			my ( $end_col, $end_row ) = $self->_parse_column_row( $end );
-			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"Start column: $start_col", "Start row: $start_row",
-			###LogSD		"End column: $end_col", "End row: $end_row" ] );
-			my 	$min_col = $start_col;
-			while ( $start_row <= $end_row ){
-				$final_ref->[$start_row]->[$start_col] = $merge_ref->{ref};
-				$start_col++;
-				if( $start_col > $end_col ){
-					$start_col = $min_col;
-					$start_row++;
+			###LogSD		"Processing all merge ranges:", $merge_range ] );
+			$merge_range = $self->squash_node( $merge_range );
+			###LogSD	$phone->talk( level => 'trace', message => [
+			###LogSD		"squashed merge range:", $merge_range ] );
+			my $final_ref = [];
+			for my $merge_ref ( @{$merge_range->{list}} ){
+				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD		"parsed merge element to:", $merge_ref ] );
+				my ( $start, $end ) = split /:/, $merge_ref->{ref};
+				my ( $start_col, $start_row ) = $self->_parse_column_row( $start );
+				my ( $end_col, $end_row ) = $self->_parse_column_row( $end );
+				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD		"Start column: $start_col", "Start row: $start_row",
+				###LogSD		"End column: $end_col", "End row: $end_row" ] );
+				my 	$min_col = $start_col;
+				while ( $start_row <= $end_row ){
+					$final_ref->[$start_row]->[$start_col] = $merge_ref->{ref};
+					$start_col++;
+					if( $start_col > $end_col ){
+						$start_col = $min_col;
+						$start_row++;
+					}
 				}
 			}
-		}
-		###LogSD	$phone->talk( level => 'trace', message => [
-		###LogSD		"Final merge ref:", $final_ref ] );
-		$good_load = 1;
-		$self->_set_merge_map( $final_ref );
+			###LogSD	$phone->talk( level => 'trace', message => [
+			###LogSD		"Final merge ref:", $final_ref ] );
+			$good_load = 1;
+			$self->_set_merge_map( $final_ref );
+		}# exit 1;
 	}
 	
 	# Record file state
@@ -624,19 +633,23 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader/parse_element>
 "_parse_column_row" in L<Spreadsheet::Reader::ExcelXML::CellToColumnRow
 |Spreadsheet::Reader::ExcelXML::CellToColumnRow/parse_column_row( $excel_cell_id )>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/spreading_merged_values>
+L<Spreadsheet::Reader::ExcelXML/spreading_merged_values>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/should_skip_hidden>
+L<Spreadsheet::Reader::ExcelXML/should_skip_hidden>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/has_shared_strings_interface>
+L<Spreadsheet::Reader::ExcelXML/has_shared_strings_interface>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/are_spaces_empty>
+L<Spreadsheet::Reader::ExcelXML/are_spaces_empty>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/get_empty_return_type>
+L<Spreadsheet::Reader::ExcelXML/get_empty_return_type>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/get_values_only>
+L<Spreadsheet::Reader::ExcelXML/get_values_only>
 
-L<Spreadsheet::Reader::ExcelXML::Workbook/starts_at_the_edge>
+L<Spreadsheet::Reader::ExcelXML/starts_at_the_edge>
+
+L<Spreadsheet::Reader::ExcelXML/collecting_merge_data>
+
+L<Spreadsheet::Reader::ExcelXML/collecting_column_formats>
 
 L<Spreadsheet::Reader::ExcelXML::SharedStrings/get_shared_string( $positive_intE<sol>$name )>
 

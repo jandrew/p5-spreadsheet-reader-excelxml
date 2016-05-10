@@ -84,26 +84,54 @@ lives_ok{
 			###LogSD	log_space	=> 'Test',
 			);
 			###LogSD	$phone->talk( level => 'info', message =>[ "Loaded test instance" ] );
-}										"Prep a workbook instance";
-###LogSD		exit 1;
+}										"Prep a workbook instance";# exit 1;
+#~ ###LogSD		exit 1;
 ###LogSD		$operator->add_name_space_bounds( {
-#~ ###LogSD			Test =>{
-#~ ###LogSD				Worksheet =>{
-#~ ###LogSD					_build_out_the_cell =>{
+###LogSD			Test =>{
+###LogSD				Worksheet =>{
+###LogSD					FileWorksheet =>{
 ###LogSD						UNBLOCK =>{
 ###LogSD							log_file => 'trace',
 ###LogSD						},
-#~ ###LogSD					},
-#~ ###LogSD					_get_next_value_cell =>{
-#~ ###LogSD						UNBLOCK =>{
-#~ ###LogSD							log_file => 'trace',
+###LogSD					},
+#~ ###LogSD					XMLReader =>{
+#~ ###LogSD						_hidden =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
+#~ ###LogSD						},
+#~ ###LogSD						squash_node =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
+#~ ###LogSD						},
+#~ ###LogSD						parse_element =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
+#~ ###LogSD						},
+#~ ###LogSD						current_named_node =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
+#~ ###LogSD						},
+#~ ###LogSD						current_node_parsed =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
+#~ ###LogSD						},
+#~ ###LogSD						advance_element_position =>{
+#~ ###LogSD							UNBLOCK =>{
+#~ ###LogSD								log_file => 'warn',
+#~ ###LogSD							},
 #~ ###LogSD						},
 #~ ###LogSD					},
-#~ ###LogSD				},
-#~ ###LogSD			},
+###LogSD				},
+###LogSD			},
 ###LogSD		} );
 lives_ok{ 	$worksheet = $test_instance->worksheet( 'Blad1' ) }
 										'..and pull the worksheet in question (Blad1)';
+###LogSD		exit 1;
 ###LogSD		$operator->add_name_space_bounds( {
 #~ ###LogSD			Test =>{
 #~ ###LogSD				Worksheet =>{

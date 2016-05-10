@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels-$VERSION";
 
 use	Moose::Role;
@@ -36,8 +36,9 @@ sub load_unique_bits{
 	my ( $found_member_names, $worksheet_list, $chartsheet_list );
 	
 	# Handle a zip based file
-	while( (keys %{$self->current_node_parsed})[0] eq 'Relationship' or $self->advance_element_position( 'Relationship' ) ){
-		my $relationship_ref = $self->squash_node( $self->parse_element );
+	my( $result, $node_name, $node_level, $result_ref ) = $self->advance_element_position( 'Relationship' );
+	while( $result and $node_name eq 'Relationship'  ){
+		my $relationship_ref = $self->squash_node( $self->parse_element );# Cleans up end nodes without other work
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"parsed sheet ref is:", $relationship_ref ] );
 		my $rel_ref = $self->get_rel_info( $relationship_ref->{Id} ) ;
@@ -81,12 +82,7 @@ sub load_unique_bits{
 				#~ $pivot_lookup->{$rel_ID} = $target;
 			}
 		}
-		my $result = $self->advance_element_position( 'Relationship' );# Advance to the next start
-		if( !$result ){
-			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"No more 'Relationship' nodes found" ] );
-			last;
-		}
+		( $result, $node_name, $node_level, $result_ref ) = $self->advance_element_position( 'Relationship' );# Advance to the next start
 	}
 	if( !$found_member_names ){# Handle and xml based file
 		confess "Couldn't find any zip member (file) names for the sheets - is the workbook empty?";

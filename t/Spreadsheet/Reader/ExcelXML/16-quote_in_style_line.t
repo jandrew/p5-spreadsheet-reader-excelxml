@@ -47,29 +47,29 @@ use	lib
 ###LogSD								},
 ###LogSD							},
 ###LogSD							UNBLOCK =>{
-###LogSD								log_file => 'trace',
+###LogSD								log_file => 'warn',
 ###LogSD							},
-###LogSD							Test =>{
-###LogSD								StylesInterface =>{
-###LogSD									XMLToPerlData =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
-###LogSD									},
-###LogSD									XMLReader =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
-###LogSD									},
-###LogSD									_load_unique_bits =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
-###LogSD									},
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
-###LogSD								},
+#~ ###LogSD							Test =>{
+#~ ###LogSD								StylesInterface =>{
+#~ ###LogSD									XMLToPerlData =>{
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'warn',
+#~ ###LogSD										},
+#~ ###LogSD									},
+#~ ###LogSD									XMLReader =>{
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'warn',
+#~ ###LogSD										},
+#~ ###LogSD									},
+#~ ###LogSD									_load_unique_bits =>{
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'warn',
+#~ ###LogSD										},
+#~ ###LogSD									},
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'warn',
+#~ ###LogSD										},
+#~ ###LogSD								},
 #~ ###LogSD								parse_element =>{
 #~ ###LogSD									UNBLOCK =>{
 #~ ###LogSD										log_file => 'warn',
@@ -110,7 +110,7 @@ use	lib
 #~ ###LogSD										log_file => 'warn',
 #~ ###LogSD									},
 #~ ###LogSD								},
-###LogSD							},
+#~ ###LogSD							},
 ###LogSD						},
 ###LogSD						reports =>{
 ###LogSD							log_file =>[ Print::Log->new ],
@@ -201,7 +201,7 @@ lives_ok{
 									workbook_inst => $workbook_instance,
 			###LogSD				log_space => 'Test',
 								);
-}										"Prep a new Styles instance - cache_positions => 1";
+}										"Prep a new Styles instance - cache_positions => 1";# exit 1;
 
 ###LogSD		$phone->talk( level => 'info', message => [ "hardest questions ..." ] );
 ok			$coercion = $format_instance->parse_excel_format_string( '[$-409]d-mmm-yy;@' ),#'(#,##0_);[Red](#,##0)'

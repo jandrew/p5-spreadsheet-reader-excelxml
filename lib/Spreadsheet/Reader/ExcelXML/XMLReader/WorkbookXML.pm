@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML-$VERSION";
 
 use	Moose::Role;
@@ -26,7 +26,7 @@ sub load_unique_bits{
 	# Check progid setting
 	if( !$self->has_progid ){
 		###LogSD	$phone->talk( level => 'warn', message => [
-		###LogSD		'No progid recorded - bad file' ] );
+		###LogSD		'No progid recorded - bad xml base file' ] );
 		$self->good_load( 0 );
 	}elsif( $self->progid eq 'Excel.Sheet' ){
 		###LogSD	$phone->talk( level => 'debug', message => [

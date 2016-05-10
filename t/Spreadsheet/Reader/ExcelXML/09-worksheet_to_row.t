@@ -84,8 +84,6 @@ use	Data::Dumper;
 ###LogSD	use Log::Shiras::Telephone;
 ###LogSD	use Log::Shiras::UnhideDebug;
 use	Spreadsheet::Reader::ExcelXML::XMLReader;
-#~ use Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles;
-#~ use Spreadsheet::Reader::ExcelXML::Styles;
 ###LogSD	use Log::Shiras::UnhideDebug;
 use	Spreadsheet::Reader::ExcelXML::SharedStrings;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
@@ -741,7 +739,17 @@ lives_ok{
 						writer	=> 'set_values_only',
 						reader	=> 'get_values_only',
 					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+					},
 				},
+				column_formats => 1,
+				merge_data => 1,
 				values_only => 0,
 				spaces_are_empty => 1,
 				empty_return_type => 'undef_string',
@@ -829,18 +837,18 @@ is_deeply	$test_instance->_get_row_inst( $answer_ref->[$test]->[3], ),   $answer
 ###LogSD	if( 0 ){
 ###LogSD		$operator->add_name_space_bounds( {
 ###LogSD			Test =>{
-###LogSD				Worksheet =>{
-###LogSD					WorksheetToRow =>{
+#~ ###LogSD				Worksheet =>{
+#~ ###LogSD					WorksheetToRow =>{
 ###LogSD						UNBLOCK =>{
 ###LogSD							log_file => 'trace',
 ###LogSD						},
-###LogSD					},
-###LogSD					build_row_data =>{
-###LogSD						UNBLOCK =>{
-###LogSD							log_file => 'trace',
-###LogSD						},
-###LogSD					},
-###LogSD				},
+#~ ###LogSD					},
+#~ ###LogSD					build_row_data =>{
+#~ ###LogSD						UNBLOCK =>{
+#~ ###LogSD							log_file => 'trace',
+#~ ###LogSD						},
+#~ ###LogSD					},
+#~ ###LogSD				},
 ###LogSD			},
 ###LogSD		} );
 ###LogSD	}
@@ -897,7 +905,7 @@ is			$test_instance->go_to_or_past_row( $answer_ref->[$test]->[0] ), $answer_ref
 										"Try to arrive at row $answer_ref->[$test]->[0] (but get to row $answer_ref->[$test]->[1])";
 			#~ print Dumper( $test_instance->_get_row_inst( $answer_ref->[$test]->[2] ) );
 is_deeply	$test_instance->_get_row_inst( $answer_ref->[$test]->[2], ),   $answer_ref->[$test]->[3],
-										"Check for a cached set for position: $answer_ref->[$test]->[2]";
+										"Check for a cached set for position: $answer_ref->[$test]->[2]";# exit 1;
 explain		"Building test class #2";
 lives_ok{
 			$workbook_instance = build_instance(
@@ -962,7 +970,17 @@ lives_ok{
 						writer	=> 'set_values_only',
 						reader	=> 'get_values_only',
 					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+					},
 				},
+				column_formats => 1,
+				merge_data => 1,
 				values_only => 1,
 				spaces_are_empty => 1,
 				empty_return_type => 'undef_string',
@@ -1185,7 +1203,17 @@ lives_ok{
 						writer	=> 'set_values_only',
 						reader	=> 'get_values_only',
 					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+					},
 				},
+				column_formats => 1,
+				merge_data => 1,
 				values_only => 0,
 				spaces_are_empty => 1,
 				empty_return_type => 'undef_string',
@@ -1322,11 +1350,16 @@ is_deeply	$test_instance->_get_row_inst( $answer_ref->[$test]->[2], ),   $answer
 ###LogSD							},
 ###LogSD						},
 ###LogSD					},
-#~ ###LogSD					XMLReader =>{
-#~ ###LogSD						UNBLOCK =>{
-#~ ###LogSD							log_file => 'trace',
-#~ ###LogSD						},
-#~ ###LogSD					},
+###LogSD					XMLReader =>{
+###LogSD						UNBLOCK =>{
+###LogSD							log_file => 'trace',
+###LogSD						},
+###LogSD						parse_element =>{
+###LogSD							UNBLOCK =>{
+###LogSD								log_file => 'warn',
+###LogSD							},
+###LogSD						},
+###LogSD					},
 ###LogSD				},
 ###LogSD			},
 ###LogSD		} );
@@ -1432,7 +1465,17 @@ lives_ok{
 						writer	=> 'set_values_only',
 						reader	=> 'get_values_only',
 					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+					},
 				},
+				column_formats => 1,
+				merge_data => 1,
 				values_only => 1,
 				spaces_are_empty => 1,
 				empty_return_type => 'undef_string',

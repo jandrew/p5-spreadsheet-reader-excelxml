@@ -20,7 +20,7 @@ BEGIN{
 	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
 }
 $| = 1;
-use	Test::Most tests => 158;
+use	Test::Most tests => 157;
 use	Test::Moose;
 use Data::Dumper;
 use	MooseX::ShortCut::BuildInstance v1.40 qw( build_instance );#
@@ -363,9 +363,9 @@ my  		@class_methods = qw(
 				worksheet_name					worksheet_count					get_chartsheet_names
 				chartsheet_name					chartsheet_count				creator
 				modified_by						date_created					date_modified
-				has_shared_strings_interface	get_shared_string				start_the_ss_file_over
+				has_shared_strings_interface	get_shared_string				in_the_list
 				has_styles_interface			get_format						start_at_the_beginning
-				in_the_list						demolish_the_workbook			
+				demolish_the_workbook			
 			);# It makes a lot of sense not to pass all of these to the top level
 ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space => 'main', );
 ###LogSD		$phone->talk( level => 'info', message => [ "easy questions ..." ] );

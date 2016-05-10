@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Workbook;
-use version 0.77; our $VERSION = version->declare('v0.1_1');
+use version 0.77; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Workbook-$VERSION";
 
 use 5.010;
@@ -328,6 +328,16 @@ has skip_hidden =>(
 has spaces_are_empty =>(
 		isa => Bool,
 		reader => 'are_spaces_empty',
+	);
+	
+has merge_data =>(
+		isa => Bool,
+		reader => 'collecting_merge_data',
+	);
+	
+has column_formats =>(
+		isa => Bool,
+		reader => 'collecting_column_formats',
 	);
 
 #########1 Public Methods     3#########4#########5#########6#########7#########8#########9
@@ -767,7 +777,7 @@ has _shared_strings_interface =>(
 		clearer		=> '_clear_shared_strings_interface',
 		handles		=>{
 			'get_shared_string' => 'get_shared_string',
-			'start_the_ss_file_over' => 'start_the_file_over',
+			#~ 'start_the_ss_file_over' => 'start_the_file_over',
 		},
 	);
 	
@@ -803,23 +813,6 @@ has _workbook_file_interface =>(
 	);
 
 #########1 Private Methods    3#########4#########5#########6#########7#########8#########9
-
-#~ sub BUILD {
-    #~ my ( $self ) = ( @_ );
-	#~ ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	#~ ###LogSD			$self->get_all_space . '::_hidden::BUILD', );
-	#~ ###LogSD		$phone->talk( level => 'trace', message =>[
-	#~ ###LogSD			'Arrived at BUILD to handle any delay builds' ] );
-	
-	#~ # Install any delayed build items - probably to allow them to observe the workbook instance
-	#~ for my $key ( $self->_get_all_build_keys ){
-		#~ ###LogSD	$phone->talk( level => 'trace', message =>[
-		#~ ###LogSD		"Adding the build or installation of: $key" ] );
-		#~ my $setter_method = 'set_' . $key;
-		#~ $self->$setter_method( $self->_get_build_key( $key ) );
-	#~ }
-	#~ $self->_set_delay_till_build( {} );
-#~ }
 
 around set_formatter_inst => sub {
     my ( $method, $self, $instance ) = @_;
@@ -864,14 +857,14 @@ sub _build_file_interface{
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Returned the file:", $file, "..of size: " . (-s $file) ] );
 		if( $self->_should_show_sub_file_size ){
-			print "Loading interface -$interface_type- with file (byte) size: " . (-s $file) . "\n";
+			warn "Loading interface -$interface_type- with file (byte) size: " . (-s $file);
 			if( $self->get_cache_size( $interface_type ) ){
-				print "against max allowable caching: " . $self->get_cache_size( $interface_type ) . "\n";
+				warn "against max allowable caching: " . $self->get_cache_size( $interface_type );
 			}else{
-				print "The interface -$interface_type- does not currently have a non-caching path\n";
+				warn "The interface -$interface_type- does not currently have a non-caching path";
 			}
-			warn "hit return to acknowledge!!!!";
-			my $wait = <>;
+			#~ warn "hit return to acknowledge!!!!";
+			#~ my $wait = <>;
 		}	
 		
 		# Turn off caching for sub files over a defined size
@@ -949,10 +942,10 @@ instead.  (the down side is the raw code and the documentation are two different
 
 =head2 Methods
 
-There are two methods exported by this class that are not meant to be used by the end user 
-of the package but will still be exported to L<Spreadsheet::Reader::ExcelXML> in order to 
-handle the twisty self referencing.  As a consequence they will be documented here. (and 
-not there)
+There are a few methods exported by this class that are not meant to be used by the end user 
+of the package but will still be delegated to L<Spreadsheet::Reader::ExcelXML> in order to 
+handle the twisty self referencing.  As a consequence they will be documented here.  (and not 
+there)
 
 =head3 build_workbook( $file )
 
@@ -988,6 +981,40 @@ allowing perl garbage collection to work when the L<Spreadsheet::Reader::ExcelXM
 instance goes out of scope. (after this method is called)
 	
 =back
+
+=head3 has_shared_strings_interface
+
+=over
+
+B<Definition:> Indicates if a shared_strings_interface file was loaded and is available for 
+content extraction
+
+B<Accepts:> nothing
+
+B<Returns:> true if the interface is stored
+
+=back
+
+=head3 get_shared_string
+
+Delegated from L<Spreadsheet::Reader::ExcelXML::SharedStrings/get_shared_string( $positive_intE<verbar>$name )>
+
+=head3 has_styles_interface
+
+=over
+
+B<Definition:> Indicates if a styles_interface file was loaded and is available for 
+content extraction
+
+B<Accepts:> nothing
+
+B<Returns:> true if the interface is stored
+
+=back
+
+=head3 get_format
+
+Delegated from L<Spreadsheet::Reader::ExcelXML::SharedStrings/get_format( ($positionE<verbar>$name), [$header], [$exclude_header] )>
 
 =head1 SUPPORT
 
@@ -1036,9 +1063,21 @@ B<L<Spreadsheet::Reader::ExcelXML::Worksheet>> - Worksheet level interface
 
 B<L<Spreadsheet::Reader::ExcelXML::Cell>> - Cell level interface
 
-L<version> - 0.77
+L<Archive::Zip> - 1.30
 
-L<perl 5.010|https://metacpan.org/pod/release/RGARCIA/perl-5.10.0/pod/perl.pod>
+L<Carp> - confess longmess
+
+L<Clone> - clone
+
+L<Data::Dumper>
+
+L<FileHandle>
+
+L<IO::File>
+
+L<IO::Handle>
+
+L<Modern::Perl> - 1.20150127
 
 L<Moose>
 
@@ -1046,9 +1085,19 @@ L<MooseX::StrictConstructor>
 
 L<MooseX::HasDefaults::RO>
 
-L<Carp> - qw( confess longmess );
+L<MooseX::StrictConstructor>
 
-L<Clone> - 'clone';
+L<MooseX::ShortCut::BuildInstance>
+
+L<Spreadsheet::Reader::Format> - v0.2.010
+
+L<Spreadsheet::Reader::Format::FmtDefault>
+
+L<Spreadsheet::Reader::Format::ParseExcelFormatStrings>
+  
+L<Type::Library> - 1.000
+
+L<Types::Utils>
 
 L<Types::Standard> -  qw(
  		InstanceOf			Str       			StrMatch			Enum
@@ -1059,13 +1108,13 @@ L<Types::Standard> -  qw(
 
 L<lib>
 
-L<MooseX::ShortCut::BuildInstance>
+L<perl 5.010|https://metacpan.org/pod/release/RGARCIA/perl-5.10.0/pod/perl.pod>
 
-L<Spreadsheet::Reader::Format>
+L<strict>
+  
+L<version> - 0.77
 
-L<Spreadsheet::Reader::Format::FmtDefault>
-
-L<Spreadsheet::Reader::Format::ParseExcelFormatStrings>
+L<warnings>
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader>
 

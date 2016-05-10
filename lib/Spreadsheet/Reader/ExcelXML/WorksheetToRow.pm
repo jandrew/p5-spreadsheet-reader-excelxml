@@ -1,11 +1,11 @@
 package Spreadsheet::Reader::ExcelXML::WorksheetToRow;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorksheetToRow-$VERSION";
 
 use	5.010;
 use	Moose::Role;
 requires qw(
-		has_nodes					advance_row_position		close_the_file
+		not_end_of_file				advance_row_position		close_the_file
 		build_row_data				start_the_file_over			
 	);#		current_row_node_parsed
 use Clone 'clone';
@@ -151,7 +151,7 @@ sub go_to_or_past_row{# Counting from 1!
 		$current_row_position++;
 		
 		# Handle EOF
-		if( !$row_ref or $self->has_nodes == 0 ){
+		if( !$row_ref or $self->not_end_of_file == 0 ){
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Already at the 'EOF' - returning failure", ] );
 			
@@ -317,11 +317,11 @@ required.  The requirments are listed below with links to the default provider.
 
 =over
 
-L<Spreadsheet::Reader::ExcelXML::FileWorksheet/advance_row_position>
+L<Spreadsheet::Reader::ExcelXML::FileWorksheet/advance_row_position( $element, [$iterations] )>
 
 L<Spreadsheet::Reader::ExcelXML::FileWorksheet/build_row_data>
 
-L<Spreadsheet::Reader::ExcelXML::XMLReader/has_nodes>
+L<Spreadsheet::Reader::ExcelXML::XMLReader/not_end_of_file>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/start_the_file_over>
 

@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings-$VERSION";
 
 use 5.010;
@@ -85,7 +85,21 @@ sub get_shared_string{
 	if( !$success and !$self->has_position ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Kickstart position counting - getting first si cell" ] );
-		if( $self->advance_element_position( 'si' ) ){
+		
+		my( $result, $node_name, $node_level, $result_ref );
+		my $current_node = $self->current_node_parsed;
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"The current node is:", $current_node ] );
+		if( (keys %$current_node)[0] eq 'ai' ){
+			###LogSD	$phone->talk( level => 'trace', message =>[
+			###LogSD		"Found the core properties node" ] );
+			$result = 2;
+			$node_name = 'si';
+		}else{
+			( $result, $node_name, $node_level, $result_ref ) =
+				$self->advance_element_position( 'si' );
+		}
+		if( $result ){
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"Successfully advanced one share string position" ] );
 			$self->i_am_here( 0 );
@@ -208,24 +222,22 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the sharedStrings unique bits" ] );
-	my $current_named_node = $self->current_named_node;
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Currently at named node:", $current_named_node, ] );
-	my	$result = 1;
-	if( $current_named_node->{name} eq 'sst' ){
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"already at the sst node" ] );
+	my( $result, $node_name, $node_level, $result_ref );
+	my $current_node = $self->current_node_parsed;
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"The current node is:", $current_node ] );
+	if( (keys %$current_node)[0] eq 'sst' ){
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"Found the core properties node" ] );
+		$result = 2;
+		$node_name = 'sst';
 	}else{
-		$result = $self->advance_element_position( 'sst' );
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"attempt to get to the sst element result: $result" ] );
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'sst' );
+		$current_node = $self->current_node_parsed;
 	}
-	
-	if( $result ){
-		my $current_parsed_node = $self->current_node_parsed;
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Current node parsed:", $current_parsed_node ] );
-		my $unique_count = $current_parsed_node->{sst}->{uniqueCount} // 0;
+	if( $result and $node_name eq 'sst' ){
+		my $unique_count = $current_node->{sst}->{uniqueCount} // 0;
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Loading unique count: $unique_count" ] );
 		$self->_set_unique_count( $unique_count );

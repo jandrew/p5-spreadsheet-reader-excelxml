@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Row;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Row-$VERSION";
 
 $| = 1;
@@ -17,16 +17,6 @@ use lib	'../../../../../lib';
 ###LogSD	sub get_class_space{ 'Row' }
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
-
-#~ has	error_inst =>(
-		#~ isa			=> InstanceOf[ 'Spreadsheet::Reader::ExcelXML::Error' ],
-		#~ clearer		=> '_clear_error_inst',
-		#~ reader		=> '_get_error_inst',
-		#~ required	=> 1,
-		#~ handles =>[ qw(
-			#~ error set_error clear_error set_warnings if_warn
-		#~ ) ],
-	#~ );
 
 has row_number =>(
 		isa			=> Int,

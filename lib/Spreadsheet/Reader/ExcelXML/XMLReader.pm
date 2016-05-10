@@ -1,12 +1,12 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader-$VERSION";
 
 use 5.010;
 use Moose;
 use MooseX::StrictConstructor;
 use MooseX::HasDefaults::RO;
-use Text::ParseWords 3.27;
+#~ use Text::ParseWords 3.27;
 use Types::Standard qw(
 		Int					Bool					Enum					Num
 		Str					ArrayRef				is_ArrayRef				is_HashRef
@@ -18,8 +18,6 @@ use Data::Dumper;
 use Encode qw( encode decode );
 use IO::Handle;
 use FileHandle;
-#~ use IO::File 1.16;
-#~ use IO::Seekable 1.10;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
@@ -52,6 +50,7 @@ has workbook_inst =>(
 			change_output_encoding		get_error_inst				has_styles_interface
 			boundary_flag_setting		is_empty_the_end			get_format
 			get_rel_info				get_sheet_info				get_sheet_names
+			collecting_merge_data		collecting_column_formats
 		)],# The regex import doesn't work here due to the twistiness of the overall package
 	);
 
@@ -96,9 +95,16 @@ has position_index =>(
 	);
 
 has	file_type =>(
-		isa			=> 	Enum[ 'xml' ],
-		reader		=> 'get_file_type',
-		default		=> 'xml',
+		isa		=> 	Enum[ 'xml' ],
+		reader	=> 'get_file_type',
+		default	=> 'xml',
+	);
+	
+has stacking =>(
+		isa		=> Bool,
+		reader	=> 'should_be_stacking',
+		writer	=> 'change_stack_storage_to',
+		default => 1,
 	);
 
 #########1 Public Methods     3#########4#########5#########6#########7#########8#########9
@@ -116,6 +122,7 @@ sub start_the_file_over{
 	$self->_set_ref_stack( [] );
 	$self->_set_string_stack( [] );
 	$self->_set_position_stack( [] );
+	$self->change_stack_storage_to( 1 );
 	
 	# Start at the beginning
 	$self->seek(0, 0);
@@ -125,15 +132,15 @@ sub start_the_file_over{
 	$self->_read_file;
 	###LogSD	$phone->talk( level => 'debug', message =>[ "Arrived at the first node" ] );
 	
-	return $self->has_nodes;
+	return $self->not_end_of_file;
 }
 
-sub is_end_of_file{
-	my( $self ) = @_;
-	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	###LogSD			$self->get_all_space . '::XMLReader::reached_end_of_file', );
-	return !$self->has_nodes;
-}
+#~ sub is_end_of_file{
+	#~ my( $self ) = @_;
+	#~ ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
+	#~ ###LogSD			$self->get_all_space . '::XMLReader::reached_end_of_file', );
+	#~ return !$self->has_nodes;
+#~ }
 
 sub parse_element{
 	my ( $self, $level, ) = @_;# $attribute_ref
@@ -143,10 +150,14 @@ sub parse_element{
 	###LogSD			"Parsing current element", (defined $level ? "..to depth: $level" : undef), ] );###LogSD			(defined $attribute_ref ? "..with attribute_ref:" : undef), $attribute_ref
 	
 	# Check for end of file state
-	if( $self->has_nodes == 0 ){
+	if( !$self->not_end_of_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Reached end of file" ] );
 		return 'EOF';
 	}
+	
+	# Store stacking state and then ensure it is on
+	my $stacking_state = $self->should_be_stacking;
+	$self->change_stack_storage_to( 1 );
 	
 	# Check for self contained node
 	my $current_node = clone( $self->current_named_node );
@@ -176,9 +187,11 @@ sub parse_element{
 	# Cycle to the bottom and back up
 	my $done;
 	while( !$done ){
-		my( $result_type, $result ) = $self->_read_file;
+		my( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 		###LogSD	$phone->talk( level => 'debug', message =>[
-		###LogSD		"Node read returned: $result_type", $result ] );
+		###LogSD		"Node read returned: $result_type",
+		###LogSD		"..up to node named: $top_node_name",
+		###LogSD		"..at level: $top_node_level", $result ] );
 		
 		#Handle unexpected EOF
 		if( !$result_type ){
@@ -236,6 +249,9 @@ sub parse_element{
 	$self->_set_ref_stack( [] );
 	$self->_set_position_stack( [] );
 	
+	# restore stacking state
+	$self->change_stack_storage_to( $stacking_state );
+	
 	return $built_reference;
 }
 
@@ -251,39 +267,42 @@ sub advance_element_position{
 	###LogSD		"Advancing to element -" . ($element//'') . "- -$position- times", ] );
 	
 	# Check for end of file and opt out
-	if( $self->has_nodes == 0 ){
+	if( !$self->not_end_of_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Already at the EOF - returning failure", ] );
 		return undef;
 	}
 	
-	my $result;
+	my( $result, $destination_name, $destination_level, $level_ref);
 	my $x = 0;
 	for my $y ( 1 .. $position ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Advancing position iteration: $y",
-		###LogSD		"Searching for element: ", $element, ] );
-		$result = defined $element ? 
+		###LogSD		"Searching for element: " . ($element//'(next)'), ] );
+		($result, $destination_name, $destination_level, $level_ref) = defined $element ? 
 			$self->_next_element( $element ) :
 			$self->_next_unnamed_element;
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"search result: " . ($result//'none'), ] );
+		###LogSD		"search result: " . ($result//'none'),
+		###LogSD		"arrived at node named: $destination_name",
+		###LogSD		( defined( $destination_level ) ? "..and node level: $destination_level" : undef), $level_ref ] );
+		#~ if( $element and $result == 1 ){# Advance passed a closing node
+			#~ ###LogSD	$phone->talk( level => 'debug', message =>[ "Handle closing node", ] );
+			#~ ($result, $destination_name, $destination_level, $level_ref) = $self->_next_element( $element );
+			#~ ###LogSD	$phone->talk( level => 'debug', message => [
+			#~ ###LogSD		"search result: " . ($result//'none'),
+			#~ ###LogSD		"arrived at node named: $destination_name",
+			#~ ###LogSD		( defined( $destination_level ) ? "..and node level: $destination_level" : undef), $level_ref ] );
+		#~ }
 		last if !$result;
 		$x++;
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Successfully indexed -$x- times", ] );
+		###LogSD		"Successfully indexed -$x- times for position request: $position", ] );
 	}
 	
-	if( !$result ){
-		###LogSD	$phone->talk( level => 'info', message =>[
-		###LogSD		"Unable to location position -$position- for element: " . ($element//'') ] );
-	}else{
-		###LogSD	$phone->talk( level => 'info', message => [
-		###LogSD		"Actually advanced -$x- positions with result: $result", ] );
-	}
 	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"returning result: " . ($result//'none'), ] );
-	return $result;
+	###LogSD		"returning result: " . ($x==$position), ] );
+	return (($element ? ($destination_name eq $element) : $result), $destination_name, $destination_level, $level_ref);
 }
 
 sub next_sibling{ # should land on a new node (or EOF)
@@ -294,7 +313,7 @@ sub next_sibling{ # should land on a new node (or EOF)
 	###LogSD		"Advancing to the next sibling", ] );
 	
 	# Check for end of file and opt out
-	if( $self->has_nodes == 0 ){
+	if( !$self->not_end_of_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Already at the EOF - returning failure", ] );
 		return undef;
@@ -305,19 +324,23 @@ sub next_sibling{ # should land on a new node (or EOF)
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Traversing to the next start node at level: $target_level" ] );
 	
-	my ( $result_type, $result ) = $self->_read_file;
-	while( $result_type == 1 or $self->current_named_node->{level} > $target_level ){
+	my ( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
+	###LogSD	$phone->talk( level => 'debug', message =>[
+	###LogSD		"Read file result type -$result_type- at level -$top_node_level- with node name: $top_node_name" ] );
+	while( $result_type == 1 or $top_node_level > $target_level ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Still looking for the target level" ] );
-		( $result_type, $result ) = $self->_read_file;
-		###LogSD	$phone->talk( level => 'trace', message =>[
-		###LogSD		"Read file result type -$result_type- with result: ", ($result//'fail') ] );
+		( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
+		###LogSD	$phone->talk( level => 'debug', message =>[
+		###LogSD		"Read file result type -$result_type- at level -$top_node_level- with node name: $top_node_name" ] );
+		#~ ###LogSD	$phone->talk( level => 'trace', message =>[
+		#~ ###LogSD		"Read file result type -$result_type- at with result: ", ($result//'fail') ] );
 		last if $result_type == 0;
 	}
 	
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Target node level -$target_level- search resulted in:", $self->current_named_node ] );
-	return( $self->has_nodes and $self->current_named_node->{level} == $target_level );
+	return( ($top_node_level == $target_level), $top_node_name, $top_node_level, $result);
 }
 
 sub skip_siblings{ # should land on a new node?? (or EOF)
@@ -328,7 +351,7 @@ sub skip_siblings{ # should land on a new node?? (or EOF)
 	###LogSD		"Advancing past the remaining siblings", ] );
 	
 	# Check for end of file and opt out
-	if( $self->has_nodes == 0 ){
+	if( !$self->not_end_of_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Already at the EOF - returning failure", ] );
 		return undef;
@@ -337,18 +360,19 @@ sub skip_siblings{ # should land on a new node?? (or EOF)
 	# Find target level
 	my $target_level = $self->current_named_node->{level} - 1;
 	###LogSD	$phone->talk( level => 'debug', message =>[
-	###LogSD		"Traversing to the next start node at level: $target_level" ] );
+	###LogSD		"Traversing to the next start node at level: $target_level",
+	###LogSD		"(Which is one level up from the current level)" ] );
 	
-	my ( $result_type, $result ) = $self->_read_file;
-	while( $result_type == 1 or $self->current_named_node->{level} > $target_level ){
+	my ( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
+	while( $result_type == 1 or $top_node_level > $target_level ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Still looking for the target level" ] );
-		( $result_type, $result ) = $self->_read_file;
+		( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 	}
 	
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Target node level -$target_level- search resulted in: $result", ] );
-	return $result_type == 0 ? '' : 1;# You must have made it past or EOF?
+	return(( $top_node_level == $target_level ), $top_node_name, $top_node_level, $result );
 }
 
 sub current_named_node{
@@ -534,7 +558,7 @@ sub extract_file{###### All available potential nodes will be added if none are 
 		my $name_match = ($parse_commands[1] and !is_Int( $parse_commands[1] )) ? pop @parse_commands : undef;
 		my $result = 0;
 		while( !$result ){
-			$result = $self->advance_element_position( @parse_commands );  ##### Split out the second element here and test for name
+			($result, my $current_node_name, my $current_node_level) = $self->advance_element_position( @parse_commands );  ##### Split out the second element here and test for name
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Advance result: " . ($result//'fail')] );
 			last if !$result;
@@ -646,6 +670,31 @@ sub close_the_file{
 	#~ print "XMLReader file check complete\n";
 }
 
+sub initial_node_build{
+	my( $self, $name, $array_list_ref ) = @_;
+	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
+	###LogSD			$self->get_all_space . '::XMLReader::_hidden::initial_node_build', );
+	###LogSD	$phone->talk( level => 'debug', message => [
+	###LogSD			"attempting to build the node named -$name- for string list:", $array_list_ref ] );
+		
+	my	$node_ref->{name} = $name;
+		$node_ref->{type} = 'regular';
+	
+	# Set node level - Potentially this could be a separate 'partial stack' that could report to 'should_be_stacking'?
+	$node_ref->{level} = !$self->not_end_of_file ? 0 :
+		($self->_current_node->{level} + ($self->_current_node->{closed} eq 'closed' ? 0 : 1));
+	###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $node_ref ] );
+	
+	# Set node to open (default fixed elswhere)
+	$node_ref->{closed} = 'open';
+	###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $node_ref ] );
+	
+	# Store remaining elements
+	$node_ref->{attribute_strings} = $array_list_ref if scalar @$array_list_ref;
+	###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $node_ref ] );
+	
+	return $node_ref;
+}
 #########1 Private Attributes 3#########4#########5#########6#########7#########8#########9
 
 has _loaded =>(
@@ -662,10 +711,10 @@ has _node_stack =>(
 	writer	=> '_set_node_stack',
 	default	=> sub{ [] },
 	handles	=>{
-		_add_node		=> 'push',
+		add_node_to_stack	=> 'push',
+		not_end_of_file		=> 'count',
 		_remove_node	=> 'pop',
 		_remove_header	=> 'shift',
-		has_nodes		=> 'count',# EOF test!
 		_current_node	=>[ get => -1 ],
 		_prior_node		=>[ get => -2 ],
 		#~ _get_node_position => 'get',
@@ -758,25 +807,24 @@ sub _start_xml_reader{
 sub _next_element{
 	my( $self, $element ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_next_element', );
+	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_next_element', );#::_hidden
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"searching for the next element: $element", ] );
-	my( $result_type, $result ) = $self->_read_file;# Implied in next since the last one may also be $element
-	NODEINDEX: while( 	$result_type != 0 and $self->has_nodes and
-						$self->current_named_node->{name} ne $element ){
-		( $result_type, $result ) = $self->_read_file;
+	my( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;# Implied in next since the last one may also be $element
+	NODEINDEX: while( $result_type == 1 or (($result_type != 0) and ($top_node_name ne $element)) ){
+		( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"result of the read file action: $result_type", $result, $self->_get_node_stack ] );
-		while( $result_type == 1 ){
+		###LogSD		"result of the read file action: $result_type", $top_node_name, $top_node_level, $result, ] );
+		while( defined $result_type and $result_type == 1 ){
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"The last node was only a closing tag - index once again to get a new tag" ] );
-			( $result_type, $result ) = $self->_read_file;
+			( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"result of the read file action: $result_type", $result, $self->_get_node_stack ] );
+			###LogSD		"result of the read file action: $result_type", $result, ] );
 			last NODEINDEX if $result_type == 0;
 		}
 	}
-	return ( $self->has_nodes ) ? $self->current_named_node->{name} eq $element : undef;
+	return ( $result_type, $top_node_name, $top_node_level, $result );
 }
 
 sub _next_unnamed_element{
@@ -785,18 +833,18 @@ sub _next_unnamed_element{
 	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_next_unnamed_element', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"searching for the next unnamed element", ] );
-	my( $result_type, $result ) = $self->_read_file;# Implied in next since the last one may also be $element
+	my( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;# Implied in next since the last one may also be $element
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"result of the read file action: $result_type", $result, $self->_get_node_stack ] );
 	NODEINDEX: while( $result_type == 1 ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"The last node was only a closing tag - index once again to get a new tag" ] );
-		( $result_type, $result ) = $self->_read_file;
+		( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"result of the read file action: $result_type", $result, $self->_get_node_stack ] );
-		last NODEINDEX if $result_type == 0 or !$self->has_nodes;
+		last NODEINDEX if $result_type == 0;
 	}
-	return $self->has_nodes;
+	return( $result_type, $top_node_name, $top_node_level, $result );#Start with Bang Bang operator
 }
 
 sub _build_out_the_return{
@@ -837,22 +885,33 @@ sub _build_out_the_return{
 		
 		# Parse the attributes if they exist
 		if( exists $element->{attribute_strings} ){
-			for my $att ( @{$element->{attribute_strings}} ){
-				next if !$att or $att eq 'xml:space=preserve';
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Processing raw attribute list:", $element->{attribute_strings} ] );
+			my @attribute_args = $self->_reconcile_attribute_strings( $element->{attribute_strings} );
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Reconciled attribute list:", @attribute_args ] );
+			for my $att ( @attribute_args ){
+				next if !$att or $att eq 'xml:space="preserve"';
 				###LogSD	$phone->talk( level => 'debug', message =>[ "parsing attribute string: $att" ] );
 				my( $att_name, $att_val, $form_val ) = split /\s*=\s*/, $att;
 				#~ $att_val = substr( $att_val, 1, -3 ) if substr( $att_val, 0, 1 ) eq '"';# Remove bracing quotes from values
 				$att_val = $self->_remove_escapes( $att_val );
 				$form_val = $self->_remove_escapes( $form_val );
 				###LogSD	$phone->talk( level => 'debug', message =>[ "Final result:", $att_name, $att_val, $form_val ] );
+				$att_val = substr( $att_val, 1, -1 ) if $att_val and (substr( $att_val, 0, 1 ) eq '"') and (substr( $att_val, -1, 1 ) eq '"');
 				if( $att_name eq 'val' ){
 					###LogSD	$phone->talk( level => 'debug', message =>[
 					###LogSD		"found a value attribute" ] );
 					$element->{$att_name} = $att_val;
 				}elsif( $form_val ){
 					###LogSD	$phone->talk( level => 'debug', message =>[
-					###LogSD		"found a formula value" ] );
-					$element->{attributes}->{$att_name} = $form_val;
+					###LogSD		"found a formula value: $form_val" ] );
+					#~ $element->{attributes}->{$att_name} = '"' if substr( $form_val, -1, 1 ) eq '"';
+					$element->{attributes}->{$att_name} .=
+						substr( $form_val, -1, 1 ) eq '"' ?
+							substr( $form_val, 0, -1 )	: $form_val ;
+					###LogSD	$phone->talk( level => 'debug', message =>[
+					###LogSD		"final formula value: $element->{attributes}->{$att_name}" ] );
 				}else{
 					$element->{attributes}->{$att_name} = $att_val;
 				}
@@ -982,16 +1041,16 @@ sub _read_file{
 		###LogSD	$phone->talk( level => 'debug', message =>[ "The next file line is:", $line ] );
 		if( !$line ){
 			###LogSD	$phone->talk( level => 'debug', message =>[ "Reached the end of the file" ] );
-			return( $node_type, [ { name => 'EOF', level => -1 } ] );
+			return( 0, 'EOF', 0, [ { name => 'EOF', level => -1 } ] );
 		}
 		$line = substr( $line, 0, -1 );
 		@sections = split />/, $line;
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Line sections are:", @sections ] );
 		if( scalar( @sections ) > 2 ){
-			$self->set_error( 'The next xml line broke into more than 2 sections |' . join( '~|~', @sections ) . '| from line: ' . $line );
+			$self->set_error( 'The next xml line broke into more than 2 sections after |' . $sections[0] . '| from line: ' . $line );
 			$self->close_the_file;
 			$self->good_load( 0 );
-			return( 0, undef );
+			return( 0, 'BAD' );
 		}
 	}
 	
@@ -1000,11 +1059,12 @@ sub _read_file{
 	my $is_xml_header = 0;
 	my $x = 0;
 	my $return = [];
+	my( $top_node_name, $top_node_level );
 	for my $node ( @sections ){
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Processing section: ", $node] );
-		my $node_ref;
-		$node_ref->{initial_string} = $node;
-		
+		my( $node_ref, $node_name, @node_split );
+		my $initial_string = $node;
+	
 		# Handle header nodes with quotes
 		if( substr( $node, 0, 1 ) eq '?' ){
 			$is_xml_header = 1;
@@ -1014,104 +1074,108 @@ sub _read_file{
 			###LogSD		"is_xml_header set to: $is_xml_header" ] );
 		}
 		
-		# Handle node types
-		if( substr( $node, 0, 1 ) eq '/' ){
-			###LogSD	$phone->talk( level => 'debug', message =>[ "Reached an end node" ] );
-			$node_type = 1;
-			# Handle previously closed nodes
-			while( $self->_current_node->{closed} eq 'closed' ){
-				push @$return, $self->_remove_node;
-				###LogSD	$phone->talk( level => 'debug', message =>[
-				###LogSD		"pushed the closed end node to return - looking for an open node - current type: $node_type", $return ] );
-			}
-			
-			# Handle this node
-			my $current_node = $self->_remove_node;
-			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"Current node type: $node_type" ] );
-			my $end_node = substr( $node, 1 );
-			if( $current_node->{name} ne $end_node ){
-				confess "Found an end node -$end_node- that doesn't match the next open node:" . Dumper( $current_node );
-			}
-			$current_node->{closed} = 'closed';
-			push @$return, $current_node;
-			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"Return list type -$node_type- with current nodes:", $return ] );
-			
-			# Return and let the caller determine if it wants to proceed
-			return( $node_type, $return );
-			
-		}elsif( $is_xml_header ){
-			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"xml headers are closed node levels by definition" ] );
-			$node_ref->{closed} = 'closed';
-			$node_type = 3;
-		}elsif( substr( $node, -1, 1 ) eq '/' ){
-			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"Self closing node found" ] );
-			$node = substr( $node, 0, -1 );
-			$node_ref->{closed} = 'closed';
-			$node_type = 3;
-		}else{
-			$node_ref->{closed} = $closures[$x];
-			$node_type = 2; # Even if a closed text node is recorded as well
-		}
-		###LogSD	$phone->talk( level => 'debug', message =>[ "New node ref:", $node_ref ] );
-		
-		# Set node level
-		if( $self->has_nodes ){
-			my $node = $self->_current_node;
-			$node_ref->{level} = $node->{level} + ($node->{closed} eq 'closed' ? 0 : 1);
-		}else{
-			$node_ref->{level} = 0;
-		}
-		###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $node_ref ] );
-		
-		# Split out the node name and the attributes
-		my @attributes;
+		# Handle the first pass
 		if( $x == 0 ){
-			@attributes = parse_line( '\s+', 0, $node );
-			###LogSD	$phone->talk( level => 'debug', message =>[ "Words after split: ", @attributes] );
-			$node_ref->{name} = shift @attributes;
-			$node_ref->{type} = 'regular';
-		}else{
-			$node_ref->{name} = 'raw_text';
-			$node_ref->{type} = '#text';
-			$node_ref->{raw_text} = $node;
-		}
-		$x++;
-		$is_xml_header = '<' . $node_ref->{initial_string} . '>' if $node_ref->{name} and $node_ref->{name} eq 'xml';
-		###LogSD	$phone->talk( level => 'debug', message =>[ 
-		###LogSD		"updated node ref:", $node_ref, "updated header setting: $is_xml_header" ] );
-		
-		# Store remaining elements
-		$node_ref->{attribute_strings} = [ @attributes ] if scalar @attributes;
-		
-		# Check for white space in the xml file
-		if( $self->has_nodes > 0 and
-			$self->_current_node->{name} eq 'raw_text' ){
+			
+			# Handle end nodes - always subtractive to the stack and then exits 
+			if( substr( $node, 0, 1 ) eq '/' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[ "Reached an end node" ] );
+				
+				# For stacking off, ignore end nodes
+				if( !$self->should_be_stacking ){
+					###LogSD	$phone->talk( level => 'debug', message =>[ "No stacking required - ignoring end node" ] );
+					return( $self->_read_file );
+				}
+				
+				# Handle previously closed nodes
+				while( $self->_current_node->{closed} eq 'closed' ){
+					push @$return, $self->_remove_node;
+					###LogSD	$phone->talk( level => 'debug', message =>[
+					###LogSD		"pushed the closed end node to return - looking for an open node - current type: $node_type", $return ] );
+				}
+				
+				# Process the first open node
+				my $current_node = $self->_remove_node;
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Current node:", $current_node ] );
+				
+				# Lookup the name
+				$node_name = substr( $node, 1 );
+				if( $current_node->{name} ne $node_name ){
+					confess "Found an end node -$node_name- that doesn't match the next open node:" . Dumper( $current_node );
+				}
+				$current_node->{closed} = 'closed';
+				push @$return, $current_node;
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Return list type -1- with current nodes:", $return ] );
+				
+				# Return and let the caller determine if it wants to proceed
+				return( 1, $node_name, $return->[-1]->{level}, $return );# Always $node_type = 1
+			}
+			
+			# handle self closing nodes
+			my $self_closing;
+			if( substr( $node, -1, 1 ) eq '/' ){
+				$node = substr( $node, 0, -1 );
+				$self_closing = 1;
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Found a self closing node" ] );
+			}
+			# Pull the node name
+			@node_split = split /\s/, $node;
 			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"found previously stored white space", $self->_get_node_stack ] );
-			$self->_remove_node;
-			###LogSD	$phone->talk( level => 'trace', message =>[
-			###LogSD		"White space gone", $self->_get_node_stack ] );
-		}
+			###LogSD		"node split is:", @node_split ] );
+			$node_name = shift @node_split;
+			$top_node_name = $node_name if !$top_node_name;
+			
+			# Exit for speed return when !should_be_stacking
+			if( !$self->should_be_stacking ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Stacking is off - returning found node name: $node_name" ] );
+				return( 2, $node_name, undef, [ @node_split ] );# Is level worth calculating here? (no node stack popping done (yet?) either)
+			}
 		
-		# pop nodes at the same or lower level
-		my $current_node = $self->_current_node;
-		###LogSD	$phone->talk( level => 'trace', message =>[
-		###LogSD		"Testing for values deeper than or equal to", $node_ref ] );
-		while( $current_node and $current_node->{level} >= $node_ref->{level} ){
-			push @$return, $self->_remove_node;
+			# Check for white space in the xml file
+			if( $self->not_end_of_file and
+				$self->_current_node->{name} eq 'raw_text' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"found previously stored white space", $self->_get_node_stack ] );
+				$self->_remove_node;
+				###LogSD	$phone->talk( level => 'trace', message =>[
+				###LogSD		"White space gone", $self->_get_node_stack ] );
+			}
+			
+			# Build the node
+			$node_ref = $self->initial_node_build( $node_name, [@node_split] );
+			if( $is_xml_header or $self_closing ){
+				$node_ref->{closed} = 'closed';
+			}
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Returned from initial node build with node:", $node_ref ] );
+			$top_node_level = $node_ref->{level};
+			$node_type = 2;
+			
+			# pop nodes at the same or lower level
+			while($self->not_end_of_file and $self->_current_node->{level} >= $node_ref->{level} ){
+				push @$return, $self->_remove_node;
+				###LogSD	$phone->talk( level => 'trace', message =>[
+				###LogSD		"Return ref now", $return, ] );
+			}
+			
+		}else{
+			$node_name = 'raw_text';
+			@$node_ref{qw( name raw_text type closed )} = ( 'raw_text', $node, '#text', 'closed' );
+			$node_ref->{level} = $top_node_level + 1;
 			###LogSD	$phone->talk( level => 'trace', message =>[
-			###LogSD		"Return ref now", $return, "node_type at: $node_type"] );
-			$current_node = $self->_current_node;
+			###LogSD		"Raw text node:", $node_ref, ] );
 		}
 		
 		# Store the node
-		$self->_add_node( $node_ref );
+		$node_ref->{initial_string} = $initial_string;
+		$self->add_node_to_stack( $node_ref );
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Updated node stack", $self->_get_node_stack, "node_type at: $node_type" ] );
+		$x++;
 		last if $node_ref->{closed} eq 'closed';
 	}
 	
@@ -1119,7 +1183,7 @@ sub _read_file{
 	if( $is_xml_header ){
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Found an xml header", ($return ? ("..with initial return:", $return) : undef) ] );
-		( $node_type, my $sub_return ) = $self->_read_file;
+		( $node_type, $top_node_name, $top_node_level, my $sub_return ) = $self->_read_file;
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Read result after header: $node_type", $sub_return ] );
 		$self->_load_header( $sub_return ) if !$self->_has_xml_header and @$sub_return;
@@ -1129,7 +1193,7 @@ sub _read_file{
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Updated node stack", $self->_get_node_stack,
 	###LogSD		"returning popped nodes:", $return, "node_type at: $node_type"] );
-	return( $node_type, $return );
+	return( $node_type, $top_node_name, $top_node_level, $return );# Always $node_type = 2
 }
 
 sub _load_header{
@@ -1188,7 +1252,7 @@ sub _get_node_all{
 	###LogSD			"Parsing current element", (defined $level ? "..to depth: $level" : undef), ] );###LogSD			(defined $attribute_ref ? "..with attribute_ref:" : undef), $attribute_ref
 	
 	# Check for end of file state
-	if( $self->has_nodes == 0 ){
+	if( !$self->not_end_of_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Reached end of file" ] );
 		return 'EOF';
 	}
@@ -1223,7 +1287,7 @@ sub _get_node_all{
 	ADDSTRINGS: while( !$done ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Looking for the next node in the file", ] );
-		my( $result_type, $result ) = $self->_read_file;
+		my( $result_type, $top_node_name, $top_node_level, $result ) = $self->_read_file;
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Node read returned: $result_type", $result ] );
 		
@@ -1348,6 +1412,45 @@ around getline => sub{
 	###LogSD			"adding localized '<' as the newline character for \$/" ] );
 	$self->$orig;
 };
+
+sub _reconcile_attribute_strings{
+	my( $self, $parse_ref ) = @_;
+	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
+	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_reconcile_attribute_strings', );
+	###LogSD	$phone->talk( level => 'debug', message => [
+	###LogSD			"attempting to reconcile attribute split for list:", $parse_ref ] );
+	my @attributes;
+	my $should_glue = 0;
+	my $test_string;
+	for my $string ( @$parse_ref ){
+		###LogSD	$phone->talk( level => 'debug', message =>[ "processing sting: $string" ] );
+		if( $string =~ /^[^"]*"[^"]*$/ ){
+			###LogSD	$phone->talk( level => 'warn', message =>[ "found unclosed quote" ] );
+			if( $should_glue ){
+				###LogSD	$phone->talk( level => 'warn', message =>[ "..which is a closing string" ] );
+				$should_glue = 0;
+				push @attributes, $test_string . ' ' . $string;
+				$test_string = undef;
+			}else{
+				###LogSD	$phone->talk( level => 'warn', message =>[ "..which is an opening string" ] );
+				$should_glue = 1;
+				$test_string = $string;
+			}
+			###LogSD	$phone->talk( level => 'warn', message =>[ "Updated attributes:", @attributes ] );
+		}elsif( $should_glue ){
+			###LogSD	$phone->talk( level => 'warn', message =>[ "found a middle string in an open sequence" ] );
+			$test_string .= ' ' . $string;
+		}else{
+			###LogSD	$phone->talk( level => 'debug', message =>[ "just a string: $string" ] );
+			push @attributes, $string;
+		}
+	}
+	if( $should_glue ){
+		confess "Unable to close and open string with quotes -" . join '|~|', @attributes;
+	}
+	###LogSD	$phone->talk( level => 'trace', message =>[ "returning split:", @attributes ] );
+	return @attributes;
+}
 
 sub DEMOLISH{
 	my ( $self ) = @_;
@@ -1593,6 +1696,10 @@ L<Spreadsheet::Reader::ExcelXML/get_sheet_info>
 
 L<Spreadsheet::Reader::ExcelXML/get_sheet_names>
 
+L<Spreadsheet::Reader::ExcelXML/collecting_merge_data>
+
+L<Spreadsheet::Reader::ExcelXML/collecting_column_formats>
+
 L<Spreadsheet::Reader::ExcelXML::Error/set_error( $error_string )>
 
 L<Spreadsheet::Reader::Format/get_defined_conversion( $position )>
@@ -1833,6 +1940,47 @@ get the attribute value
 
 =back
 
+=head3 stacking
+
+=over
+
+B<Definition:> a pure perl xml parser will in general be slower than the C equivalent.  
+To provide some acceleration to arrive at a target destination you can turn of the stack 
+trace which will include building and storing the trace elements.  This breaks things so 
+don't do it without a solid understanding of what is happening.  For instance if you turn 
+this off and then call the method L<parse_element|/parse_element( [$depth] )>  The 
+parse_element method will have to turn the stack trace back on on it's own to build the 
+element tree.  The issue is that the most recent element at the base of the tree won't be 
+available to build from.  You will need to manually build it and push it to the stack.  See 
+the methods L<initial_node_build|/initial_node_build( $node_name, $attribute_list_ref )> and 
+L<add_node_to_stack|/add_node_to_stack( $node_ref )> to implement this.
+
+B<Default:> 1 = the stack trace is on
+
+B<attribute methods> Methods provided to adjust this attribute
+
+=over
+
+B<should_be_stacking>
+
+=over
+
+get the attribute value
+
+=back
+
+B<change_stack_storage_to( $Bool )>
+
+=over
+
+Turn the stack trace(r) state to $Bool (1 = on)
+
+=back
+
+=back
+
+=back
+
 =head2 Methods
 
 These are the methods provided by this class.
@@ -1841,25 +1989,13 @@ These are the methods provided by this class.
 
 =over
 
-B<Definition:> Clears the L<position_index|/position_index> and uses seek(0, 0) to start 
-the file handle over again.  Then it kickstarts reading the file until it gets to the first 
-non-xml header node.
+B<Definition:> Clears the L<position_index|/position_index>, the old stack trace, and kick starts 
+L<stack trace tracking|/stacking> again.  It then uses seek(0, 0) to reset the file handle to the 
+beginning.  Finally, it reads the file until it gets to the first non-xml header node.
 
 B<Accepts:> nothing
 
 B<Returns:> nothing
-
-=back
-
-=head3 is_end_of_file
-
-=over
-
-B<Definition:> Returns true if the file has reached the end
-
-B<Accepts:> nothing
-
-B<Returns:> 1 = if the file is at the end, 0 = if there remains some file left
 
 =back
 
@@ -1919,17 +2055,23 @@ than the 'attributes' key with a sub key 'val'.
 
 =over
 
-B<Definition:> This will move the xml file reader forward until it finds the 
-identified named $element.  If the reader is already at an element of that name 
-it will index forward until it finds the next $element of that name.  If the 
-optional positive $iterations integer is passed it will index to the named 
-$element $iterations times.
+B<Definition:> This will move the xml file reader forward until it finds the identified named 
+$element.  If the reader is already at an element of that name it will index forward until it finds 
+the next $element of that name.  If the optional positive $iterations integer is passed it will index 
+to the named $element - $iterations times.
 
 B<Accepts:> $element = a case sensitive xml node name found forward of the 
 current position in the file.  [$iterations] = optional a positive integer 
 indicating how many times to index forward to the named $element.
 
-B<Returns:> 1 = success, '' = failure
+B<Returns:> a list of 4 positions ( $success, $node_name, $node_level, $return_node_ref )
+
+$success = a boolean value indicating whether the desired goal was met, $node_name = the actual node 
+name for the final position (should match $element if $success), $node_level = the level of the final 
+named node in the stack( not the sub text node ) $return_node_ref = When the L<stacking|/stacking> 
+attribute is on this returns the last displaced elements in the stack displaced by the traverse of 
+the xml tree.  When stacking is off this returns an array ref of values used as the second argument in 
+L<initial_node_build|/initial_node_build( $node_name, $attribute_list_ref )>.
 
 =back
 
@@ -1944,7 +2086,14 @@ return failure and stop reading.
 
 B<Accepts:> nothing
 
-B<Returns:> 1 = success, '' = failure
+B<Returns:> a list of 4 positions ( $success, $node_name, $node_level, $return_node_ref )
+
+$success = a boolean value indicating whether the desired goal was met, $node_name = the actual node 
+name for the final position (should match $element if $success), $node_level = the level of the final 
+named node in the stack( not the sub text node ) $return_node_ref = When the L<stacking|/stacking> 
+attribute is on this returns the last displaced elements in the stack displaced by the traverse of 
+the xml tree.  When stacking is off this returns an array ref of values used as the second argument in 
+L<initial_node_build|/initial_node_build( $node_name, $attribute_list_ref )>.
 
 =back
 
@@ -1959,7 +2108,14 @@ the current node.
 
 B<Accepts:> nothing
 
-B<Returns:> 1 = success, '' = failure
+B<Returns:> a list of 4 positions ( $success, $node_name, $node_level, $return_node_ref )
+
+$success = a boolean value indicating whether the desired goal was met, $node_name = the actual node 
+name for the final position (should match $element if $success), $node_level = the level of the final 
+named node in the stack( not the sub text node ) $return_node_ref = When the L<stacking|/stacking> 
+attribute is on this returns the last displaced elements in the stack displaced by the traverse of 
+the xml tree.  When stacking is off this returns an array ref of values used as the second argument in 
+L<initial_node_build|/initial_node_build( $node_name, $attribute_list_ref )>.
 
 =back
 
@@ -2081,20 +2237,57 @@ B<Returns:> Nothing (the file handle is closed and cleared)
 	
 =back
 
-=head3 has_nodes
+=head3 not_end_of_file
 
 =over
 
 B<Definition:> This is a poor mans End Of File test (EOF).  The reader builds 
 a node stack to keep track of where it is in the xml parse and when it runs out 
-of nodes it means one of two things.  First it has reached the end of the file.  
-Second there are two top level xml nodes.  (Is that legal?)  I don't think it 
-occurs in Spreadsheets.
+of nodes it means you are back at the top of the stack.
 
 B<Accepts:> Nothing
 
 B<Returns:> a count of the nodes in the node stack (header nodes are processed 
-early on and don't count)
+early on and are read and removed as part of startup)
+	
+=back
+
+=head3 initial_node_build( $node_name, $attribute_list_ref )
+
+=over
+
+B<Definition:> Generally this is an internal method and should not be used.  However, 
+in order to provide a faster forward ability the node stack trace(ing) can be 
+L<turned off|stacking>.  When you want to turn it back on you have to manually build 
+the top node using this method and store it to the node stack using L<add_node_to_stack
+|/add_node_to_stack( $node_ref )>.  This method will build the essentials for adding 
+to the node stack.  Please not that it will not necessarily get the node level right.  
+I<If you need that to be correct then don't turn off the stack trace.>  It will not 
+build raw_text nodes correctly.
+
+B<Accepts:> 
+	$node_name = a string without spaces for the name of the node,
+	$attribute_list_ref = This is basically everything else in the xml tag except the name 
+	split on /\s+/.  Any self closing '/' should be removed prior to the split.
+	
+B<Returns:> a node ref that can be added to the node stack to kickstart stack tracing
+	
+=back
+
+=head3 add_node_to_stack( $node_ref )
+
+=over
+
+B<Definition:> Generally this is an internal method and should not be used.  However, 
+in order to provide a faster forward ability the node stack trace(ing) can be 
+L<turned off|stacking>.  When you want to turn it back on you have to manually build 
+the top node and store it to the node stack using this method.  Adding a node after the stack 
+trace has been turned off will create a discontinuity where the new node is added.  Stack 
+trace operations above this node will generally fail and stop the script.
+
+B<Accepts:> $node_ref = a top to push on the node stack for traceability
+	
+B<Returns:> nothing
 	
 =back
 

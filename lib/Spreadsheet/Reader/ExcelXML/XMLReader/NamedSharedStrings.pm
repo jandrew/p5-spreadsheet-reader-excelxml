@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings-$VERSION";
 
 use 5.010;
@@ -44,31 +44,27 @@ sub load_unique_bits{
 	###LogSD			"Setting the sharedStrings unique bits" ] );
 	
 	# Check for empty node and react (Sub element of SharedStrings is SharedString?)
-	my $result = $self->advance_element_position( 'SharedString' );
+	my( $result, $node_name, $node_level, $result_ref );
+	my $current_node = $self->current_node_parsed;
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"The current node is:", $current_node ] );
+	if( (keys %$current_node)[0] eq 'SharedString' ){
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"Found the core properties node" ] );
+		$result = 2;
+		$node_name = 'cp:coreProperties';
+	}else{
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'SharedString' );
+	}
 	if( $result ){
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"The SharedString node has an - Implied 'SharedStrings' node" ] );
+		###LogSD		"The SharedString node has an - Implied 'SharedStrings' node - this is totally incomplete" ] );
 		$self->start_the_file_over;
+		$self->good_load( 1 );
 	}else{
 		$self->set_error( "No 'SharedString' element with content found - can't parse this as a sharedStrings file" );
 		return undef;
-	}
-	
-	# Advance to the top level node
-	$result =
-		($self->current_named_node->{name} eq 'SharedStrings') or 
-		$self->advance_element_position( 'SharedStrings' );
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"'SharedStrings' node search result: 1" ] );
-	$self->close_the_file;
-	
-	# Check for the empty file here
-	
-	# Record file state
-	if( $result ){
-		$self->good_load( 1 );
-	}else{
-		$self->set_error( "No 'SharedStrings' element with content found - can't parse this as a shared strings file" );
 	}
 }
 

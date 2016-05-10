@@ -42,8 +42,20 @@ use	lib
 ###LogSD								},
 ###LogSD								WorkbookPropsInterface =>{
 ###LogSD									XMLReader =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
+###LogSD										_hidden =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										squash_node =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										parse_element =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
 ###LogSD										},
 ###LogSD									},
 ###LogSD								},

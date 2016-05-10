@@ -20,7 +20,7 @@ BEGIN{
 	$SIG{__WARN__} = sub{ print longmess $_[0]; $_[0]; };
 }
 $| = 1;
-use	Test::Most tests => 143;
+use	Test::Most tests => 138;
 use	Test::Moose;
 use Data::Dumper;
 use	lib	'../../../../Log-Shiras/lib',
@@ -329,10 +329,10 @@ my  		@class_methods = qw(
 				get_rel_info			get_id_info				get_worksheet_names		worksheet_name
 				worksheet_count			get_chartsheet_names	chartsheet_name			chartsheet_count
 				creator					modified_by				date_created			date_modified
-				has_styles_interface	get_format				start_at_the_beginning	in_the_list
-				get_shared_string		start_the_ss_file_over	has_shared_strings_interface
+				start_at_the_beginning	in_the_list
 			);
-			
+			#~ has_styles_interface	get_format				
+				#~ get_shared_string		start_the_ss_file_over	has_shared_strings_interface
 ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space => 'main', );
 ###LogSD		$phone->talk( level => 'info', message => [ "easy questions ..." ] );
 map{

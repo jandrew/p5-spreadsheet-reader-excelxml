@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps-$VERSION";
 
 use	Moose::Role;
@@ -33,7 +33,20 @@ sub load_unique_bits{
 	###LogSD			"Setting the WorkbookPropsInterface unique bits" ] );
 	
 	# turn workbook properties into a hashref
-	if( (keys %{$self->current_node_parsed})[0] eq 'cp:coreProperties' or $self->advance_element_position( 'cp:coreProperties' ) ){
+	my( $result, $node_name, $node_level, $result_ref );
+	my $current_node = $self->current_node_parsed;
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"The current node is:", $current_node ] );
+	if( (keys %$current_node)[0] eq 'cp:coreProperties' ){
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"Found the core properties node" ] );
+		$result = 2;
+		$node_name = 'cp:coreProperties';
+	}else{
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'cp:coreProperties' );
+	}
+	if( $result and $node_name eq 'cp:coreProperties' ){
 		my $properties = $self->squash_node( $self->parse_element );
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"The parsed properties are:", $properties ] );

@@ -5,18 +5,18 @@
 use strict;
 use warnings;
 
-use 5.012;
+use 5.010;
 use ExtUtils::MakeMaker 7.04;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Read xml/xlsx based Excel files",
+  "ABSTRACT" => "Read xlsx/xlsm/xml extention Excel files",
   "AUTHOR" => "Jed Lund <jandrew\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "7.04"
   },
   "DISTNAME" => "Spreadsheet-Reader-ExcelXML",
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.012",
+  "MIN_PERL_VERSION" => "5.010",
   "NAME" => "Spreadsheet::Reader::ExcelXML",
   "PREREQ_PM" => {
     "Archive::Zip" => "1.30",
@@ -28,19 +28,17 @@ my %WriteMakefileArgs = (
     "DateTimeX::Format::Excel" => 0,
     "Encode" => 0,
     "FileHandle" => 0,
-    "IO::File" => "1.16",
+    "IO::File" => 0,
     "IO::Handle" => "1.25",
-    "IO::Seekable" => "1.10",
     "Modern::Perl" => "1.20150127",
     "Moose" => 0,
     "Moose::Role" => 0,
     "MooseX::HasDefaults::RO" => 0,
     "MooseX::ShortCut::BuildInstance" => "1.040",
     "MooseX::StrictConstructor" => 0,
-    "Spreadsheet::Reader::Format" => "1.002",
+    "Spreadsheet::Reader::Format" => "0.002",
     "Spreadsheet::Reader::Format::FmtDefault" => 0,
     "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
-    "Text::ParseWords" => "3.27",
     "Type::Library" => "1.000",
     "Type::Utils" => 0,
     "Types::Standard" => 0,
@@ -57,7 +55,7 @@ my %WriteMakefileArgs = (
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-  "VERSION" => "v0.1_35",
+  "VERSION" => "v0.2.0",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t"
   }
@@ -75,9 +73,8 @@ my %FallbackPrereqs = (
   "File::Copy" => 0,
   "File::Temp" => 0,
   "FileHandle" => 0,
-  "IO::File" => "1.16",
+  "IO::File" => 0,
   "IO::Handle" => "1.25",
-  "IO::Seekable" => "1.10",
   "Modern::Perl" => "1.20150127",
   "Moose" => 0,
   "Moose::Role" => 0,
@@ -85,13 +82,12 @@ my %FallbackPrereqs = (
   "MooseX::ShortCut::BuildInstance" => "1.040",
   "MooseX::StrictConstructor" => 0,
   "Spreadsheet::ParseExcel" => 0,
-  "Spreadsheet::Reader::Format" => "1.002",
+  "Spreadsheet::Reader::Format" => "0.002",
   "Spreadsheet::Reader::Format::FmtDefault" => 0,
   "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
   "Test::Moose" => 0,
   "Test::Most" => 0,
   "Test::TypeTiny" => 0,
-  "Text::ParseWords" => "3.27",
   "Type::Library" => "1.000",
   "Type::Utils" => 0,
   "Types::Standard" => 0,

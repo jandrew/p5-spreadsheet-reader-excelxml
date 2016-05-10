@@ -53,16 +53,31 @@ use	lib
 ###LogSD								WorkbookMetaInterface =>{
 ###LogSD									XMLReader =>{
 ###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
+###LogSD											log_file => 'trace',
 ###LogSD										},
 ###LogSD										squash_node =>{
 ###LogSD											UNBLOCK =>{
 ###LogSD												log_file => 'warn',
 ###LogSD											},
 ###LogSD										},
-###LogSD										_hidden =>{
+###LogSD										parse_element =>{
 ###LogSD											UNBLOCK =>{
 ###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										current_named_node =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										current_node_parsed =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										_hidden =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'info',
 ###LogSD											},
 ###LogSD										},
 ###LogSD									},
@@ -239,6 +254,7 @@ can_ok		$test_instance, $_,
 
 ###LogSD		$phone->talk( level => 'trace', message => [ 'Test instance:', $test_instance ] );
 			for my $test_method ( keys %$test_ref ){
+#~ explain		$test_instance->$test_method;
 is_deeply	$test_instance->$test_method, $test_ref->{$test_method},
 										"Check that the -$test_method- is:" . Dumper( $test_ref->{$test_method} );
 			}

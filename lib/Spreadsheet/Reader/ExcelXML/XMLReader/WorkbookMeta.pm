@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta-$VERSION";
 
 use	Moose::Role;
@@ -31,7 +31,7 @@ sub load_unique_bits{
 	
 	# Set date epoch
 	$self->start_the_file_over;
-	my $result = $self->advance_element_position( 'Date1904' );
+	my( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'Date1904' );
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Apple date search result: " . ($result//'undef') ] );
 	my $epoch_start = 1900;
@@ -49,11 +49,15 @@ sub load_unique_bits{
 	# Build sheet list
 	my( $sheet_lookup, $id_lookup, $sheet_list );
 	$self->start_the_file_over;
-	$result = $self->advance_element_position( 'Worksheet' );# Chartsheets don't appear to be allowed in SpreadsheetML format
+	( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'Worksheet' );# Chartsheets don't appear to be allowed in SpreadsheetML format
+	###LogSD	$phone->talk( level => 'debug', message => [
+	###LogSD		"Arrived at node name -$node_name- with result: $result" ] );
 	if( $result ){
 		my $position = 0;
 		my $top_ref = $self->current_node_parsed;
-		COLLECTSHEETDATA: while( (keys %$top_ref)[0] eq 'Worksheet' ){# Redundant on the first pass
+		###LogSD	$phone->talk( level => 'debug', message => [
+		###LogSD		"Current node parsed to:", $top_ref ] );
+		COLLECTSHEETDATA: while( $node_name eq 'Worksheet' ){# Redundant on the first pass
 			my $sheet_name = $top_ref->{Worksheet}->{'ss:Name'};
 			my $sheet_id = $position + 1;
 			push @$sheet_list, $sheet_name;
@@ -62,23 +66,24 @@ sub load_unique_bits{
 			###LogSD		"Worksheet node named: $sheet_name",
 			###LogSD		"Worksheet position: $position",
 			###LogSD		"Worksheet ID: $sheet_id", $top_ref, $sheet_list, $id_lookup ] );
-			$result = $self->advance_element_position;
+			( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position;
+			###LogSD	$phone->talk( level => 'debug', message => [
+			###LogSD		"Arrived at node name -$node_name- with result: $result" ] );
 			last COLLECTSHEETDATA if !$result;
 			my $lower_ref = $self->current_node_parsed;
 			###LogSD	$phone->talk( level => 'debug', message =>[  "Lower node is:", $lower_ref ] );
-			COLLECTWORKSHEETOPTIONS: while( (keys %$lower_ref)[0] ne 'WorksheetOptions' ){
-				$result = $self->next_sibling;
+			COLLECTWORKSHEETOPTIONS: while( $result and $node_name ne 'WorksheetOptions' ){
+				( $result, $node_name, $node_level, $node_ref ) = $self->next_sibling;
 				last COLLECTWORKSHEETOPTIONS if !$result;
-				$lower_ref = $self->current_node_parsed;
 				###LogSD	$phone->talk( level => 'debug', message =>[
-				###LogSD		"Next sibling node is:", $lower_ref ] );
+				###LogSD		"Next sibling node may be: $node_name", ] );
 			}
 			# Load the sheet settings
 			my $options_ref;
 			if( $result ){# For specific settings in the file
 				$options_ref = $self->squash_node( $self->parse_element );
 				###LogSD	$phone->talk( level => 'trace', message =>[
-				###LogSD		"Full WorksheetOptions node:", $options_ref ] );
+				###LogSD		"Fulls WorksheetOptions node:", $options_ref ] );
 				delete $options_ref->{raw_text};
 				delete $options_ref->{xmlns};
 			}
@@ -91,9 +96,9 @@ sub load_unique_bits{
 			$sheet_lookup->{$sheet_name} = $options_ref;
 			###LogSD	$phone->talk( level => 'trace', message =>[
 			###LogSD		"Updated sheet lookup:", $sheet_lookup, $self->current_node_parsed ] );
-			$result = $self->advance_element_position( 'Worksheet' );
-			###LogSD	$phone->talk( level => 'trace', message =>[
-			###LogSD		"Advanced with the result: " . ($result//'') ] );
+			( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'Worksheet' );
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Advanced to node -$node_name- with the result: " . ($result//'') ] );
 			last COLLECTSHEETDATA if !$result;
 			$top_ref = $self->current_node_parsed;
 			###LogSD	$phone->talk( level => 'debug', message =>[  "Next top node is:", $top_ref] );

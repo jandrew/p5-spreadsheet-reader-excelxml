@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles-$VERSION";
 
 use 5.010;
@@ -181,17 +181,18 @@ sub load_unique_bits{
 	#~ ###LogSD		$phone->talk( level => 'trace', message => [ 'self:', $self ] );
 	
 	# Advance to the styleSheet node
-	my $current_named_node = $self->current_named_node;
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Currently at named node:", $current_named_node, ] );
-	my	$result = 1;
-	if( $current_named_node->{name} eq 'styleSheet' ){
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"already at the styleSheet node" ] );
+	my( $result, $node_name, $node_level, $result_ref );
+	my $current_node = $self->current_node_parsed;
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"The current node is:", $current_node ] );
+	if( (keys %$current_node)[0] eq 'styleSheet' ){
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"Found the core properties node" ] );
+		$result = 2;
+		$node_name = 'styleSheet';
 	}else{
-		$result = $self->advance_element_position( 'styleSheet' );
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"attempt to get to the styleSheet element result: $result" ] );
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'styleSheet' );
 	}
 	
 	# Record file state
@@ -223,7 +224,9 @@ sub load_unique_bits{
 		###LogSD	$phone->talk( level => 'trace', message => [
 		###LogSD		"Initial extraction of numFmts:", $custom_format_ref ] );
 	}else{
-		if( $self->advance_element_position( 'numFmts' ) ){
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'numFmts' );
+		if( $result ){
 			$top_level_ref = $self->parse_element;
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"Pulling the custom number formats only:", $custom_format_ref ] );
@@ -256,11 +259,8 @@ sub load_unique_bits{
 	# Cache remaining as needed
 	my( $list_to_cache, $count );
 	if( $self->should_cache_positions ){
-		###LogSD	$phone->talk( level => 'info', message => [
+		###LogSD	$phone->talk( level => 'trace', message => [
 		###LogSD		"Build and load the rest of the cache", $top_level_ref ] );
-		#~ my $restacked_ref = $self->_restack_perl_ref( $top_level_ref, $top_level_ref );
-		#~ ###LogSD	$phone->talk( level => 'fatal', message => [
-		#~ ###LogSD		"Extracting elements from:", $restacked_ref ] );
 		
 		# Build specfic formats
 		if( !exists $top_level_ref->{cellXfs} or
@@ -269,12 +269,12 @@ sub load_unique_bits{
 		}else{
 			my $cell_xfs = exists $top_level_ref->{cellXfs}->{list} ?
 				$top_level_ref->{cellXfs}->{list} : [ $top_level_ref->{cellXfs}->{xf} ];
-			###LogSD	$phone->talk( level => 'debug', message => [
+			###LogSD	$phone->talk( level => 'trace', message => [
 			###LogSD		"Loading specific cell formats:", $cell_xfs ] );
 			$self->_set_styles_count( scalar( @$cell_xfs ) );
 			for my $position ( @$cell_xfs ){
 				my $stacked_ref = $self->_stack_perl_ref( $top_level_ref, $position );
-				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD	$phone->talk( level => 'trace', message => [
 				###LogSD		"Updated position:", $stacked_ref ] );
 				$self->_add_s_position( $stacked_ref );
 			}
@@ -292,7 +292,7 @@ sub load_unique_bits{
 			$self->_set_generic_styles_count( scalar( @$cell_style_xfs ) );
 			for my $position ( @$cell_style_xfs ){
 				my $stacked_ref = $self->_stack_perl_ref( $top_level_ref, $position );
-				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD	$phone->talk( level => 'trace', message => [
 				###LogSD		"Updated position:", $stacked_ref ] );
 				$self->_add_gs_position( $stacked_ref );
 			}
@@ -440,24 +440,39 @@ sub _get_header_and_value{
 			###LogSD		"..currently at the node:", $current_node,] );
 			
 			# Begin at the beginning
-			if( $current_node->{name} eq $target_header or $self->advance_element_position( $target_header ) ){# Can't tell which sub position you are at :(
-				$current_node = $self->current_named_node;
-				###LogSD	$phone->talk( level => 'debug', message => [
-				###LogSD		"Arrived at:", $current_node, ] );
+			my( $result, $node_name, $node_level, $result_ref );
+			if( $current_node->{name} eq $target_header ){
+				###LogSD	$phone->talk( level => 'trace', message =>[
+				###LogSD		"Found the core properties node" ] );
+				$result = 2;
+				$node_name = $target_header;
 			}else{
-				$self->start_the_file_over;
-				if( $self->advance_element_position( $target_header ) ){
-					###LogSD	$phone->talk( level => 'debug', message => [
-					###LogSD		"Rewound to: $target_header" ] );
-				}else{
+				( $result, $node_name, $node_level, $result_ref ) =
+					$self->advance_element_position( $target_header );# Can't tell which sub position you are at :(
+					###LogSD	$phone->talk( level => 'trace', message =>[
+					###LogSD		"After search arrived at node -$node_name- with result: $result" ] );
+				if( !$result ){# One more attempt
+					###LogSD	$phone->talk( level => 'trace', message =>[
+					###LogSD		"Starting the file over just in case the value is back" ] );
+					$self->start_the_file_over;
+					( $result, $node_name, $node_level, $result_ref ) =
+						$self->advance_element_position( $target_header );
+					###LogSD	$phone->talk( level => 'trace', message =>[
+					###LogSD		"After search arrived at node -$node_name- with result: $result" ] );
+				}
+				if( !$result ){# Just not here!
+					###LogSD	$phone->talk( level => 'trace', message =>[ "Fail!!!!!!!!!!" ] );
+					$self->set_error( "Requested styles header -$target_header- is not found in this workbook" );
 					return( undef, undef );
 				}
 			}
 	
 			# Index to the indicated sub position
-			my $result = $self->advance_element_position( $sub_header, $target_position + 1 );
-			###LogSD	$phone->talk( level => 'debug', message => [
-			###LogSD		"Advancing to position -$target_position- gives result: $result" ] );
+			( $result, $node_name, $node_level, $result_ref ) =
+				$self->advance_element_position( $sub_header, $target_position + 1 );
+			###LogSD	$phone->talk( level => 'trace', message =>[
+			###LogSD		"After search for header -$sub_header- and position -" .
+			###LogSD		($target_position + 1) . "- arrived at node -$node_name- with result: $result" ] );
 			if( !$result ){
 				$self->set_error( "Requested styles sub position for -$target_header- is not found in this workbook" );
 				return( undef, undef );
@@ -603,15 +618,15 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader/start_the_file_over>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/close_the_file>
 
-L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position>
+L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position( $element, [$iterations] )>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/parse_element>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/current_named_node>
 
-L<Spreadsheet::Reader::ExcelXML::XMLReader/squash_node>
+L<Spreadsheet::Reader::ExcelXML::XMLReader/squash_node( $node )>
 
-L<Spreadsheet::Reader::ExcelXML::Error/set_error>
+L<Spreadsheet::Reader::ExcelXML::Error/set_error( $error_string )>
 
 =back
 

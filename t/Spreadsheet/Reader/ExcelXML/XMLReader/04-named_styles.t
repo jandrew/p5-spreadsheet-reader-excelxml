@@ -206,15 +206,15 @@ lives_ok{
 ok			$file_handle = $test_instance->extract_file( [qw( Styles )] ),
 										"Pull the Styles file with headers";# exit 1;
 			$file_handle->seek( 0, 0 );
-###LogSD		if( 0 ){
+###LogSD		if( 1 ){
 ###LogSD			$operator->add_name_space_bounds( {
-###LogSD				Test =>{
-###LogSD					_load_unique_bits =>{
+#~ ###LogSD				Test =>{
+#~ ###LogSD					load_unique_bits =>{
 ###LogSD						UNBLOCK =>{
 ###LogSD							log_file => 'trace',
 ###LogSD						},
-###LogSD					},
-###LogSD				},
+#~ ###LogSD					},
+#~ ###LogSD				},
 ###LogSD			} );
 ###LogSD		}
 lives_ok{

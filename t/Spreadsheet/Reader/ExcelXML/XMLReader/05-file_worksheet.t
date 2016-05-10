@@ -35,32 +35,37 @@ use	Data::Dumper;
 ###LogSD	my	$operator = Log::Shiras::Switchboard->get_operator(
 ###LogSD						name_space_bounds =>{
 ###LogSD							UNBLOCK =>{
-###LogSD								log_file => 'warn',
+###LogSD								log_file => 'trace',
 ###LogSD							},
-#~ ###LogSD							build_class =>{
-#~ ###LogSD								UNBLOCK =>{
-#~ ###LogSD									log_file => 'warn',
-#~ ###LogSD								},
-#~ ###LogSD							},
-#~ ###LogSD							build_instance =>{
-#~ ###LogSD								UNBLOCK =>{
-#~ ###LogSD									log_file => 'warn',
-#~ ###LogSD								},
-#~ ###LogSD							},
-#~ ###LogSD							Test =>{
-#~ ###LogSD								Worksheet =>{
-#~ ###LogSD									_load_unique_bits =>{
-#~ ###LogSD										UNBLOCK =>{
-#~ ###LogSD											log_file => 'trace',
-#~ ###LogSD										},
-#~ ###LogSD									},
-#~ ###LogSD									XMLReader =>{
-#~ ###LogSD										squash_node =>{
-#~ ###LogSD											UNBLOCK =>{
-#~ ###LogSD												log_file => 'trace',
-#~ ###LogSD											},
-#~ ###LogSD										},
-#~ ###LogSD									},
+###LogSD							build_class =>{
+###LogSD								UNBLOCK =>{
+###LogSD									log_file => 'warn',
+###LogSD								},
+###LogSD							},
+###LogSD							build_instance =>{
+###LogSD								UNBLOCK =>{
+###LogSD									log_file => 'warn',
+###LogSD								},
+###LogSD							},
+###LogSD							Test =>{
+###LogSD								Worksheet =>{
+###LogSD									_load_unique_bits =>{
+###LogSD										UNBLOCK =>{
+###LogSD											log_file => 'trace',
+###LogSD										},
+###LogSD									},
+###LogSD									XMLReader =>{
+###LogSD										squash_node =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD										_hidden =>{
+###LogSD											UNBLOCK =>{
+###LogSD												log_file => 'warn',
+###LogSD											},
+###LogSD										},
+###LogSD									},
 #~ ###LogSD									XMLToPerlData =>{
 #~ ###LogSD										UNBLOCK =>{
 #~ ###LogSD											log_file => 'warn',
@@ -71,13 +76,13 @@ use	Data::Dumper;
 #~ ###LogSD											log_file => 'warn',
 #~ ###LogSD										},
 #~ ###LogSD									},
-#~ ###LogSD								},
+###LogSD								},
 #~ ###LogSD								SharedStringsInterface =>{
 #~ ###LogSD									UNBLOCK =>{
 #~ ###LogSD										log_file => 'warn',
 #~ ###LogSD									},
 #~ ###LogSD								},
-#~ ###LogSD							},
+###LogSD							},
 ###LogSD							main =>{
 ###LogSD								UNBLOCK =>{
 ###LogSD									log_file => 'info',
@@ -198,6 +203,16 @@ lives_ok{
 						writer	=> 'set_from_the_edge',
 						default => 1,
 					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+						default => 1,
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+						default => 1,
+					},
 				},
 			);
 			$test_instance = build_instance(
@@ -213,7 +228,7 @@ lives_ok{
 								],
 			);# exit 1;
 			###LogSD	$phone->talk( level => 'info', message =>[ "Loaded test instance" ] );
-}										"Prep a new FileWorksheet instance";
+}										"Prep a new FileWorksheet instance";# exit 1;
 map{
 has_attribute_ok
 			$test_instance, $_,

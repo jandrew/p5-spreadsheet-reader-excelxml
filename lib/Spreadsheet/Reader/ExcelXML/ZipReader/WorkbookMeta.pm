@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta-$VERSION";
 
 use	Moose::Role;
@@ -29,7 +29,7 @@ sub load_unique_bits{
 	
 	# Set date epoch
 	#~ $self->start_the_file_over;
-	my $result = $self->advance_element_position( 'workbookPr' );
+	my( $result, $node_name, $node_level, $result_ref ) = $self->advance_element_position( 'workbookPr' );
 	my $epoch_start = 1900;
 	if( $result ){
 		my $workbookPr_ref = $self->squash_node( $self->parse_element );
@@ -47,7 +47,7 @@ sub load_unique_bits{
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Attempting to match the workbook node to: $top_node" ] );
 		$self->start_the_file_over;
-		$result = $self->advance_element_position( $top_node );
+		( $result, $node_name, $node_level, $result_ref ) = $self->advance_element_position( $top_node );
 		last if $result;
 	}
 	confess "Could not find any sheets" if !$result;
@@ -122,7 +122,7 @@ sub load_unique_bits{
 	$self->_set_rel_lookup( $rel_lookup );
 	$self->_set_id_lookup( $id_lookup );
 	$self->close_the_file;
-	$self->good_load( 1 );
+	$self->good_load( 1 );#  exit 1;
 }
 
 #########1 Private Attributes 3#########4#########5#########6#########7#########8#########9

@@ -37,18 +37,18 @@ use	lib
 ###LogSD								UNBLOCK =>{
 ###LogSD									log_file => 'trace',
 ###LogSD								},
-###LogSD								WorkbookFileInterface =>{
-###LogSD									UNBLOCK =>{
-###LogSD										log_file => 'warn',
-###LogSD									},
-###LogSD								},
-###LogSD								WorkbookRelsInterface =>{
-###LogSD									XMLReader =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
-###LogSD									},
-###LogSD								},
+#~ ###LogSD								WorkbookFileInterface =>{
+#~ ###LogSD									UNBLOCK =>{
+#~ ###LogSD										log_file => 'warn',
+#~ ###LogSD									},
+#~ ###LogSD								},
+#~ ###LogSD								WorkbookRelsInterface =>{
+#~ ###LogSD									XMLReader =>{
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'warn',
+#~ ###LogSD										},
+#~ ###LogSD									},
+#~ ###LogSD								},
 ###LogSD							},
 ###LogSD							main =>{
 ###LogSD								UNBLOCK =>{

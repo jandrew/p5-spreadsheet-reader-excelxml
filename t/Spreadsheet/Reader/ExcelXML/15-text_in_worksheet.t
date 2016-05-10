@@ -202,8 +202,18 @@ lives_ok{
 						isa		=> Bool,
 						writer	=> 'set_empty_is_end',
 						reader	=> 'is_empty_the_end',
-					}
+					},
+					merge_data =>{
+						isa => Bool,
+						reader => 'collecting_merge_data',
+					},
+					column_formats =>{
+						isa => Bool,
+						reader => 'collecting_column_formats',
+					},
 				},
+				column_formats => 1,
+				merge_data => 1,
 				values_only => 1,
 				spaces_are_empty => 0,
 				empty_return_type => 'undef_string',

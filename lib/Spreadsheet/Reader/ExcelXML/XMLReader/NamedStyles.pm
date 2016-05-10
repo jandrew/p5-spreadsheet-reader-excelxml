@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles-$VERSION";
 
 use 5.010;
@@ -37,6 +37,7 @@ my	$xml_from_cell ={
 my $date_keys ={# SpreadsheetML to Excel 2007+ custom date formats
 		'Short Date'	=> 'yyyy-mm-dd',
 		'Fixed'			=> '0.00',
+		'ShortDate'	=> 'yyyy-mm-dd',
 	};
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
@@ -78,8 +79,10 @@ sub get_format{
 		while( !$found_it ){
 			###LogSD		$phone->talk( level => 'debug', message => [
 			###LogSD			"Looking for a 'Style' node on pass: $x", ] );
-			my $result = $self->advance_element_position( 'Style', 1 );
-			###LogSD	$phone->talk( level => 'debug', message =>[ "'Style' search result: $result" ] );
+			my ( $result, $node_name, $node_level, $result_ref ) =
+				$self->advance_element_position( 'Style' );
+			###LogSD	$phone->talk( level => 'trace', message =>[
+			###LogSD		"After search for header 'Style' arrived at node -$node_name- with result: $result" ] );
 			last if !$result;
 			my $xml_ref = $self->parse_element;
 			###LogSD	$phone->talk( level => 'debug', message => [
@@ -129,23 +132,29 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	
 	# Check for empty node and react
-	my $result = $self->advance_element_position( 'Style' );
+	my( $result, $node_name, $node_level, $result_ref );
+	my $current_node = $self->current_node_parsed;
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"The current node is:", $current_node ] );
+	if( (keys %$current_node)[0] eq 'Styles' ){
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"Found the Styles node" ] );
+		$result = 2;
+		$node_name = 'Styles';
+	}else{
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'Styles' );
+		###LogSD	$phone->talk( level => 'trace', message =>[
+		###LogSD		"After search for header 'Style' arrived at node -$node_name- with result: $result" ] );
+	}
 	if( $result ){
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Found a Style node - Implied 'Styles' super node" ] );
+		###LogSD		"Found a Styles node" ] );
 		$self->good_load( 1 );
-		$self->start_the_file_over;
 	}else{
-		$self->set_error( "No 'Style' element with content found - can't parse this as a styles file" );
+		$self->set_error( "No 'Styles' element with content found - can't parse this as a styles file" );
 		return undef;
 	}
-	
-	# Advance to the top level node
-	$result =
-		$self->current_named_node->{name} eq 'Styles' or 
-		$self->advance_element_position( 'Styles' );
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"'Styles' node search result: 1" ] );
 	
 	# Cache nodes as needed (No standard number formats to record)
 	my ( $success, $top_level_ref );
@@ -232,6 +241,8 @@ sub _transform_element{
 					exists( $date_keys->{$sub_element->{$key}->{'ss:Format'}} ) ? 
 						$date_keys->{$sub_element->{$key}->{'ss:Format'}} :
 						$sub_element->{$key}->{'ss:Format'} ;
+				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD		"Replace string result: $replaced_string", ] );
 				if( $replaced_string ){
 					$replaced_string =~ /^(\[[A-Z]{3}\])?(.*)/;######### Take this back out when localization is implemented
 					$replaced_string = $2;
@@ -241,6 +252,8 @@ sub _transform_element{
 				$new_sub->{$cell_attributes->{$key}} = 
 					defined( $replaced_string ) ? 
 						$self->parse_excel_format_string( $replaced_string ) : undef;
+				###LogSD	$phone->talk( level => 'debug', message => [
+				###LogSD		"Finished the excel format parsing" ] );
 			}else{
 				$new_sub->{$cell_attributes->{$key}} = $sub_element->{$key};
 			}
@@ -312,15 +325,15 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader/start_the_file_over>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/close_the_file>
 
-L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position>
+L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position( $element, [$iterations] )>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/parse_element>
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/current_named_node>
 
-L<Spreadsheet::Reader::ExcelXML::XMLReader/squash_node>
+L<Spreadsheet::Reader::ExcelXML::XMLReader/squash_node( $node )>
 
-L<Spreadsheet::Reader::ExcelXML::Error/set_error>
+L<Spreadsheet::Reader::ExcelXML::Error/set_error( $error_string )>
 
 =back
 

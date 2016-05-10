@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet-$VERSION";
 
 use	5.010;
@@ -68,9 +68,11 @@ sub advance_row_position{
 	###LogSD			"Moving row forward -$increment- times", ] );
 	my $new_ref;
 	for my $x ( 1 .. $increment ){
-		my $result = $self->advance_element_position( 'Row', );
+		my( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'Row' );
 		###LogSD	$phone->talk( level => 'info', message => [
-		###LogSD		"Advanced to 'Row' increment -$x- time(s) with result: " . ($result//'fail'), ] );
+		###LogSD		"Advanced to 'Row' increment -$x- time(s) arriving at node -" .
+		###LogSD		"$node_name- with result: " . ($result//'fail'), ] );
 		last if !$result;
 		$new_ref = undef;
 		my $row_node = $self->current_node_parsed;
@@ -428,14 +430,17 @@ sub load_unique_bits{
 	my $current_named_node = $self->current_named_node;
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Currently at named node:", $current_named_node, ] );
-	my	$result = 1;
+	my( $result, $node_name, $node_level, $result_ref );
 	if( $current_named_node->{name} eq 'Table' ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"already at the Table node" ] );
+		$result = 1;
 	}else{
-		$result = $self->advance_element_position( 'Table' );
-		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"attempt to get to the Table node result: $result" ] );
+		( $result, $node_name, $node_level, $result_ref ) =
+			$self->advance_element_position( 'Table' );
+		###LogSD	$phone->talk( level => 'info', message => [
+		###LogSD		"Advance to 'Table' node arrived at node -" .
+		###LogSD		"$node_name- with result: " . ($result//'fail'), ] );
 	}
 	if( $result ){
 		my $Table = $self->current_node_parsed;
@@ -456,15 +461,13 @@ sub load_unique_bits{
 	}
 	
 	#pull column stats
-	$result = $self->advance_element_position( 'Column' );
+	( $result, $node_name, $node_level, $result_ref ) =
+		$self->advance_element_position( 'Column' );
 	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"attempt to get to the Column node result: $result" ] );
-	$current_named_node = $self->current_named_node;
-	###LogSD	$phone->talk( level => 'debug', message => [
-	###LogSD		"Currently at named node:", $current_named_node, ] );
+	###LogSD		"attempt to get to the Column node arrived at -$node_name- with result: $result" ] );
 	my $column_store = [];
 	my $current_column = 1;# flat xml files don't always record column sometime they just sequence from the beginning
-	while( $current_named_node->{name} eq 'Column' ){
+	while( $node_name eq 'Column' ){
 		my $column_settings = $self->squash_node( $self->parse_element );
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Processing:", $column_settings ] );
@@ -490,10 +493,10 @@ sub load_unique_bits{
 		}
 		my $result = $self->next_sibling;
 		last if !$result;
-		$current_named_node = $self->current_named_node;
+		$node_name = $self->current_named_node->{name};
 		$current_column = $end_column + 1;
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Currently at named node:", $current_named_node, ".. it could be column: $current_column" ] );
+		###LogSD		"Currently at named node: $node_name", ".. it could be column: $current_column" ] );
 	}
 	###LogSD	$phone->talk( level => 'trace', message => [
 	###LogSD		"Final column store is:", $column_store ] );

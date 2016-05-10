@@ -11,7 +11,11 @@ be method matched to Spreadsheet::ParseExcel prior to the 1.0 release.
 
 {{$NEXT}}
 
-	! Giving up on 5.010 support for now (Can't get IO::Handle to seek)
+	* Another cool change
+
+v0.2.0    2016-05-10 15:10:05-07:00 America/Los_Angeles
+
+	+ Initial production level release
 	! fixed several travis-ci fails mostly due to os differences and imported classes
 	+ Finished the main Spreadsheet::Reader::ExcelXML pod (documentation)
 

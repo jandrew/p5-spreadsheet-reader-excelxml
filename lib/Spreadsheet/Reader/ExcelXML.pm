@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.1_37');
+use version 0.77; our $VERSION = version->declare('v0.2.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -60,6 +60,9 @@ my	$attribute_defaults ={
 		spread_merged_values => 0,
 		skip_hidden => 0,
 		spaces_are_empty => 0,
+		merge_data => 1,
+		column_formats => 1,
+		
 	};
 my	$flag_settings ={
 		alt_default =>{
@@ -75,6 +78,8 @@ my	$flag_settings ={
 			from_the_edge     => 0,
 			empty_return_type => 'undef_string',
 			spaces_are_empty  => 1,
+			merge_data		  => 0,
+			column_formats	  => 0,
 		},
 		just_raw_data =>{
 			count_from_zero   => 0,
@@ -83,6 +88,9 @@ my	$flag_settings ={
 			group_return_type => 'unformatted',
 			from_the_edge     => 0,
 			empty_return_type => 'undef_string',
+			spaces_are_empty  => 1,
+			merge_data		  => 0,
+			column_formats	  => 0,
 		},
 		like_ParseExcel =>{
 			count_from_zero => 1,
@@ -208,10 +216,11 @@ has _workbook =>(
 			get_rel_info			get_id_info				get_worksheet_names		worksheet_name
 			worksheet_count			get_chartsheet_names	chartsheet_name			chartsheet_count
 			creator					modified_by				date_created			date_modified
-			has_styles_interface	get_format				start_at_the_beginning	in_the_list
-			get_shared_string		start_the_ss_file_over	has_shared_strings_interface
+			start_at_the_beginning	in_the_list
 		)],
 	);
+			#~ get_shared_string		start_the_ss_file_over	has_shared_strings_interface
+			#~ has_styles_interface	get_format				
 
 #########1 Private Methods    3#########4#########5#########6#########7#########8#########9
 
@@ -281,18 +290,6 @@ around BUILDARGS => sub {
 		}
 	}
 	
-	#~ # Pull any delayed build items - probably to allow them to observe the workbook instance
-	#~ for my $key ( @$delay_till_build ){
-		#~ ###LogSD	$phone->talk( level => 'trace', message =>[
-		#~ ###LogSD		"Delaying the installation of: $key" ] );
-		#~ my $build_delay_store = {};
-		#~ if( exists $args{$key} ){
-			#~ $build_delay_store->{$key} = $args{$key};
-			#~ delete $args{$key};
-		#~ }
-		#~ $args{_delay_till_build} = $build_delay_store;
-	#~ }
-	
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD			"Final BUILDARGS:", %args ] );
 	my $workbook = Spreadsheet::Reader::ExcelXML::Workbook->new( %args );
@@ -303,19 +300,6 @@ around BUILDARGS => sub {
 	###LogSD	log_space => $args{log_space}
 	);
 };
-
-#~ around parse => sub{
-	#~ my ( $orig, $self, @args ) = @_;
-	#~ ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	#~ ###LogSD			$self->get_all_space . '::_around::parse', );
-	#~ ###LogSD		$phone->talk( level => 'info', message =>[
-	#~ ###LogSD			"Adding the built workbook to the workbook attribute with args:", @args ] );
-	#~ my $workbook = $self->$orig( @args );
-	#~ ###LogSD	$phone->talk( level => 'debug', message =>[
-	#~ ###LogSD			"setting the returned workbook" ] );
-	#~ ###LogSD	$phone->talk( level => 'trace', message =>[ $workbook ] );
-	#~ $self->_set_workbook( $workbook ) if $workbook;
-#~ };
 
 sub DEMOLISH{
 	my ( $self ) = @_;
@@ -345,7 +329,7 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML - Read xml/xlsx based Excel files
+Spreadsheet::Reader::ExcelXML - Read xlsx/xlsm/xml extention Excel files
 
 =begin html
 
@@ -499,8 +483,6 @@ data output formats targeting specific cell ranges
 
 =back
 
-=back
-
 There are some differences from the L<Spreadsheet::ParseExcel> package.  For instance 
 in the L<SYNOPSIS|/SYNOPSIS> the '$parser' and the '$workbook' are actually the same 
 class for this package.  You could therefore combine both steps by calling ->new with 
@@ -591,6 +573,21 @@ B<Example:> using the implied 'next' worksheet;
 
 =back
 
+=head3 file_name
+
+=over
+
+B<Definition:> If you pass a file $location/$name string to the attribute L<file|/file> then before 
+the package converts it to a file handle it will store the string.  You can retreive that string 
+with this method.  This is true if you pass a string to the L<parse
+|/parse( $file_name|$file_handle, $formatter )> method as well.
+
+B<Accepts:> nothing
+
+B<Returns:> the $location/$name file string if available.
+
+=back
+
 =head3 file_opened
 
 =over
@@ -613,7 +610,7 @@ B<Example:>
 		die $workbook->error(), "\n";
 	}
 
-	for my $worksheet ( $workbook->worksheet ) {
+	for my $worksheet ( $workbook->worksheets ) {
 		
 		print "Reading worksheet named: " . $worksheet->get_name . "\n";
 		
@@ -623,6 +620,72 @@ B<Example:>
 			last if $cell eq 'EOF';
 		}
 	}
+
+=back
+
+=head3 get_sheet_names
+
+=over
+
+B<Definition:> This method returns an array ref of all the sheet names (tabs) in the 
+workbook in order.  (It includes chartsheets.)
+
+B<Accepts:> nothing
+
+B<Returns:> an array ref of strings
+
+=back
+
+=head3 worksheet_name( $position )
+
+=over
+
+B<Definition:> This returns the name of the worksheet in that $position. (counting from zero)
+interspersed chartsheets in the file are not considered to hold a position by this accounting.
+
+B<Accepts:> $position (an integer)
+
+B<Returns:> the worksheet name
+
+B<Example:> To return only worksheet positions 2 through 4 without building them all at once
+
+	for $x (2..4){
+		my $worksheet = $workbook->worksheet( $workbook->worksheet_name( $x ) );
+		# Read the worksheet here
+	}
+
+=back
+
+=head3 get_worksheet_names
+
+=over
+
+B<Definition:> This method returns an array ref of all the worksheet names (tabs) in the 
+workbook in order.  (No chartsheets.)
+
+B<Accepts:> nothing
+
+B<Returns:> an array ref of strings
+
+B<Example:> Another way to parse a workbook without building all the sheets at 
+once is;
+
+	for $sheet_name ( @{$workbook->worksheet_names} ){
+		my $worksheet = $workbook->worksheet( $sheet_name );
+		# Read the worksheet here
+	}
+
+=back
+
+=head3 worksheet_count
+
+=over
+
+B<Definition:> This returns the total number of recorded worksheets
+
+B<Accepts:> nothing
+
+B<Returns:> $total - a count of all worksheets (only)
 
 =back
 
@@ -738,6 +801,8 @@ L<Spreadsheet::Reader::ExcelXML::Error/has_error>
 
 =back
 
+=back
+
 =head3 formatter_inst
 
 =over
@@ -797,34 +862,31 @@ from the stored instance of this class.  Links are provided to the default imple
 
 B<Example:> name_the_workbook_uses_to_access_the_method => B<Link to the default source of the method> 
 
-get_formatter_region => L<Spreadsheet::Reader::FmtDefault/get_excel_region>
+get_formatter_region => L<Spreadsheet::Reader::Format::FmtDefault/get_excel_region>
 
-has_target_encoding => L<Spreadsheet::Reader::FmtDefault/has_target_encoding>
+has_target_encoding => L<Spreadsheet::Reader::Format::FmtDefault/has_target_encoding>
 
-get_target_encoding => L<Spreadsheet::Reader::FmtDefault/get_target_encoding>
+get_target_encoding => L<Spreadsheet::Reader::Format::FmtDefault/get_target_encoding>
 
-set_target_encoding => L<Spreadsheet::Reader::FmtDefault/set_target_encoding( $encoding )>
+set_target_encoding => L<Spreadsheet::Reader::Format::FmtDefault/set_target_encoding( $encoding )>
 
-change_output_encoding => L<Spreadsheet::Reader::Format/change_output_encoding( $string )>
+change_output_encoding => L<Spreadsheet::Reader::Format::FmtDefault/change_output_encoding( $string )>
 
-set_defined_excel_formats => L<Spreadsheet::Reader::FmtDefault/set_defined_excel_formats>
+set_defined_excel_formats => L<Spreadsheet::Reader::Format::FmtDefault/set_defined_excel_formats( %args )>
 
-get_defined_conversion => L<Spreadsheet::Reader::Format/get_defined_conversion( $position )>
+get_defined_conversion => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/get_defined_conversion( $position )>
 
-parse_excel_format_string => L<Spreadsheet::Reader::Format/parse_excel_format_string( $string, $name )>
+parse_excel_format_string => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/parse_excel_format_string( $string, $name )>
 
-set_date_behavior => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_date_behavior>
+set_date_behavior => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/set_date_behavior( $bool )>
 
-set_european_first => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_european_first>
+set_european_first => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/set_european_first( $bool )>
 
-set_formatter_cache_behavior => L<Spreadsheet::Reader::ParseExcelFormatStrings/set_cache_behavior>
+set_formatter_cache_behavior => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/set_cache_behavior( $bool )>
 
-get_excel_region => L<Spreadsheet::Reader::FmtDefault/get_excel_region>
+set_workbook_for_formatter => L<Spreadsheet::Reader::Format::ParseExcelFormatStrings/set_workbook_inst( $instance )>
 
-							set_european_first				set_european_first
-							set_formatter_cache_behavior	set_cache_behavior
-							get_excel_region				get_excel_region
-							set_workbook_for_formatter		set_workbook_inst
+=back
 
 =back
 
@@ -854,18 +916,10 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-B<set_count_from_zero>
-
-=over
-
-B<Definition:> a way to change the current attribute setting
-
 =back
 
 =back
-
-=back
-
+	
 =head3 file_boundary_flags
 
 =over
@@ -875,7 +929,8 @@ the last row of the data this package can return 'EOR' or 'EOF' to indicate that
 state.  This is especially helpful in 'while' loops.  The other option is to 
 return 'undef'.  This is problematic if some cells in your table are empty which 
 also returns undef.   The determination for what constitues the last column and 
-row is selected with the attribute L<empty_is_end|/empty_is_end>.
+row is selected with the attributes L<empty_is_end|/empty_is_end>, L<values_only
+|/values_only>, and L<spaces_are_empty|/spaces_are_empty>.
 
 B<Default> 1
 
@@ -894,18 +949,10 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-B<change_boundary_flag>
-
-=over
-
-B<Definition:> a way to change the current attribute setting
-
 =back
 
 =back
-
-=back
-
+	
 =head3 empty_is_end
 
 =over
@@ -914,7 +961,8 @@ B<Definition:> The excel convention is to read the table left to right and top
 to bottom.  Some tables have an uneven number of columns with real data from row 
 to row.  This allows the several methods that excersize a 'next' function to wrap 
 after the last element with data rather than going to the max column.  This also 
-triggers 'EOR' flags after the last data element and before the sheet max column 
+can combine with the attribute L<file_boundary_flags|/file_boundary_flags> to 
+trigger 'EOR' flags after the last data element and before the sheet max column 
 when not implementing 'next' functionality.  It will also return 'EOF' if the 
 remaining rows are empty even if the max row is farther on.
 
@@ -924,7 +972,7 @@ B<Range> 0 = treat all columns short of the max column for the sheet as being in
 the table, 1 = treat all cells after the last cell with data as past the end of 
 the row.  This will be most visible when 
 L<boundary flags are turned on|/boundary_flag_setting> or next functionality is 
-used in the context of the L<values_only|/values_only> attribute is on.
+used in the context of the attribute L<values_only|/values_only>.
 
 B<attribute methods> Methods provided to adjust this attribute
 		
@@ -935,14 +983,6 @@ B<is_empty_the_end>
 =over
 
 B<Definition:> a way to check the current attribute setting
-
-=back
-
-B<set_empty_is_end>
-
-=over
-
-B<Definition:> a way to set the current attribute setting
 
 =back
 
@@ -957,12 +997,15 @@ B<Definition:> a way to set the current attribute setting
 B<Definition:> Excel will store information about a cell even if it only contains 
 formatting data.  In many cases you only want to see cells that actually have 
 values.  This attribute will change the package behaviour regarding cells that have 
-formatting stored against that cell but no actual value.  If values 
+formatting stored against that cell but no actual value.  If values in the cells 
+exist as zero length strings or spaces only you can also set those to empty with 
+the attribute L<spaces_are_empty|/spaces_are_empty>.
 
 B<Default> 0 
 
 B<Range> 1 = return 'undef' for cells with formatting only, 
-0 = return information (cell objects) for cells that only contain formatting
+0 = return the result of L<empty_return_type|/empty_return_type> (or cell objects) 
+for cells that only contain formatting.
 
 B<attribute methods> Methods provided to adjust this attribute
 		
@@ -976,14 +1019,6 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-B<set_values_only>
-
-=over
-
-B<Definition:> a way to set the current attribute setting
-
-=back
-
 =back
 
 =back
@@ -994,8 +1029,10 @@ B<Definition:> a way to set the current attribute setting
 
 B<Definition:> Some data tables start in the top left corner.  Others do not.  I 
 don't reccomend that practice but when aquiring data in the wild it is often good 
-to adapt.  This attribute sets whether the file reads from the top left edge or from 
-the top row with data and starting from the leftmost column with data.
+to adapt.  This attribute sets whether the file percieves the L<min_col
+|/Spreadsheet::Reader::Worksheet/min_col> and L<min_row
+|/Spreadsheet::Reader::Worksheet/min_col> as the top left edge of the sheeto or 
+from the top row with data and starting from the leftmost column with data.
 
 B<Default> 1
 
@@ -1007,11 +1044,11 @@ B<attribute methods> Methods provided to adjust this attribute
 		
 =over
 
-B<set_from_the_edge>
+B<starts_at_the_edge>
 
 =over
 
-B<Definition:> a way to set the current attribute setting
+B<Definition:> returns the attribute state
 
 =back
 
@@ -1026,33 +1063,30 @@ B<Definition:> a way to set the current attribute setting
 B<Definition:> Using the standard architecture this parser would go back and 
 read the sharedStrings and styles files sequentially from the beginning each 
 time it had to access a sub elelement.  This trade-off is generally not desired 
-in the for these two files since the data is generally stored in a less than 
-sequential fasion.  The solution is to cache these files as they are read the 
-first time so that a second pass through is not necessary to retreive an 
-earlier element.  The only time this doesn't make sence is if either of the 
-files would overwhelm RAM if cached.  The package has file size break points 
-below which the files will cache.  The thinking is that above these points the 
-RAM will be overwhelmed and that not crashing and slow is better than an out 
-of memory state.  This attribute allows you to change those break points based 
-on the target machine you are running on.  The breaks are set on the byte size 
-of the sub file not on the cached expansion of the sub file.  In general the 
-styles file is cached into a hash and the shared strings file is cached into 
-an array ref.  The attribute L<group_return_type|/group_return_type> also 
-affects the size of the cache for the sharedStrings file since it will not 
-cache the string formats unless the attribute is set to 'instance'.
-	
-B<warning:> This behaviour changed with v0.40.2.  Prior to that this setting 
-accepted a boolean value that turned all caching on or off universally.  If 
-a boolean value is passed a deprication warning will be issued and the input 
-will be changed to this format.  'On' will be converted to the default caching 
-levels.  A boolean 'Off' is passed then the package will set all maximum caching 
-levels to 0.
+for these two files since the data is generally stored in a less than sequential 
+fasion.  The solution is to cache these files as they are read the first time so 
+that a second pass through is not necessary to retreive an earlier element.  The 
+only time this doesn't make sence is if either of the files would overwhelm RAM if 
+cached.  The package has file size break points below which the files will cache.  
+The thinking is that above these points the RAM is at risk of being overwhelmed 
+and that not crashing and slow is better than a possible out-of-memory state.  
+This attribute allows you to change those break points based on the target machine 
+you are running on.  The breaks are set on the byte size of the sub file not on the 
+cached expansion of the sub file.  In general the styles file is cached into a hash 
+and the shared strings file is cached into an array ref.  The attribute 
+L<group_return_type|/group_return_type> also affects the size of the cache for the 
+sharedStrings file since it will not cache the string formats unless the attribute 
+is set to 'instance'.  There is also a setting for caching worksheet data.  Some 
+worksheet row position settings will always be cached in order to speed up multiple 
+reads over the same sheet or to query meta data about the rows.  However, this 
+cache level is set lower since the row caching creates much deeper data structures.
 
 B<Default>
 
 	{
 		shared_strings_interface => 5242880,# 5 MB
 		styles_interface => 5242880,# 5 MB
+		worksheet_interface => 2097152,# 2 MB
 	}
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1063,11 +1097,11 @@ B<cache_positions>
 
 =over
 
-B<Definition:> returns the full attribute settings
+B<Definition:> returns the full attribute settings as a hashref
 
 =back
 
-B<get_cache_size( (shared_strings_interface|styles_interface) )>
+B<get_cache_size( (shared_strings_interface|styles_interface|worksheet_interface) )>
 
 =over
 
@@ -1095,7 +1129,23 @@ B<Definition:> returns true if the $target_interface has a cache size set
 
 =back
 
-=head3 group_return_type  #################### See if anything is missing from here
+=head3 show_sub_file_size
+
+=over
+
+B<Definition:> Especially for zip (xlsx and xlsm) files you may not know how big the 
+file is and want to the package to tell you what size it thinks the file is.  This 
+attribute turns on a warning statment that prints to STDERR with information on the 
+size of potientially cached files.
+
+B<Default> 0
+
+B<Range> 0 = don't warn the file size, 1 = send the potentially cached file sizes to 
+STDERR for review
+
+=back
+
+=head3 group_return_type
 
 =over
 
@@ -1104,17 +1154,17 @@ to reveal information about the cell.  In reality the extra information is not u
 much (witness the popularity of L<Spreadsheet::XLSX>).  Because many users don't need or 
 want the extra cell formatting information it is possible to get either the raw xml value, 
 the raw visible cell value (seen in the Excel format bar), or the formatted cell value 
-returned either the way the Excel file specified or the way you specify instead of a Cell 
-instance with all the data. .  See 
-L<Spreadsheet::Reader::ExcelXML::Worksheet/custom_formats> to insert custom targeted 
-formats for use with the parser.  All empty cells return undef no matter what.
+returned either the way the Excel file specified or the L<way you specify
+|Spreadsheet::Reader::ExcelXML::Worksheet/custom_formats> instead of a Cell instance with 
+all the data.  All empty cells return undef no matter what.
 
 B<Default> instance
 
 B<Range> instance = returns a populated L<Spreadsheet::Reader::ExcelXML::Cell> instance,
-unformatted = returns just the raw visible value of the cell shown in the Excel formula bar, 
-value = returns just the formatted value stored in the excel cell, xml_value = the raw value 
-for the cell as stored in the sub-xml files
+xml_value = returns the string stored in the xml file - for xml based sheets this can sometimes 
+be different thant the visible value in the cell or formula bar.  unformatted = returns just the 
+raw visible value of the cell shown in the Excel formula bar, value = returns just the formatted 
+value stored in the excel cell
 
 B<attribute methods> Methods provided to adjust this attribute
 		
@@ -1128,14 +1178,6 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-B<set_group_return_type>
-
-=over
-
-B<Definition:> a way to set the current attribute setting
-
-=back
-
 =back
 
 =back
@@ -1146,8 +1188,7 @@ B<Definition:> a way to set the current attribute setting
 
 B<Definition:> Traditionally L<Spreadsheet::ParseExcel> returns an empty string for cells 
 with unique formatting but no stored value.  It may be that the more accurate way of returning 
-undef works better for you.  This will turn that behaviour on.  I<If Excel stores an empty 
-string having this attribute set to 'undef_string' will still return the empty string!>
+undef works better for you.  This will turn that behaviour on.
 
 B<Default> empty_string
 
@@ -1167,14 +1208,303 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-B<set_empty_return_type>
-
-=over
-
-B<Definition:> a way to set the current attribute setting
+=back
 
 =back
 
+=head3 spread_merged_values
+
+=over
+
+B<Definition:> In Excel you visibly see the value of the primary cell in a merged range displayed 
+in all the cells.  This attribute lets the code see the primary value show in each of the merged 
+cells.  There is some mandatory caching to pull this off so it will consume more memory.
+
+B<Default> 0 (To match the Excel formula bar, VBscript, and Spreadsheet::ParseExcel)
+
+B<Range> 0 = don't spread the primary value, 1 = spread the primary value
+
+B<attribute methods> Methods provided to adjust this attribute
+		
+=over
+
+B<spreading_merged_values>
+
+=over
+
+B<Definition:> a way to check the current attribute setting
+
+=back
+
+=back
+
+=back
+
+=head3 skip_hidden
+
+=over
+
+B<Definition:> Like the previous attribute this attempts to match a visual effect in Excel.  
+Even though hidden cells still contain values you can't see them visibly.  This allows 
+you to skip hidden rows and columns (not hidden sheets).  The one gotcha is Excel will 
+place the primary value in the new primary merged cell (formula bar) if a merge range is 
+only partially obscured to include the original primary cell.  This package can't do that.  
+Either spread the primary to all cells or none.
+
+B<Default> 0 (To match VBscript and Spreadsheet::ParseExcel)
+
+B<Range> 0 = don't skip hidden rows and columns, 1 = skip hidden rows and columns
+
+B<attribute methods> Methods provided to adjust this attribute
+		
+=over
+
+B<should_skip_hidden>
+
+=over
+
+B<Definition:> a way to check the current attribute setting
+
+=back
+
+=back
+
+=back
+
+=head3 spaces_are_empty
+
+=over
+
+B<Definition:> Some auto file generators tend to add empty strings or strings with spaces to 
+fill empty cells.  There may be some visual value in this but they can slow down parsing scripts.  
+this attribute allows the sheet to treat spaces as empty or undef instead of cells with values.
+
+B<Default> 0 (To match Excel and Spreadsheet::ParseExcel)
+
+B<Range> 0 = cells with zero length strings and spaces are considered to have 'values", 1 = There must 
+be something other than spaces or a zero length string for the cell to have value.
+
+B<attribute methods> Methods provided to adjust this attribute
+		
+=over
+
+B<are_spaces_empty>
+
+=over
+
+B<Definition:> a way to check the current attribute setting
+
+=back
+
+=back
+
+=back
+
+=head3 merge_data
+
+=over
+
+B<Definition:> For zip based worksheets the merge data is stored at the end of the file.  In order for 
+the parser to arrive at that point it has to read through the whole sheet first.  For big worksheet 
+files this is very slow.  If you are willing to not know or implement cell merge information then turn 
+this off and the sheet should load much faster.
+
+B<Default> 1 (collect merge data)
+
+B<Range> 1 = The merge data is parsed from the worksheet file when it is opened, 0 = No merge data is 
+parsed.  The effect is equal to the cell merges dissapearing.
+
+B<attribute methods> Methods provided to adjust this attribute
+		
+=over
+
+B<collecting_merge_data>
+
+=over
+
+B<Definition:> a way to check the current attribute setting
+
+=back
+
+=back
+
+=back
+
+=head1 FLAGS
+
+The parameter list (Attributes) that are possible to pass to ->new is somewhat long.  
+Therefore you may want a shortcut that aggregates some set of attribute settings that 
+are not the defaults but wind up being boilerplate.  I have provided possible 
+alternate sets like this and am open to providing others that are suggested.  The 
+flags will have a : in front of the identifier and will be passed to the class in the 
+'use' statement for consumption by the import method.  The flags can be stacked and 
+where there is conflict between the flag settings the rightmost passed flag setting is 
+used.
+
+Example;
+
+	use Spreadsheet::Reader::ExcelXML v0.2 qw( :alt_default :debug );
+
+=head2 :alt_default
+
+This is intended for a deep look at data and skip formatting cells.
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<values_only|/values_only> => 1
+
+L<count_from_zero|/count_from_zero> => 0
+
+L<empty_is_end|/empty_is_end> => 1
+
+=back
+
+=back
+		
+=head2 :just_the_data
+
+This is intended for a shallow look at data with value formatting implemented
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<count_from_zero|/count_from_zero> => 0
+
+L<values_only|/values_only> => 1
+
+L<empty_is_end|/empty_is_end> => 1
+
+L<group_return_type|/group_return_type> => 'value'
+
+L<from_the_edge|/from_the_edge> => 0
+
+L<empty_return_type|/empty_return_type> => 'undef_string'
+
+L<spaces_are_empty|/spaces_are_empty> => 1
+
+L<merge_data|/merge_data> => 0
+
+L<column_formats|/column_formats> => 0
+
+=back
+
+=back
+
+=head2 :just_raw_data
+
+This is intended for a shallow look at raw text and skips all formatting including number formats.
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<count_from_zero|/count_from_zero> => 0
+
+L<values_only|/values_only> => 1
+
+L<empty_is_end|/empty_is_end> => 1
+
+L<group_return_type|/group_return_type> => 'xml_value'
+
+L<from_the_edge|/from_the_edge> => 0,
+
+L<empty_return_type|/empty_return_type> => 'undef_string'
+
+L<spaces_are_empty|/spaces_are_empty> => 1
+
+L<merge_data|/merge_data> => 0
+
+L<column_formats|/column_formats> => 0
+
+=back
+
+=back
+
+=head2 :like_ParseExcel
+
+This is a way to force some of the other groups back to instance and count from zero
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<count_from_zero|/count_from_zero> => 1
+
+L<group_return_type|/group_return_type> => 'instance'
+
+=back
+
+=back
+
+=head2 :debug
+
+This is a way to turn on as much reporting as possible
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<error_inst|/error_inst> =>{
+								superclasses => ['Spreadsheet::Reader::ExcelXML::Error'],
+								package => 'ErrorInstance',
+								should_warn => 1,
+							}
+
+L<show_sub_file_size|/show_sub_file_size> => 1
+
+=back
+
+=back
+
+=head2 :lots_of_ram
+
+This opens the caching size allowances way up
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<cache_positions|/cache_positions> =>{
+					shared_strings_interface => 209715200,# 200 MB
+					styles_interface => 209715200,# 200 MB
+					worksheet_interface => 209715200,# 200 MB
+				},
+				
+=back
+
+=back
+
+=head2 :less_ram
+
+This tightens caching size allowances way down
+
+=over
+
+B<Default attribute differences>
+
+=over
+
+L<cache_positions|/cache_positions> =>{
+					shared_strings_interface => 10240,# 10 KB
+					styles_interface => 10240,# 10 KB
+					worksheet_interface => 1024,# 1 KB
+				},
+				
 =back
 
 =back
@@ -1196,71 +1526,180 @@ B<Example:>
 
 	my @worksheet_array = $workbook_instance->worksheets;
 
-=head3 parse( $file_name|$file_handle, $formatter )
+=head3 get_epoch_year
 
 =over
 
-B<Definition:> This is a convenience method to match L<Spreadsheet::ParseExcel/parse($filename, $formatter)>.  
-It only works if the L<file_name|/file_name> or L<file_handle|/file_handle> attribute was not 
-set with ->new.  It is one way to set the 'file_name' or 'file_handle' attribute [and the 
-L<default_format_list|/default_format_list> attribute].  I<You cannot pass both a file name 
-and a file handle simultaneously to this method.>
-
-B<Accepts:>
-
-	$file = a valid xlsx file [or a valid xlsx file handle] (required)
-	[$formatter] = see the default_format_list attribute for valid options (optional)
-
-B<Returns:> itself when passing with the xlsx file loaded to the workbook level or 
-undef for failure.
-
-=back
-
-=head3 worksheets
-
-=over
-
-B<Definition:> This method will return an array (I<not an array reference>) 
-containing a list of references to all worksheets in the workbook.  This is not 
-a reccomended method.  It is provided for compatibility to Spreadsheet::ParseExcel.  
-For alternatives see the L<get_worksheet_names|/get_worksheet_names> method and the
-L<worksheet|/worksheet( $name )> methods.  B<For now it also only returns the tabular 
-worksheets in the workbook.  All chart worksheets are ignored! (future inclusion will 
-included a backwards compatibility policy)>
+B<Definition:> This returns the epoch year defined by the Excel workbook.  The epoch year 
+affects the way dates are processed in the formatter L<Spreadsheet::Reader::Format>
 
 B<Accepts:> nothing
 
-B<Returns:> an array ref of  L<Worksheet|Spreadsheet::Reader::ExcelXML::Worksheet> 
-objects for all worksheets in the workbook.
+B<Returns:> 1900 = Windows Excel or 1904 = Apple Excel
 
 =back
 
-=head3 worksheet( $name )
+=head3 has_epoch_year
 
 =over
 
-B<Definition:> This method will return an  object to read values in the worksheet.  
-If no value is passed to $name then the 'next' worksheet in physical order is 
-returned. I<'next' will NOT wrap>  It also only iterates through the 'worksheets' 
-in the workbook (but not the 'chartsheets').
+B<Definition:> This indicates if an epoch_year has been determined for the workbook (yet)
 
-B<Accepts:> the $name string representing the name of the worksheet object you 
-want to open.  This name is the word visible on the tab when opening the spreadsheet 
-in Excel. (not the underlying zip member file name - which can be different.  It will 
-not accept chart tab names.)
+B<Accepts:> nothing
 
-B<Returns:> a L<Worksheet|Spreadsheet::Reader::ExcelXML::Worksheet> object with the 
-ability to read the worksheet of that name.  It returns undef and sets the error attribute 
-if a 'chartsheet' is requested.  Or in 'next' mode it returns undef if past the last sheet.
-
-B<Example:> using the implied 'next' worksheet;
-
-	while( my $worksheet = $workbook->worksheet ){
-		print "Reading: " . $worksheet->name . "\n";
-		# get the data needed from this worksheet
-	}
+B<Returns:> 1 = yes there is one, 0 = nothing (yet)
 
 =back
+
+=head3 get_sheet_name( $Int )
+
+=over
+
+B<Definition:> This method returns the sheet name for a given physical position 
+in the workbook from left to right. It counts from zero even if the workbook is in 
+'count_from_one' mode.  B(It will return chart names but chart tab names cannot currently 
+be converted to worksheets). You may actually want L<worksheet_name|worksheet_name( $Int )> 
+instead of this function.
+
+B<Accepts:> integers
+
+B<Returns:> the sheet name (both worksheet and chartsheet )
+
+=back
+
+=head3 sheet_count
+
+=over
+
+B<Definition:> This returns the total number of recorded sheets
+
+B<Accepts:> nothing
+
+B<Returns:> $total - a count of all sheets (including chartsheets and worksheets)
+
+=back
+
+=head3 get_sheet_info( $name )
+
+=over
+
+B<Definition:> This returns any stored metadata about the sheet in a hashref
+
+B<Accepts:> $name
+
+B<Returns:> a hashref of sheet metadata ( a pretty thin list still )
+
+=back
+
+=head3 get_rel_info( $relId )
+
+=over
+
+B<Definition:> This returns the sheet name for the $relId
+
+B<Accepts:> $relId ex; 'rId5'
+
+B<Returns:> The sheet $name associated with that relId
+
+=back
+
+=head3 get_id_info( $Id )
+
+=over
+
+B<Definition:> This returns the sheet name for the $Id
+
+B<Accepts:> $Id (an integer) ex; '2'
+
+B<Returns:> The sheet $name associated with that Id
+
+=back
+
+=head3 get_chartsheet_names
+
+=over
+
+B<Definition:> This method returns an array ref of all the chartsheet names (tabs) in the 
+workbook in order.  (No worksheets.)
+
+B<Accepts:> nothing
+
+B<Returns:> an array ref of strings
+
+=back
+
+=head3 chartsheet_name( $position )
+
+=over
+
+B<Definition:> This returns the name of the chartsheet in that $position. (counting from zero)
+interspersed worksheets in the file are not considered to hold a position by this accounting.
+
+B<Accepts:> $position (an integer)
+
+B<Returns:> the chartsheet name
+
+=back
+
+=head3 chartsheet_count
+
+=over
+
+B<Definition:> This returns the total number of recorded chartsheets
+
+B<Accepts:> nothing
+
+B<Returns:> $total - a count of all chartsheets (only)
+
+=back
+
+=head3 creator
+
+=over
+
+B<Definition:> Returns the recorded creator of the file from the parsed metadata
+
+B<Accepts:> nothing
+
+B<Returns:> a string
+
+=back
+
+=head3 modified_by
+
+=over
+
+B<Definition:> Returns the recorded last entity to modify the file from the parsed metadata
+
+B<Accepts:> nothing
+
+B<Returns:> a string
+
+=back
+
+=head3 date_created
+
+=over
+
+B<Definition:> Returns the date that Excel recorded for the file creation
+
+B<Accepts:> nothing
+
+B<Returns:> a string (YYYY-MM-DD)
+
+=back
+
+=head3 date_modified
+
+=over
+
+B<Definition:> Returns the date that Excel recorded for the last file modification
+
+B<Accepts:> nothing
+
+B<Returns:> a string (YYYY-MM-DD)
+
+=back	
 
 =head3 in_the_list
 
@@ -1272,7 +1711,6 @@ L<worksheet|/worksheet( $name )> function has been implemented at least once.
 B<Accepts:>nothing
 
 B<Returns:> true = 1, false = 0
-once
 
 =back
 
@@ -1287,420 +1725,6 @@ function.
 B<Accepts:> nothing
 
 B<Returns:> nothing
-
-=back
-
-=head3 worksheet_count
-
-=over
-
-B<Definition:> This method returns the count of worksheets (excluding charts) in 
-the workbook.
-
-B<Accepts:>nothing
-
-B<Returns:> an integer
-
-=back
-
-=head3 get_worksheet_names
-
-=over
-
-B<Definition:> This method returns an array ref of all the worksheet names in the 
-workbook.  (It excludes chartsheets.)
-
-B<Accepts:> nothing
-
-B<Returns:> an array ref
-
-B<Example:> Another way to parse a workbook without building all the sheets at 
-once is;
-
-	for $sheet_name ( @{$workbook->worksheet_names} ){
-		my $worksheet = $workbook->worksheet( $sheet_name );
-		# Read the worksheet here
-	}
-
-=back
-
-=head3 get_sheet_names
-
-=over
-
-B<Definition:> This method returns an array ref of all the sheet names (tabs) in the 
-workbook.  (It includes chartsheets.)
-
-B<Accepts:> nothing
-
-B<Returns:> an array ref
-
-=back
-
-=head3 get_chartheet_names
-
-=over
-
-B<Definition:> This method returns an array ref of all the chartsheet names in the 
-workbook.  (It excludes worksheets.)
-
-B<Accepts:> nothing
-
-B<Returns:> an array ref
-
-=back
-
-=head3 sheet_name( $Int )
-
-=over
-
-B<Definition:> This method returns the sheet name for a given physical position 
-in the workbook from left to right. It counts from zero even if the workbook is in 
-'count_from_one' mode.  B(It will return chart names but chart tab names cannot currently 
-be converted to worksheets). You may actually want L<worksheet_name|worksheet_name( $Int )> 
-instead of this function.
-
-B<Accepts:> integers
-
-B<Returns:> the sheet name (both workbook and worksheet)
-
-B<Example:> To return only worksheet positions 2 through 4
-
-	for $x (2..4){
-		my $worksheet = $workbook->worksheet( $workbook->worksheet_name( $x ) );
-		# Read the worksheet here
-	}
-
-=back
-
-=head3 sheet_count
-
-=over
-
-B<Definition:> This method returns the count of all sheets in the workbook (worksheets 
-and chartsheets).
-
-B<Accepts:> nothing
-
-B<Returns:> a count of all sheets
-
-=back
-
-=head3 worksheet_name( $Int )
-
-=over
-
-B<Definition:> This method returns the worksheet name for a given order in the workbook 
-from left to right. It does not count any 'chartsheet' positions as valid.  It counts 
-from zero even if the workbook is in 'count_from_one' mode.
-
-B<Accepts:> integers
-
-B<Returns:> the worksheet name
-
-B<Example:> To return only worksheet positions 2 through 4 and then parse them
-
-	for $x (2..4){
-		my $worksheet = $workbook->worksheet( $workbook->worksheet_name( $x ) );
-		# Read the worksheet here
-	}
-
-=back
-
-=head3 worksheet_count
-
-=over
-
-B<Definition:> This method returns the count of all worksheets in the workbook (not 
-including chartsheets).
-
-B<Accepts:> nothing
-
-B<Returns:> a count of all worksheets
-
-=back
-
-=head3 chartsheet_name( $Int )
-
-=over
-
-B<Definition:> This method returns the chartsheet name for a given order in the workbook 
-from left to right. It does not count any 'worksheet' positions as valid.  It counts 
-from zero even if the workbook is in 'count_from_one' mode.
-
-B<Accepts:> integers
-
-B<Returns:> the chartsheet name
-
-=back
-
-=head3 chartsheet_count
-
-=over
-
-B<Definition:> This method returns the count of all chartsheets in the workbook (not 
-including worksheets).
-
-B<Accepts:> nothing
-
-B<Returns:> a count of all chartsheets
-
-=back
-
-=head3 error
-
-=over
-
-B<Definition:> This returns the most recent error message logged by the package.  This 
-method is mostly relevant when an unexpected result is returned by some other method.
-
-B<Accepts:>nothing
-
-B<Returns:> an error string.
-
-=back
-
-=head2 Secondary Methods
-
-These are the additional methods that include ways to extract additional information about 
-the .xlsx file and ways to modify workbook and worksheet parsing that are less common.  
-Note that all methods specifically used to adjust workbook level attributes are listed in 
-the L<Attribute|/Attribute> section.  This section primarily contains methods for or 
-L<delegated|Moose::Manual::Delegation> from private attributes set up during the workbook 
-load process.
-
-=head3 parse_excel_format_string( $format_string )
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/parse_excel_format_string( $string )>
-
-=back
-
-=head3 creator
-
-=over
-
-B<Definition:> Retrieve the stored creator string from the Excel file.
-
-B<Accepts> nothing
-
-B<Returns> A string
-
-=back
-
-=head3 date_created
-
-=over
-
-B<Definition:> returns the date the file was created
-
-B<Accepts> nothing
-
-B<Returns> A string
-
-=back
-
-=head3 modified_by
-
-=over
-
-B<Definition:> returns the user name of the person who last modified the file
-
-B<Accepts> nothing
-
-B<Returns> A string
-
-=back
-
-=head3 date_modified
-
-=over
-
-B<Definition:> returns the date when the file was last modified
-
-B<Accepts> nothing
-
-B<Returns> A string
-
-=back
-
-=head3 get_epoch_year
-
-=over
-
-B<Definition:> This returns the epoch year defined by the Excel workbook.
-
-B<Accepts:> nothing
-
-B<Returns:> 1900 = Windows Excel or 1904 = Apple Excel
-
-=back
-
-=head3 get_shared_string
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::SharedStrings/get_shared_string( $position )>
-
-=back
-
-=head3 get_format_position
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::Styles/get_format_position( $position, [$header] )>
-
-=back
-
-=head3 set_defined_excel_format_list
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/set_defined_excel_format_list>
-
-=back
-
-=head3 change_output_encoding
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::FmtDefault/change_output_encoding( $string )>
-
-=back
-
-=head3 set_cache_behavior
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/cache_formats>
-
-=back
-
-=head3 get_date_behavior
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/datetime_dates>
-
-=back
-
-=head3 set_date_behavior
-
-=over
-
-Roundabout delegation from 
-L<Spreadsheet::Reader::ExcelXML::ParseExcelFormatStrings/datetime_dates>
-
-=back
-
-=head1 FLAGS
-
-The parameter list (attributes) that are possible to pass to ->new is somewhat long.  
-Therefore you may want a shortcut that aggregates some set of attribute settings that 
-are not the defaults but wind up being boilerplate.  I have provided possible 
-alternate sets like this and am open to providing others that are suggested.  The 
-flags will have a : in front of the identifier and will be passed to the class in the 
-'use' statement for consumption by the import method.  The flags can be stacked and 
-where there is conflict between the flag settings the rightmost passed flag setting is 
-used.
-
-Example;
-
-	use Spreadsheet::Reader::ExcelXML v0.34.4 qw( :alt_default :debug );
-
-=head2 :alt_default
-
-This is intended for a deep look at data and skip formatting cells.
-
-=over
-
-B<Default attribute differences>
-
-=over
-
-L<values_only|/values_only> => 1
-
-L<count_from_zero|/count_from_zero> => 0
-
-L<empty_is_end|/empty_is_end> => 1
-
-=back
-
-=back
-
-=head2 :just_the_data
-
-This is intended for a shallow look at data and skip formatting.
-
-=over
-
-B<Default attribute differences>
-
-=over
-
-L<values_only|/values_only> => 1
-
-L<count_from_zero|/count_from_zero> => 0
-
-L<empty_is_end|/empty_is_end> => 1
-
-L<group_return_type|/group_return_type> => 'value'
-
-L<cache_positions|/cache_positions> => 1
-
-L<from_the_edge|/from_the_edge> => 0,
-
-=back
-
-=back
-
-=head2 :just_raw_data
-
-This is intended for a shallow look at raw text and skips all formatting including number formats.
-
-=over
-
-B<Default attribute differences>
-
-=over
-
-L<values_only|/values_only> => 1
-
-L<count_from_zero|/count_from_zero> => 0
-
-L<empty_is_end|/empty_is_end> => 1
-
-L<group_return_type|/group_return_type> => 'unformatted'
-
-L<cache_positions|/cache_positions> => 1
-
-L<from_the_edge|/from_the_edge> => 0,
-
-=back
-
-=back
-
-=head2 :debug
-
-Turn on L<Spreadsheet::Reader::ExcelXML::Error/should_warn> in the Error attribute (instance)
-
-=over
-
-B<Default attribute differences>
-
-=over
-
-L<Spreadsheet::Reader::ExcelXML::Error/should_warn> => 1
-
-=back
 
 =back
 
@@ -1787,8 +1811,7 @@ B<6.> This package provides  support for L<SpreadsheetML
 
 	<?mso-application progid="Excel.Sheet"?>
 	
-to indicate their intended format.  Please L<submit
-|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML/issues> any cases that 
+to indicate their intended format.  Please L<submit|/SUPPORT> any cases that 
 appear to behave differently than expected for .xml extention files that are 
 readable by the Excel application.  I am also interested in cases where an out of 
 memory error occurs with an .xml extension file.  This warning will stay till 
@@ -1810,53 +1833,32 @@ than a source build!
 And then if you feel kindly L<App::cpanminus::reporter>
 
 	cpanm-reporter
-
-B<1.> This package uses L<Alien::LibXML> to try and ensure that the mandatory prerequisite #######################################################################################  Check this
-L<XML::LibXML> will load.  The biggest gotcha here is that older (<5.20.0.2) versions of 
-Strawberry Perl and some other Win32 perls may not support the script 'pkg-config' which is 
-required.  You can resolve this by installation L<PkgConfig> as 'pkg-config'.  I have 
-included the short version of that process below but download the full L<PkgConfig> distribution 
-and read README.win32 file for other options and much more explanation.
+	
+B<1.> Download a compressed file with this package code from your favorite source
 
 =over
 
-B<this will conflict with any existing pkg-config installed>
-
-	C:\> cpanm PkgConfig --configure-args=--script=pkg-config
-	
-=back
-
-It may be that you still need to use a system package manager to L<load|http://xmlsoft.org/> the 
-'libxml2-devel' library.  If this is the case or you experience any other installation issues please 
-L<submit them to github|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML/issues> especially 
-if they occur prior to starting the test suit as these failures will not auto push from CPAN Testers 
-so I won't know to fix them!
-	
-B<2.> Download a compressed file with this package code from your favorite source
-
-=over
-
-L<github|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML>
+L<github|https://github.com/jandrew/p5-spreadsheet-reader-excelxml>
 
 L<Meta::CPAN|https://metacpan.org/pod/Spreadsheet::Reader::ExcelXML>
 
-L<CPAN|http://search.cpan.org/~jandrew/Spreadsheet-XLSX-Reader-LibXML/>
+L<CPAN|http://search.cpan.org/~jandrew/Spreadsheet-Reader-ExcelXML/>
 
 =back
 	
-B<3.> Extract the code from the compressed file.
+B<2.> Extract the code from the compressed file.
 
 =over
 
 If you are using tar on a .tar.gz file this should work:
 
-	tar -zxvf Spreadsheet-XLSX-Reader-LibXML-v0.xx.tar.gz
+	tar -zxvf Spreadsheet-Reader-ExcelXML-v0.xx.tar.gz
 	
 =back
 
-B<4.> Change (cd) into the extracted directory
+B<3.> Change (cd) into the extracted directory
 
-B<5.> Run the following
+B<4.> Run the following
 
 =over
 
@@ -1882,7 +1884,8 @@ B<5.> Run the following
 
 =over
 
-L<github Spreadsheet::Reader::ExcelXML/issues|https://github.com/jandrew/Spreadsheet-XLSX-Reader-LibXML/issues>
+L<github Spreadsheet::Reader::Format/issues
+|https://github.com/jandrew/p5-spreadsheet-reader-excelxml/issues>
 
 =back
 
@@ -1890,41 +1893,13 @@ L<github Spreadsheet::Reader::ExcelXML/issues|https://github.com/jandrew/Spreads
 
 =over
 
-B<1.> Add POD for all the new chart methods!
+B<1.> Write a chartsheet parser and functions
 
-B<1.> Build an 'Alien::LibXML::Devel' package to load the libxml2-devel libraries from source and 
-require that and L<Alien::LibXML> in the build file. So all needed requirements for L<XML::LibXML> 
-are met
+B<2.> Add a pivot table reader (Not just read the values from the sheet)
 
-=over
+B<3.> Add calc chain methods
 
-Both libxml2 and libxml2-devel libraries are required for XML::LibXML
-
-=back
-
-B<1.> Add an individual test just for Spreadsheet::Reader::ExcelXML::Row (Currently tested in the worksheet test)
-
-B<2.> Add an individual test just for Spreadsheet::Reader::ExcelXML::ZipReader (Currently only tested in the top level test)
-
-B<3.> Add individual tests just for the File, Meta, Props, Rels sub workbook interfaces
-
-B<4.> Add an individual test just for Spreadsheet::Reader::ExcelXML::ZipReader::ExtractFile
-
-B<5.> Add individual tests just for the XMLReader sub modules NamedStyles, and PositionStyles
-
-B<6.> Add a pivot table reader (Not just read the values from the sheet)
-
-B<7.> Add calc chain methods
-
-B<8.> Add more exposure to workbook/worksheet formatting values
-
-B<9.> Build a DOM parser alternative for the sheets
-
-=over
-
-(Theoretically faster than the reader and no longer JIT so it uses more memory)
-
-=back
+B<4.> Add more exposure to workbook/worksheet formatting values
 
 =back
 
@@ -1943,7 +1918,9 @@ jandrew@cpan.org
 This is the (likely incomplete) list of people who have helped
 make this distribution what it is, either via code contributions, 
 patches, bug reports, help with troubleshooting, etc. A huge
-'thank you' to all of them.
+'thank you' to all of them.  At this point they all contributed 
+to L<Spreadsheet::XLSX::Reader::LibXML> but the contributions have 
+hopefully carried over.
 
 =over
 
@@ -1971,7 +1948,7 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-This software is copyrighted (c) 2014, 2016 by Jed Lund
+This software is copyrighted (c) 2016 by Jed Lund
 
 =head1 DEPENDENCIES
 
@@ -1991,8 +1968,6 @@ L<DateTimeX::Format::Excel>
 
 L<IO::File>
 
-L<List::Util> - 1.33
-
 L<Moose> - 2.1213
 
 L<MooseX::HasDefaults::RO>
@@ -2002,8 +1977,6 @@ L<MooseX::ShortCut::BuildInstance> - 1.032
 L<MooseX::StrictConstructor>
 
 L<Type::Tiny> - 1.000
-
-L<XML::LibXML>
 
 L<version> - 0.077
 
