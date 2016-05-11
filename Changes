@@ -7,11 +7,20 @@ Uses the change tracking convention
 * Place holder
 
 NOTE: This software is designated as beta quality until this notice is removed.  The goal is to 
-be method matched to Spreadsheet::ParseExcel prior to the 1.0 release.
+be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
 	* Another cool change
+
+v0.4.0    2016-05-11 12:44:12-07:00 America/Los_Angeles
+
+	! changed test 06-named_worksheet.t to use cmp_deeply to avoid preceision variances between perls
+		closes #1 in github
+	! Added an acknowledgement for Slaven Rezić - thanks for the prompt bug submission
+	! Updated level requirements for Spreadsheet::Reader::Format
+		closes #2 in github
+	! Excluded empty strings from the attribute build when they are not between quotes
 
 v0.2.0    2016-05-10 15:10:05-07:00 America/Los_Angeles
 
