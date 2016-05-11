@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader;
-use version; our $VERSION = version->declare('v0.2.0');
+use version; our $VERSION = version->declare('v0.4.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader-$VERSION";
 
 use 5.010;
@@ -1440,6 +1440,8 @@ sub _reconcile_attribute_strings{
 		}elsif( $should_glue ){
 			###LogSD	$phone->talk( level => 'warn', message =>[ "found a middle string in an open sequence" ] );
 			$test_string .= ' ' . $string;
+		}elsif( length( $string ) == 0 ){
+			###LogSD	$phone->talk( level => 'warn', message =>[ "Found a zero length string out in the open - don't add it" ] );
 		}else{
 			###LogSD	$phone->talk( level => 'debug', message =>[ "just a string: $string" ] );
 			push @attributes, $string;

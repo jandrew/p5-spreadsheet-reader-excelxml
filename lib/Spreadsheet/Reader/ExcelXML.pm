@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.2.0');
+use version 0.77; our $VERSION = version->declare('v0.4.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -22,7 +22,7 @@ use Spreadsheet::Reader::ExcelXML::Error;
 ###LogSD use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::ExcelXML::Workbook;
 ###LogSD use Log::Shiras::UnhideDebug;
-use Spreadsheet::Reader::Format;
+use Spreadsheet::Reader::Format v0.2.10;
 use Spreadsheet::Reader::Format::FmtDefault;
 use Spreadsheet::Reader::Format::ParseExcelFormatStrings;
 use Spreadsheet::Reader::ExcelXML::Types qw( XLSXFile IOFileType );
@@ -128,7 +128,7 @@ my $delay_till_build = [qw( formatter_inst )];
 sub import{# Flags handled here!
     my ( $self, @flag_list ) = @_;
 	#~ print "Made it to import\n";
-	if( scalar( @flag_list ) ){
+	#~ if( scalar( @flag_list ) ){
 		for my $flag ( @flag_list ){
 			#~ print "Arrived at import with flag: $flag\n";
 			if( $flag =~ /^:(\w*)$/ ){# Handle text based flags
@@ -153,7 +153,7 @@ sub import{# Flags handled here!
 				confess "Passed attribute default flag -$flag- does not comply with the correct format";
 			}
 		}
-	}
+	#~ }
 	#~ print "Finished import\n";
 }
 
@@ -1330,7 +1330,7 @@ B<Definition:> a way to check the current attribute setting
 
 =back
 
-=head1 FLAGS
+=head2 FLAGS
 
 The parameter list (Attributes) that are possible to pass to ->new is somewhat long.  
 Therefore you may want a shortcut that aggregates some set of attribute settings that 
@@ -1345,7 +1345,7 @@ Example;
 
 	use Spreadsheet::Reader::ExcelXML v0.2 qw( :alt_default :debug );
 
-=head2 :alt_default
+=head3 :alt_default
 
 This is intended for a deep look at data and skip formatting cells.
 
@@ -1365,7 +1365,7 @@ L<empty_is_end|/empty_is_end> => 1
 
 =back
 		
-=head2 :just_the_data
+=head3 :just_the_data
 
 This is intended for a shallow look at data with value formatting implemented
 
@@ -1397,7 +1397,7 @@ L<column_formats|/column_formats> => 0
 
 =back
 
-=head2 :just_raw_data
+=head3 :just_raw_data
 
 This is intended for a shallow look at raw text and skips all formatting including number formats.
 
@@ -1429,7 +1429,7 @@ L<column_formats|/column_formats> => 0
 
 =back
 
-=head2 :like_ParseExcel
+=head3 :like_ParseExcel
 
 This is a way to force some of the other groups back to instance and count from zero
 
@@ -1447,7 +1447,7 @@ L<group_return_type|/group_return_type> => 'instance'
 
 =back
 
-=head2 :debug
+=head3 :debug
 
 This is a way to turn on as much reporting as possible
 
@@ -1469,7 +1469,7 @@ L<show_sub_file_size|/show_sub_file_size> => 1
 
 =back
 
-=head2 :lots_of_ram
+=head3 :lots_of_ram
 
 This opens the caching size allowances way up
 
@@ -1489,7 +1489,7 @@ L<cache_positions|/cache_positions> =>{
 
 =back
 
-=head2 :less_ram
+=head3 :less_ram
 
 This tightens caching size allowances way down
 
@@ -1918,9 +1918,9 @@ jandrew@cpan.org
 This is the (likely incomplete) list of people who have helped
 make this distribution what it is, either via code contributions, 
 patches, bug reports, help with troubleshooting, etc. A huge
-'thank you' to all of them.  At this point they all contributed 
-to L<Spreadsheet::XLSX::Reader::LibXML> but the contributions have 
-hopefully carried over.
+'thank you' to all of them.  Most were contributors to 
+L<Spreadsheet::XLSX::Reader::LibXML> but the contributions have 
+(hopefully) not been lost.
 
 =over
 
@@ -1937,6 +1937,8 @@ L<Bill Baker|https://github.com/wdbaker54>
 L<H.Merijin Brand|https://github.com/Tux>
 
 L<Todd Eigenschink|mailto:todd@xymmetrix.com>
+
+L<Slaven Rezić|https://metacpan.org/author/SREZIC>
 
 =back
 

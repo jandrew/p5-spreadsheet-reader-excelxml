@@ -23,6 +23,7 @@ $| = 1;
 
 use	Test::Most tests => 31;
 use	Test::Moose;
+use Test::Deep;
 #~ use Data::Dumper;
 use	MooseX::ShortCut::BuildInstance qw( build_instance );
 use Types::Standard qw( Bool ConsumerOf HasMethods Int Str );
@@ -122,20 +123,20 @@ my	$answer_ref =[
 				'width' => '19.140625'
 			},
 			{
-				'width' => '16.2838152985075',
+				'width' => re(qr/16.283815298507/),
 				'bestFit' => 1
 			},
 			{
 				'bestFit' => 1,
-				'width' => '9.71315298507463'
+				'width' => re(qr/9.7131529850746/),
 			},
 			{
-				'width' => '8.71326958955224',
+				'width' => re(qr/8.7132695895522/),
 				'bestFit' => 1
 			},
 			{
 				'bestFit' => 1,
-				'width' => '11.2843983208955'
+				'width' => re(qr/11.284398320895/),
 			}
 		], 1,
 		[
@@ -154,7 +155,7 @@ my	$answer_ref =[
 				'hidden' => '1'
 			},
 			{
-				'width' => '9.71315298507463',
+				'width' => re(qr/9.7131529850746/),
 				'bestFit' => 1
 			}
 		], 0,
@@ -228,7 +229,7 @@ is			$test_instance->_max_row, 6,
 is			$test_instance->_max_col, 5,
 										"check that it knows what the highest column number is";
 			my $x = 0;
-is_deeply	$test_instance->_get_column_formats, $answer_ref->[$x++],
+cmp_deeply	$test_instance->_get_column_formats, $answer_ref->[$x++],
 										"Check that the column formats were recorded correctly";
 is			$test_instance->is_sheet_hidden, $answer_ref->[$x++],
 										"Check that the sheet knows if it is hidden";
@@ -271,7 +272,7 @@ is			$test_instance->_max_col, 6,
 #~ ###LogSD			},
 ###LogSD		} );
 ###LogSD		}
-is_deeply	$test_instance->_get_column_formats, $answer_ref->[$x++],
+cmp_deeply	$test_instance->_get_column_formats, $answer_ref->[$x++],
 										"Check that the column formats were recorded correctly";
 is			$test_instance->is_sheet_hidden, $answer_ref->[$x++],
 										"Check that the sheet knows if it is hidden";
