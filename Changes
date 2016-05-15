@@ -13,6 +13,10 @@ be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 	* Another cool change
 
+v0.8.0    2016-05-15 04:58:48-07:00 America/Los_Angeles
+
+	! Fix common versioning of modules
+
 v0.6.0    2016-05-14 23:21:47-07:00 America/Los_Angeles
 
 	! Updated the requirement for Spreadsheet::Reader::Format to v0.6.0 to avoid casading

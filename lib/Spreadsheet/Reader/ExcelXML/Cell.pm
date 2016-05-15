@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Cell;
-use version; our $VERSION = version->declare('v0.4.0');
+use version; our $VERSION = version->declare('v0.8.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Cell-$VERSION";
 
 $| = 1;
@@ -60,19 +60,19 @@ has cell_border =>(
 		reader	=> 'get_border',
 		predicate	=> 'has_border',
 	);
-	
+
 has cell_style =>(
 		isa		=> Str,
 		reader	=> 'get_style',
 		predicate	=> 'has_style',
 	);
-	
+
 has cell_fill =>(
 		isa		=> HashRef,
 		reader	=> 'get_fill',
 		predicate	=> 'has_fill',
 	);
-	
+
 has cell_alignment =>(
 		isa		=> HashRef,
 		reader	=> 'get_alignment',
@@ -103,13 +103,13 @@ has cell_formula =>(
 		reader		=> 'formula',
 		predicate	=> 'has_formula',
 	);
-	
+
 has cell_row =>(
 		isa			=> Int,
 		reader		=> 'row',
 		predicate	=> 'has_row',
 	);
-	
+
 has cell_col =>(
 		isa			=> Int,
 		reader		=> 'col',
@@ -156,11 +156,11 @@ sub value{
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			'Reached the -value- function' ] );
 	###LogSD		$phone->talk( level => 'trace', message => [ "Cell:", $self ] );
-	my	$unformatted = 
+	my	$unformatted =
 			defined $self->has_xml_value ? $self->xml_value :
 			defined $self->has_unformatted ? $self->_unformatted : undef;
 	return	$self->_return_value_only(
-				$unformatted, 
+				$unformatted,
 				$self->get_coercion,
 				$self->_get_error_inst,
 			);
@@ -188,9 +188,9 @@ sub _return_value_only{
 	###LogSD	$alt_log_space //= $self->get_all_space;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD				$alt_log_space . '::_hidden::_return_value_only', );
-	###LogSD		$phone->talk( level => 'debug', message =>[  
+	###LogSD		$phone->talk( level => 'debug', message =>[
 	###LogSD			 "Returning the coerced value of -" . ( defined $unformatted ? $unformatted : '') . '-', ] );
-	###LogSD		$phone->talk( level => 'trace', message =>[  
+	###LogSD		$phone->talk( level => 'trace', message =>[
 	###LogSD			 '..using coercion:' , $coercion ] ) if $coercion;
 	my	$formatted = $unformatted;
 	if( !$coercion ){
@@ -214,7 +214,7 @@ sub _return_value_only{
 	$formatted =~ s/\\//g if $formatted;
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Format is:", $coercion->display_name,
-	###LogSD		"Returning the formated value: " . 
+	###LogSD		"Returning the formated value: " .
 	###LogSD		( $formatted ? $formatted : '' ), ] );
 	return $formatted;
 }
@@ -238,7 +238,7 @@ sub DEMOLISH{
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -253,7 +253,7 @@ Spreadsheet::Reader::ExcelXML::Cell - ExcelXML Cell data class
 	#!/usr/bin/env perl
 	use Spreadsheet::Reader::ExcelXML::Cell;
 	use Spreadsheet::Reader::ExcelXML::Error;
-	
+
 	my	$cell_inputs = {
 			'cell_hidden' => 0,
 			'r' => 'A2',
@@ -271,23 +271,23 @@ Spreadsheet::Reader::ExcelXML::Cell - ExcelXML Cell data class
 	# SYNOPSIS Output
 	# Cell value is: Hello
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This is the class that contains cell data.  There are no XML parsing actions taken in the 
+This is the class that contains cell data.  There are no XML parsing actions taken in the
 background of this class.  All data has been pre-coalated/built from the L<Worksheet
-|Spreadsheet::Reader::ExcelXML::Worksheet> class.  In general the Worksheet class 
-will populate the attributes of this class when it is generated.  If you want to use it 
-as a standalone class just fill in the L<Attributes|/Attributes> below.  It should be 
+|Spreadsheet::Reader::ExcelXML::Worksheet> class.  In general the Worksheet class
+will populate the attributes of this class when it is generated.  If you want to use it
+as a standalone class just fill in the L<Attributes|/Attributes> below.  It should be
 noted that the Formatter class also L<pre-converts
-|Spreadsheet::Reader::Format/change_output_encoding( $string )> the 
-unformatted value.  Not much goes on here but access or excesize of code provided from 
+|Spreadsheet::Reader::Format/change_output_encoding( $string )> the
+unformatted value.  Not much goes on here but access or excesize of code provided from
 other places.
 
 =head2 Primary Methods
 
-This is the method used to transform data stored in the L<Attributes|/Attributes> 
-(not just return it directly).  The method is an object method and should be implemented 
+This is the method used to transform data stored in the L<Attributes|/Attributes>
+(not just return it directly).  The method is an object method and should be implemented
 on the instance.
 
 B<Example:>
@@ -298,12 +298,12 @@ B<Example:>
 
 =over
 
-B<Definition:> Returns the formatted value of the cell transformed from the 
-L<base xml|/cell_xml_value> string if it is available. In the weird case where the 
-cell_xml_value is not available but the L<unformatted|/cell_unformatted> value is 
-then this method will use the unformatted value.  This method then applies any 
-conversion stored in the L<cell_coercion|/cell_coercion> attribute.  If there is 
-no format/conversion set then this will return the selected value. Any failures 
+B<Definition:> Returns the formatted value of the cell transformed from the
+L<base xml|/cell_xml_value> string if it is available. In the weird case where the
+cell_xml_value is not available but the L<unformatted|/cell_unformatted> value is
+then this method will use the unformatted value.  This method then applies any
+conversion stored in the L<cell_coercion|/cell_coercion> attribute.  If there is
+no format/conversion set then this will return the selected value. Any failures
 to process this value can be retrieved with L<$self-E<gt>error|/error>.
 
 B<Accepts:>Nothing
@@ -314,34 +314,34 @@ B<Returns:> the cell 'value' processed by the set conversion
 
 =head2 Attributes
 
-This class is just a storage of coallated information about the requested cell stored 
-in the following attributes. For more information on attributes see 
-L<Moose::Manual::Attributes>.  Data about the cell can be retrieved from each 
-attribute using the 'attribute methods'.  'Delegated methods' are methods 
-available at the class or instance level directly delegated from that 
+This class is just a storage of coallated information about the requested cell stored
+in the following attributes. For more information on attributes see
+L<Moose::Manual::Attributes>.  Data about the cell can be retrieved from each
+attribute using the 'attribute methods'.  'Delegated methods' are methods
+available at the class or instance level directly delegated from that
 specific attribute.
 
 =head3 error_inst
 
 =over
 
-B<Definition:> This attribute holds an 'error' object instance.  In general 
-the package will share a reference for this instance accross the workbook with all 
-worksheets and all cells so any 'set' or 'get' action should be available at all 
-touch points for this error object.  If you wish to have a unique error instance 
+B<Definition:> This attribute holds an 'error' object instance.  In general
+the package will share a reference for this instance accross the workbook with all
+worksheets and all cells so any 'set' or 'get' action should be available at all
+touch points for this error object.  If you wish to have a unique error instance
 you can set it here.
 
-B<Default:> a L<Spreadsheet::Reader::ExcelXML::Error> instance with the 
+B<Default:> a L<Spreadsheet::Reader::ExcelXML::Error> instance with the
 attributes set as;
-	
+
 	( should_warn => 0 )
 
-B<Range:> a 'Spreadsheet::Reader::ExcelXML::Error' instance.  To roll this on your 
+B<Range:> a 'Spreadsheet::Reader::ExcelXML::Error' instance.  To roll this on your
 own, the minimum list of methods to implement for your own instance is;
 
 	error set_error clear_error set_warnings if_warn
 
-B<Delegated methods> Links to default implementation and method name conversions 
+B<Delegated methods> Links to default implementation and method name conversions
 (if any) delegated from this attribute to the package.
 
 =over
@@ -364,14 +364,14 @@ L<Spreadsheet::Reader::ExcelXML::Error/if_warn>
 
 =over
 
-B<Definition:> This contains the raw value stored in xml for this cell.  This 
-can be different than the 'cell_unformatted' value based on archane rules set 
+B<Definition:> This contains the raw value stored in xml for this cell.  This
+can be different than the 'cell_unformatted' value based on archane rules set
 by Microsoft.
 
 B<Range:>Any string or nothing
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<xml_value>
@@ -379,7 +379,7 @@ B<xml_value>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_xml_value>
@@ -387,7 +387,7 @@ B<has_xml_value>
 =over
 
 B<Definition:> predicate for this attribute
-		
+
 =back
 
 =back
@@ -398,17 +398,17 @@ B<Definition:> predicate for this attribute
 
 =over
 
-B<Definition:> This holds the unformatted value of the cell.  The unformatted 
-value of the cell as defined by this package is the value displayed in the 
-formula bar when selecting the cell.  This can be a bit squidgy where the cell 
-is actually populated with a formula.  In that case this should contain the 
-implied value based on my (or your) visibility to the excel value that would 
+B<Definition:> This holds the unformatted value of the cell.  The unformatted
+value of the cell as defined by this package is the value displayed in the
+formula bar when selecting the cell.  This can be a bit squidgy where the cell
+is actually populated with a formula.  In that case this should contain the
+implied value based on my (or your) visibility to the excel value that would
 normally be there.
 
 B<Range:> a string
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<unformatted>
@@ -416,7 +416,7 @@ B<unformatted>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_unformatted>
@@ -424,7 +424,7 @@ B<has_unformatted>
 =over
 
 B<Definition:> a predicate method for the attribute
-		
+
 =back
 
 =back
@@ -435,20 +435,20 @@ B<Definition:> a predicate method for the attribute
 
 =over
 
-B<Definition:> This attribute holds a rich text data structure like 
-L<Spreadsheet::ParseExcel::Cell/get_rich_text()> with the exception that it 
-doesn't bless each hashref into an object.  The hashref's are also organized 
-per the Excel xlsx information in the the sharedStrings.xml file.  In general 
-this is an arrayref of arrayrefs where the second level contains two positions.  
-The first position is the place (from zero) where the formatting is implemented.  
-The second position is a hashref of the formatting values.  The format is in 
+B<Definition:> This attribute holds a rich text data structure like
+L<Spreadsheet::ParseExcel::Cell/get_rich_text()> with the exception that it
+doesn't bless each hashref into an object.  The hashref's are also organized
+per the Excel xlsx information in the the sharedStrings.xml file.  In general
+this is an arrayref of arrayrefs where the second level contains two positions.
+The first position is the place (from zero) where the formatting is implemented.
+The second position is a hashref of the formatting values.  The format is in
 force until the next start place is identified.
 
 =over
 
-B<note:> It is important to understand that Excel can store two formats for the 
+B<note:> It is important to understand that Excel can store two formats for the
 same cell and often they don't agree.  For example using the attribute L<cell_font
-|/cell_font> will not always contain the same value as specific fonts (or any font) 
+|/cell_font> will not always contain the same value as specific fonts (or any font)
 listed in the rich text array.
 
 =back
@@ -458,7 +458,7 @@ B<Default:> undef = no rich text defined for this cell
 B<Range:> an array ref of rich_text positions and definitions
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_rich_text>
@@ -466,7 +466,7 @@ B<get_rich_text>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_rich_text>
@@ -474,7 +474,7 @@ B<has_rich_text>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
 
 =back
@@ -490,7 +490,7 @@ B<Definition:> This holds the font assigned to the cell
 B<Range:> a hashref of definitions for the font
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_font>
@@ -498,7 +498,7 @@ B<get_font>
 =over
 
 B<Definition:> returns the attribute contents
-		
+
 =back
 
 B<has_font>
@@ -506,7 +506,7 @@ B<has_font>
 =over
 
 B<Definition:> Predicate for the attribute contentss
-		
+
 =back
 
 =back
@@ -522,7 +522,7 @@ B<Definition:> This holds the border settings assigned to the cell
 B<Range:> a hashref of border definitions
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_border>
@@ -530,7 +530,7 @@ B<get_border>
 =over
 
 B<Definition:> returns the attribute contents
-		
+
 =back
 
 B<has_border>
@@ -538,7 +538,7 @@ B<has_border>
 =over
 
 B<Definition:> Indicates if the attribute has any contents
-		
+
 =back
 
 =back
@@ -554,7 +554,7 @@ B<Definition:> This holds the style settings assigned to the cell
 B<Range:> a hashref of style definitions
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_style>
@@ -562,7 +562,7 @@ B<get_style>
 =over
 
 B<Definition:> returns the attribute contents
-		
+
 =back
 
 B<has_style>
@@ -570,11 +570,11 @@ B<has_style>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_fill
@@ -586,7 +586,7 @@ B<Definition:> This holds the fill settings assigned to the cell
 B<Range:> a hashref of style definitions
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_fill>
@@ -594,7 +594,7 @@ B<get_fill>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_fill>
@@ -602,11 +602,11 @@ B<has_fill>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_alignment
@@ -618,7 +618,7 @@ B<Definition:> This holds the alignment settings assigned to the cell
 B<Range:> The alignment definition
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_alignment>
@@ -626,7 +626,7 @@ B<get_alignment>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_alignment>
@@ -634,30 +634,30 @@ B<has_alignment>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_type
 
 =over
 
-B<Definition:> This holds the type of data stored in the cell.  In general it 
+B<Definition:> This holds the type of data stored in the cell.  In general it
 follows the convention of L<ParseExcel
-|Spreadsheet::ParseExcel/ChkType($self, $is_numeric, $format_index)> (Date, Numeric, 
-or Text) however, since custom coercions will change data to some possible non excel 
-standard state this also allows a 'Custom' type representing any cell with a custom 
+|Spreadsheet::ParseExcel/ChkType($self, $is_numeric, $format_index)> (Date, Numeric,
+or Text) however, since custom coercions will change data to some possible non excel
+standard state this also allows a 'Custom' type representing any cell with a custom
 conversion assigned to it (by you either at the worksheet level or here).
 
-B<Range:> Text = Strings, Numeric = Real Numbers, Date = Real Numbers with an 
-assigned Date conversion or ISO dates, Custom = any stored value with a custom 
+B<Range:> Text = Strings, Numeric = Real Numbers, Date = Real Numbers with an
+assigned Date conversion or ISO dates, Custom = any stored value with a custom
 conversion
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<type>
@@ -665,7 +665,7 @@ B<type>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_type>
@@ -673,11 +673,11 @@ B<has_type>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_encoding
@@ -691,7 +691,7 @@ B<Default:> Unicode
 B<Range:> Traditional encoding options
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<encoding>
@@ -699,7 +699,7 @@ B<encoding>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_encoding>
@@ -707,19 +707,19 @@ B<has_encoding>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_merge
 
 =over
 
-B<Definition:> if the cell is part of a group of merged cells this will 
-store the upper left and lower right cell ID's in a string concatenated 
+B<Definition:> if the cell is part of a group of merged cells this will
+store the upper left and lower right cell ID's in a string concatenated
 with a ':'
 
 B<Default:> undef
@@ -727,7 +727,7 @@ B<Default:> undef
 B<Range:> two cell ID's
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<merge_range>
@@ -735,7 +735,7 @@ B<merge_range>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<is_merged>
@@ -743,18 +743,18 @@ B<is_merged>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_formula
 
 =over
 
-B<Definition:> if the cell value (raw xml) is calculated based on a 
+B<Definition:> if the cell value (raw xml) is calculated based on a
 formula the Excel formula string is stored in this attribute.
 
 B<Default:> undef
@@ -762,7 +762,7 @@ B<Default:> undef
 B<Range:> Excel formula string
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<formula>
@@ -770,7 +770,7 @@ B<formula>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_formula>
@@ -778,25 +778,25 @@ B<has_formula>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_row
 
 =over
 
-B<Definition:> This is the sheet row that the cell was read from.  
-The value is stored in the user context ( either count from zero 
+B<Definition:> This is the sheet row that the cell was read from.
+The value is stored in the user context ( either count from zero
 or count from one).
 
 B<Range:> the minimum row to the maximum row
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<row>
@@ -804,7 +804,7 @@ B<row>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_row>
@@ -812,25 +812,25 @@ B<has_row>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_col
 
 =over
 
-B<Definition:> This is the sheet column that the cell was read from.  
-The value is stored in the user context ( either count from zero 
+B<Definition:> This is the sheet column that the cell was read from.
+The value is stored in the user context ( either count from zero
 or count from one).
 
 B<Range:> the minimum column to the maximum column
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<col>
@@ -838,7 +838,7 @@ B<col>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_col>
@@ -846,11 +846,11 @@ B<has_col>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 r
@@ -860,7 +860,7 @@ B<Definition:> Indicates if the attribute has anything stored
 B<Definition:> This is the cell ID of the cell
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<cell_id>
@@ -868,7 +868,7 @@ B<cell_id>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_cell_id>
@@ -876,11 +876,11 @@ B<has_cell_id>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_hyperlink
@@ -890,7 +890,7 @@ B<Definition:> Indicates if the attribute has anything stored
 B<Definition:> This stores an arraryref of hyperlinks from the cell
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_hyperlink>
@@ -898,7 +898,7 @@ B<get_hyperlink>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
 
 B<has_hyperlink>
@@ -906,24 +906,24 @@ B<has_hyperlink>
 =over
 
 B<Definition:> Indicates if the attribute has anything stored
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 =head3 cell_hidden
 
 =over
 
-B<Definition:> This stores the hidden state of the cell.  The stored 
+B<Definition:> This stores the hidden state of the cell.  The stored
 value indicates which entity is controlling hiddeness.
 
 B<Range:> (sheet|column|row|0)
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<is_hidden>
@@ -931,11 +931,11 @@ B<is_hidden>
 =over
 
 B<Definition:> returns the attribute value
-		
+
 =back
-		
+
 =back
-		
+
 =back
 
 has cell_coercion =>(
@@ -953,21 +953,21 @@ has cell_coercion =>(
 
 =over
 
-B<Definition:> This attribute holds the tranformation code to turn an 
+B<Definition:> This attribute holds the tranformation code to turn an
 unformatted  value into a formatted value.
 
-B<Default:> a L<Type::Tiny> instance with sub types set to assign different 
-inbound data types to different coercions for the target outcome of formatted 
+B<Default:> a L<Type::Tiny> instance with sub types set to assign different
+inbound data types to different coercions for the target outcome of formatted
 data.
 
-B<Range:> If you wish to set this with your own code it must have two 
-methods.  First, 'assert_coerce' which will be applied when transforming 
-the unformatted value.  Second, 'display_name' which will be used to self 
-identify.  For an example of how to build a custom format see 
+B<Range:> If you wish to set this with your own code it must have two
+methods.  First, 'assert_coerce' which will be applied when transforming
+the unformatted value.  Second, 'display_name' which will be used to self
+identify.  For an example of how to build a custom format see
 L<Spreadsheet::Reader::ExcelXML::Worksheet/custom_formats>.
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<get_coercion>
@@ -975,7 +975,7 @@ B<get_coercion>
 =over
 
 B<Definition:> returns the contents of the attribute
-		
+
 =back
 
 B<clear_coercion>
@@ -983,16 +983,16 @@ B<clear_coercion>
 =over
 
 B<Definition:> used to clear this attribute
-		
+
 =back
 
 B<set_coercion>
 
 =over
 
-B<Definition:> used to set a new coercion instance.  Implementation 
+B<Definition:> used to set a new coercion instance.  Implementation
 of this method will also switch the cell type to 'Custom'.
-		
+
 =back
 
 B<has_coercion>
@@ -1000,11 +1000,11 @@ B<has_coercion>
 =over
 
 B<Definition:> Indicate if any coecion code is applied
-		
+
 =back
 
-B<Delegated method:> Methods delegated from the instance for conversion 
-type checking.  The name delegated to is listed next to a link for the 
+B<Delegated method:> Methods delegated from the instance for conversion
+type checking.  The name delegated to is listed next to a link for the
 default method delegated from.
 
 =over
@@ -1012,9 +1012,9 @@ default method delegated from.
 B<coercion_name> => L<Type::Tiny/display_name>
 
 =back
-		
+
 =back
-		
+
 =back
 
 =head1 SUPPORT
@@ -1054,7 +1054,7 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-This software is copyrighted (c) 2016 by Jed 
+This software is copyrighted (c) 2016 by Jed
 
 =head1 DEPENDENCIES
 
