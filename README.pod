@@ -32,6 +32,8 @@ Spreadsheet::Reader::ExcelXML - Read xlsx/xlsm/xml extention Excel files
 
 =end html
 
+=encoding UTF-8
+
 =head1 SYNOPSIS
 
 The following uses the 'TestBook.xlsx' file found in the t/test_files/ folder of the package

@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.8.0');
+use version 0.77; our $VERSION = version->declare('v0.10.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -358,6 +358,8 @@ Spreadsheet::Reader::ExcelXML - Read xlsx/xlsm/xml extention Excel files
 </a>
 
 =end html
+
+=encoding UTF-8
 
 =head1 SYNOPSIS
 
