@@ -6,12 +6,17 @@ Uses the change tracking convention
 ! Bug fix.
 * Place holder
 
-NOTE: This software is designated as beta quality until this notice is removed.  The goal is to 
+NOTE: This software is designated as beta quality until this notice is removed.  The goal is to
 be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
 	* Another cool change
+
+v0.6.0    2016-05-14 23:21:47-07:00 America/Los_Angeles
+
+	! Updated the requirement for Spreadsheet::Reader::Format to v0.6.0 to avoid casading
+			CPAN testers fails
 
 v0.4.0    2016-05-11 12:44:12-07:00 America/Los_Angeles
 
@@ -29,5 +34,5 @@ v0.2.0    2016-05-10 15:10:05-07:00 America/Los_Angeles
 	+ Finished the main Spreadsheet::Reader::ExcelXML pod (documentation)
 
 v0.1_1    2016-05-05 05:42:17-07:00 America/Los_Angeles (TRIAL RELEASE)
-	
+
 	+ Initial release to move Spreadsheet::XLSX::Reader::LibXML off of XML::LibXML support
