@@ -4,13 +4,13 @@ use version; our $VERSION = version->declare('v0.10.0');
 
 use 5.010;
 use Moose::Role;
-requires qw( 
+requires qw(
 	set_error					where_am_i					has_position
 	advance_element_position	start_the_file_over 		i_am_here
 	parse_element				get_group_return_type		squash_node
 	current_named_node			current_node_parsed			close_the_file
 	good_load
-);#grep_node					
+);#grep_node
 use Types::Standard qw(
 		Int		Bool		HashRef			is_HashRef		ArrayRef	Enum	is_Int
     );
@@ -42,14 +42,14 @@ sub get_shared_string{
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Getting the sharedStrings position: $position",
 	###LogSD		"From current position: " . ($self->has_position ? $self->where_am_i : '(none yet)'), ] );
-	
+
 	#checking if the reqested position is too far
 	if( $position > $self->_get_unique_count - 1 ){
 		$self->set_error( "Asking for position -$position- (from 0) but the shared string " .
 							"max cell position is: " . ($self->_get_unique_count - 1) );
 		return undef;#  fail
 	}
-	
+
 	my ( $return, $success );
 	# handle cache retrieval
 	if( $self->should_cache_positions and $self->_last_cache_position >= $position ){
@@ -58,16 +58,16 @@ sub get_shared_string{
 		$return = $self->_get_ss_position( $position );
 		$success = 1;
 	}
-	
+
 	# checking if the reqested (last) position is stored (no caching)
 	if( !$success and $self->_has_last_position and $position == $self->_get_last_position ){
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Already built the answer for position: $position", 
+		###LogSD		"Already built the answer for position: $position",
 		###LogSD		$self->_get_last_position_ref						] );
 		$return = $self->_get_last_position_ref;
 		$success = 1;
 	}
-		
+
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Success: " . ($success//'not yet'), "position state: " . $self->has_position ] );
 	# reset the file if needed
@@ -80,12 +80,12 @@ sub get_shared_string{
 	}
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Reset tests complete" ] );
-	
+
 	# Kick start position counting for the first go-round
 	if( !$success and !$self->has_position ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Kickstart position counting - getting first si cell" ] );
-		
+
 		my( $result, $node_name, $node_level, $result_ref );
 		my $current_node = $self->current_node_parsed;
 		###LogSD	$phone->talk( level => 'trace', message =>[
@@ -111,18 +111,18 @@ sub get_shared_string{
 	}
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Any needed kickstarting complete" ] );
-	
+
 	# Advance to the proper position - storing along the way as needed
 	while( !$success ){
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Reading the position: " . $self->where_am_i ] );
-		
+
 		# Build a perl ref
 		my $inital_parse = $self->parse_element;
 		my $provisional_output;
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Collected:", $inital_parse  ] );
-		
+
 		# Handle unexpected end of file here
 		if( !$inital_parse ){# Potential chopped off end of file here 20-empty_shared_strings_bug.t
 			###LogSD	$phone->talk( level => 'debug', message => [
@@ -137,7 +137,7 @@ sub get_shared_string{
 			$self->_set_unique_count( $self->where_am_i + 1 );
 			last;
 		}
-		
+
 		# Convert the perl ref to a styles ref
 		$inital_parse = $self->squash_node( $inital_parse );
 		###LogSD	$phone->talk( level => 'debug', message => [
@@ -166,7 +166,7 @@ sub get_shared_string{
 		}
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Built position " . $self->where_am_i . " => ", $provisional_output  ] );
-		
+
 		# Cache the position as needed
 		if( $self->should_cache_positions ){
 			my $cache_value =
@@ -179,7 +179,7 @@ sub get_shared_string{
 			$self->_set_last_cache_position( $self->where_am_i );
 			###LogSD	$phone->talk( level => 'trace', message =>[ "Updated cache:", $self->_get_all_cache  ] );
 		}
-		
+
 		# Determine if we have arrived
 		if( $self->where_am_i == $position ){
 			$success = 1;
@@ -196,7 +196,7 @@ sub get_shared_string{
 		###LogSD		"The next position to collect is: " . $self->where_am_i ] );
 		$self->advance_element_position( 'si' )
 	}
-	
+
 	# Manage the output
 	$return  =
 		!defined $return ? $return :
@@ -206,7 +206,7 @@ sub get_shared_string{
 		is_HashRef( $return ) ? $return : { raw_text => $return } ;
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"After possible format stripping: " . $self->_should_block_formats, $return ] );
-		
+
 	# Close the file if caching complete
 	if( $self->should_cache_positions and $self->has_file and $self->where_am_i > $self->_get_unique_count - 1 ){
 		###LogSD	$phone->talk( level => 'debug', message => [
@@ -277,7 +277,7 @@ has _last_position_ref =>(
 		clearer => '_clear_last_position_ref',
 		predicate => '_has_last_position_ref',
 	);
-	
+
 has _shared_strings_positions =>(
 		isa		=> ArrayRef,
 		traits	=> ['Array'],
@@ -288,7 +288,7 @@ has _shared_strings_positions =>(
 		},
 		reader => '_get_all_cache',
 	);
-	
+
 has _cache_completed =>(
 		isa		=> Int,
 		default	=> -1,
@@ -310,7 +310,7 @@ sub _should_block_formats{
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
 no Moose::Role;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -318,8 +318,7 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings - 
-Position based sharedStrings Reader
+Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings - Position based sharedStrings Reader
 
 =head1 SYNOPSIS
 
@@ -341,26 +340,26 @@ Position based sharedStrings Reader
 			'Spreadsheet::Reader::ExcelXML::SharedStrings',
 		],
 	);
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your 
-own excel parser or extending this package.  To use the general package for excel 
+This documentation is written to explain ways to use this module when writing your
+own excel parser or extending this package.  To use the general package for excel
 parsing out of the box please review the documentation for L<Workbooks
 |Spreadsheet::Reader::ExcelXML>, L<Worksheets
-|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>.
 
-This role is written to extend L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-It adds functionality to read position based sharedStrings files.  It presents this 
+This role is written to extend L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+It adds functionality to read position based sharedStrings files.  It presents this
 functionality in compliance with the top level L<interface
-|Spreadsheet::Reader::ExcelXML::SharedStrings>.  This POD only describes the 
-functionality incrementally provided by this module.  For an overview of 
+|Spreadsheet::Reader::ExcelXML::SharedStrings>.  This POD only describes the
+functionality incrementally provided by this module.  For an overview of
 sharedStrings.xml reading see L<Spreadsheet::Reader::ExcelXML::SharedStrings>
 
 =head2 Requires
 
-These are the methods required by this role and their default provider.  All 
+These are the methods required by this role and their default provider.  All
 methods are imported straight across with no re-naming.
 
 =over
@@ -395,32 +394,32 @@ L<Spreadsheet::Reader::ExcelXML::Workbook/get_group_return_type>
 
 =head2 Methods
 
-These are the primary ways to use this class.  For additional SharedStrings options 
+These are the primary ways to use this class.  For additional SharedStrings options
 see the L<Attributes|/Attributes> section.
 
 =head3 get_shared_string( $positive_int )
 
 =over
 
-B<Definition:> This returns the data in the shared strings file identified 
-by the $positive_int position for position in position based sharedStrings 
+B<Definition:> This returns the data in the shared strings file identified
+by the $positive_int position for position in position based sharedStrings
 files.
 
 B<Accepts:> $positive_int ( a positive integer )
 
-B<Returns:> a hash ref with the key 'raw_text' and all coallated text for that 
-xml node as the value.  If there is associated rich text in the node and 
-L<Spreadsheet::Reader::ExcelXML/group_return_type> is set to 'instance' 
-then it will also have a 'rich_text' key with the value set as an arrayref of 
-pairs (not sub array refs) with the first value being the position of the 
-raw_text from zero that the formatting is applied and the second position as 
+B<Returns:> a hash ref with the key 'raw_text' and all coallated text for that
+xml node as the value.  If there is associated rich text in the node and
+L<Spreadsheet::Reader::ExcelXML/group_return_type> is set to 'instance'
+then it will also have a 'rich_text' key with the value set as an arrayref of
+pairs (not sub array refs) with the first value being the position of the
+raw_text from zero that the formatting is applied and the second position as
 the settings for that format.  Ex.
 
-	{ 	
+	{
 		raw_text => 'Hello World',
 		rich_text =>[
 			2,# Starting with the letter 'l' apply the format
-			{	
+			{
 				'color' => {
 					'rgb' => 'FFFF0000'
 				},
@@ -441,7 +440,7 @@ the settings for that format.  Ex.
 				'rFont' => 'Calibri',
 				'family' => '2'
 			}
-		] 
+		]
 	}
 
 =back
@@ -450,8 +449,8 @@ the settings for that format.  Ex.
 
 =over
 
-B<Definition:> When the xml file first loads this is available to pull customized data.  
-It mostly pulls metadata and stores it in hidden attributes for use later.  If all goes 
+B<Definition:> When the xml file first loads this is available to pull customized data.
+It mostly pulls metadata and stores it in hidden attributes for use later.  If all goes
 according to plan it sets L<Spreadsheet::Reader::ExcelXML::XMLReader/good_load>  to 1.
 
 B<Accepts:> Nothing
@@ -462,37 +461,37 @@ B<Returns:> Nothing
 
 =head2 Attributes
 
-Data passed to new when creating an instance of this class. For 
-modification of this(ese) attribute(s) see the listed 'attribute 
-methods'.  For more information on attributes see 
-L<Moose::Manual::Attributes>.  The easiest way to modify this(ese) 
-attribute(s) is when a classinstance is created and before it is 
+Data passed to new when creating an instance of this class. For
+modification of this(ese) attribute(s) see the listed 'attribute
+methods'.  For more information on attributes see
+L<Moose::Manual::Attributes>.  The easiest way to modify this(ese)
+attribute(s) is when a classinstance is created and before it is
 passed to the workbook or parser.
 
 =head3 cache_positions
 
 =over
 
-B<Definition:> Especially for sheets with lots of stored text the 
-parser can slow way down when accessing each postion.  This is 
-because the text is not always stored sequentially and the reader 
-is a JIT linear parser.  To go back it must restart and index 
-through each position till it gets to the right place.  This is 
-especially true for excel sheets that have experienced any 
-significant level of manual intervention prior to being read.  
-This attribute turns (default) on caching for shared strings so 
-the parser only has to read through the shared strings once.  When 
-the read is complete all the way to the end it will also release 
-the shared strings file in order to free up some space. 
-(a small win in exchange for the space taken by the cache).  The 
-trade off here is that all intermediate shared strings are 
-L<fully|/get_shared_string( $positive_intE<verbar>$name )> read 
-before reading the target string.  This means early reads will be 
-slower.  For sheets that only have numbers stored or at least have 
-very few strings this will likely not be a initial hit (or speed 
-improvement).  In order to minimize the physical size of the cache, 
-if there is only a text string stored in the shared strings position 
-then only the string will be stored (not as a value to a raw_text 
+B<Definition:> Especially for sheets with lots of stored text the
+parser can slow way down when accessing each postion.  This is
+because the text is not always stored sequentially and the reader
+is a JIT linear parser.  To go back it must restart and index
+through each position till it gets to the right place.  This is
+especially true for excel sheets that have experienced any
+significant level of manual intervention prior to being read.
+This attribute turns (default) on caching for shared strings so
+the parser only has to read through the shared strings once.  When
+the read is complete all the way to the end it will also release
+the shared strings file in order to free up some space.
+(a small win in exchange for the space taken by the cache).  The
+trade off here is that all intermediate shared strings are
+L<fully|/get_shared_string( $positive_intE<verbar>$name )> read
+before reading the target string.  This means early reads will be
+slower.  For sheets that only have numbers stored or at least have
+very few strings this will likely not be a initial hit (or speed
+improvement).  In order to minimize the physical size of the cache,
+if there is only a text string stored in the shared strings position
+then only the string will be stored (not as a value to a raw_text
 hash key).  It will then reconstitue into a hashref when requested.
 
 B<Default:> 1 = caching is on
@@ -502,7 +501,7 @@ B<Range:> 1|0
 B<Attribute required:> yes
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 none - (will be autoset by L<Spreadsheet::Reader::ExcelXML/cache_positions>)

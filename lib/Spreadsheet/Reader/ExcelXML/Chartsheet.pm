@@ -93,7 +93,7 @@ has workbook_inst =>(
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -101,27 +101,27 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::XMLReader::Chartsheet - An ExcelXML chartsheet placeholder
+Spreadsheet::Reader::ExcelXML::Chartsheet - An ExcelXML chartsheet placeholder
 
 =head1 SYNOPSIS
 
 See the SYNOPSIS in L<Spreadsheet::Reader::ExcelXML>
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your 
-own excel parser or extending this package.  To use the general package for excel 
+This documentation is written to explain ways to use this module when writing your
+own excel parser or extending this package.  To use the general package for excel
 parsing out of the box please review the documentation for L<Workbooks
 |Spreadsheet::Reader::ExcelXML>, L<Worksheets
-|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>.
 
-This class is a placeholder for chartsheet parsing.  Where there is a 'chartsheet' style 
-tab in the workbook this class is used to receive that data so the workbook won't fail 
-automatically.  Chartsheet files are not chart sub elements they are just tabs in a 
-workbook similar to 'worksheets' that only hold one chart. The ability to parse 
-'chartsheet's is still pending.  There are attributes and some methods in the class 
-but none will be documented untill there is a clear path for them to provide 
+This class is a placeholder for chartsheet parsing.  Where there is a 'chartsheet' style
+tab in the workbook this class is used to receive that data so the workbook won't fail
+automatically.  Chartsheet files are not chart sub elements they are just tabs in a
+workbook similar to 'worksheets' that only hold one chart. The ability to parse
+'chartsheet's is still pending.  There are attributes and some methods in the class
+but none will be documented untill there is a clear path for them to provide
 functionality.
 
 =head1 SUPPORT

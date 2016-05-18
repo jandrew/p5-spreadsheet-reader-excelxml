@@ -6,13 +6,13 @@ use	5.010;
 use	Moose::Role;
 requires qw(
 		not_end_of_file				advance_row_position		close_the_file
-		build_row_data				start_the_file_over			
+		build_row_data				start_the_file_over
 	);#		current_row_node_parsed
 use Clone 'clone';
 use Carp qw( confess );
 use Types::Standard qw(
 		InstanceOf		ArrayRef		Maybe			HashRef
-		Bool			Int	
+		Bool			Int
     );
 use MooseX::ShortCut::BuildInstance qw ( build_instance should_re_use_classes );
 should_re_use_classes( 1 );
@@ -47,7 +47,7 @@ sub go_to_or_past_row{# Counting from 1!
 	###LogSD			"From current row: $current_row",
 	###LogSD			"..with max known row: $max_known_row",
 	###LogSD			"..with position caching set to: " . $self->should_cache_positions ] );
-	
+
 	# Handle fully cached files with requested EOF here
 	if( !$self->has_file and $target_row > $max_known_row ){
 		###LogSD	$phone->talk( level => 'info', message => [
@@ -55,7 +55,7 @@ sub go_to_or_past_row{# Counting from 1!
 		$self->_clear_new_row_inst;
 		return 'EOF';
 	}
-	
+
 	# Handle the known range of rows (by number only)
 	my $fast_forward;
 	my $next_known_target = $max_known_row < $target_row ? $max_known_row : $target_row;
@@ -103,7 +103,7 @@ sub go_to_or_past_row{# Counting from 1!
 	$current_row = $next_known_target;
 	###LogSD	$phone->talk( level => 'info', message => [
 	###LogSD		"Current row is now set to: $current_row" ] );
-	
+
 	# Update/build the new row node/inst if you need something in the known range
 	if( $current_row >= $target_row ){
 		if( $self->should_cache_positions ){# Retrieve a known row
@@ -133,7 +133,7 @@ sub go_to_or_past_row{# Counting from 1!
 			return $current_row;
 		}
 	}
-	
+
 	# Handle processing unknown rows
 	my $base_row_ref;
 	my $current_row_position =
@@ -145,21 +145,21 @@ sub go_to_or_past_row{# Counting from 1!
 		###LogSD	$phone->talk( level => 'info', message => [
 		###LogSD		"Need to read an additional unknown row since target row: $target_row",
 		###LogSD		"..is still greater than current row: $current_row" ] );
-		my $row_ref = $self->advance_row_position; 
+		my $row_ref = $self->advance_row_position;
 		###LogSD	$phone->talk( level => 'info', message => [
 		###LogSD		"Current row top node is:", $row_ref ] );
 		$current_row_position++;
-		
+
 		# Handle EOF
 		if( !$row_ref or $self->not_end_of_file == 0 ){
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Already at the 'EOF' - returning failure", ] );
-			
+
 			# Adjust max row
 			if( $self->_max_row > $self->_max_row_position_recorded - 1 ){
 				$self->_set_max_row( $self->_max_row_position_recorded - 1 );
 			}
-			
+
 			#close file if caching is on
 			if( $self->should_cache_positions ){
 				$self->close_the_file;
@@ -169,7 +169,7 @@ sub go_to_or_past_row{# Counting from 1!
 			return 'EOF';
 		}
 		$result = 1;
-		
+
 		#build the row and manage it
 		$current_row = $row_ref->{r};
 		###LogSD	$phone->talk( level => 'debug', message =>[
@@ -207,14 +207,14 @@ sub go_to_or_past_row{# Counting from 1!
 			###LogSD		"Found an empty row - moving on" ] );
 		}
 	}
-	
+
 	###LogSD	$phone->talk( level => 'info', message =>[
 	###LogSD		"Arrived at ( and built ) row: $current_row", ] );
 	return $current_row;
 }
 
 #########1 Private Attributes 3#########4#########5#########6#########7#########8#########9
-	
+
 has _row_position_lookup =>(
 		isa		=> ArrayRef[ Maybe[Int] ],
 		traits	=>['Array'],
@@ -264,7 +264,7 @@ has _cached_row_insts =>(# For cached sheets
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
 no Moose::Role;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -272,47 +272,47 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::XMLReader::WorksheetToRow - Builds row objects from 
+Spreadsheet::Reader::ExcelXML::WorksheetToRow - Builds row objects from
 worksheet files
 
 =head1 SYNOPSIS
 
 See t\Spreadsheet\Reader\ExcelXML\09-worksheet_to_row.t
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This module provides the generic connection to individual worksheet files (not chartsheets) 
+This module provides the generic connection to individual worksheet files (not chartsheets)
 for parsing xlsx(and xml) workbooks.  It does not provide a way to connect to L<chartsheets
-|Spreadsheet::Reader::ExcelXML::Chartsheet>.  It does not provide the final view of a given 
-cell.  The final view of the cell is collated with the role (Interface) 
-L<Spreadsheet::Reader::ExcelXML::Worksheet>.  This reader extends the base reader class 
-L<Spreadsheet::Reader::ExcelXML::XMLReader>.  This module also uses a file type interpreter.  
+|Spreadsheet::Reader::ExcelXML::Chartsheet>.  It does not provide the final view of a given
+cell.  The final view of the cell is collated with the role (Interface)
+L<Spreadsheet::Reader::ExcelXML::Worksheet>.  This reader extends the base reader class
+L<Spreadsheet::Reader::ExcelXML::XMLReader>.  This module also uses a file type interpreter.
 The functionality provided by those modules is not explained here.
 
-For now this module reads each full row (with values) into a L<Spreadsheet::Reader::ExcelXML::Row> 
-instance.  It stores either the currently read row or all rows based on the 
-L<Spreadsheet::Reader::ExcelXML/cache_positions> setting for Worksheet_instance.  
-When a position past the end of the sheet is called the current row is cleared and an 'EOF' 
-or undef value is returned.  See L<Spreadsheet::Reader::ExcelXML/file_boundary_flags> for 
+For now this module reads each full row (with values) into a L<Spreadsheet::Reader::ExcelXML::Row>
+instance.  It stores either the currently read row or all rows based on the
+L<Spreadsheet::Reader::ExcelXML/cache_positions> setting for Worksheet_instance.
+When a position past the end of the sheet is called the current row is cleared and an 'EOF'
+or undef value is returned.  See L<Spreadsheet::Reader::ExcelXML/file_boundary_flags> for
 more details.
 
-I<All positions (row and column places and integers) at this level are stored and returned in count 
+I<All positions (row and column places and integers) at this level are stored and returned in count
 from one mode!>
-	
-To replace this part in the package look in the raw code of 
-L<Spreadsheet::Reader::ExcelXML::Workbook> and adjust the 'worksheet_interface' key of the 
+
+To replace this part in the package look in the raw code of
+L<Spreadsheet::Reader::ExcelXML::Workbook> and adjust the 'worksheet_interface' key of the
 $parser_modules variable.
 
 =head2 requires
 
-This module is a L<role|Moose::Manual::Roles> and as such only adds incremental methods and 
-attributes to some base class.  In order to use this role some base object methods are 
+This module is a L<role|Moose::Manual::Roles> and as such only adds incremental methods and
+attributes to some base class.  In order to use this role some base object methods are
 required.  The requirments are listed below with links to the default provider.
 
 =over
@@ -331,17 +331,17 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader/close_the_file>
 
 =head2 Attributes
 
-Data passed to new when creating an instance.  For access to the values in these 
-attributes see the listed 'attribute methods'. For general information on attributes see 
-L<Moose::Manual::Attributes>.  For ways to manage the instance when opened see the 
+Data passed to new when creating an instance.  For access to the values in these
+attributes see the listed 'attribute methods'. For general information on attributes see
+L<Moose::Manual::Attributes>.  For ways to manage the instance when opened see the
 L<Methods|/Methods>.
-	
+
 =head3 cache_positions
 
 =over
 
-B<Definition:> This is a boolean value which controls whether the parser caches rows that 
-have been parsed or just stores the top level hash.  In general this should repsond to the 
+B<Definition:> This is a boolean value which controls whether the parser caches rows that
+have been parsed or just stores the top level hash.  In general this should repsond to the
 top level attribute L<Spreadsheet::Reader::ExcelXML/cache_positions>
 
 B<Default:> 1 = caching on
@@ -349,7 +349,7 @@ B<Default:> 1 = caching on
 B<Range:> (1|0)
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<should_cache_positions>
@@ -366,17 +366,17 @@ B<Definition:> return the attribute value
 
 =head2 Methods
 
-These are the methods provided by this class for use within the package but are not intended 
-to be used by the end user.  Other private methods not listed here are used in the module but 
-not used by the package.  If the private method is listed here then replacement of this module 
+These are the methods provided by this class for use within the package but are not intended
+to be used by the end user.  Other private methods not listed here are used in the module but
+not used by the package.  If the private method is listed here then replacement of this module
 either requires replacing them or rewriting all the associated connecting roles and classes.
 
 =head3 has_new_row_inst
 
 =over
 
-B<Definition:> Generally in the processing of a worksheet file there will be a currently 
-active row.  This row is stored as an object so elements of the row can be retrieved via 
+B<Definition:> Generally in the processing of a worksheet file there will be a currently
+active row.  This row is stored as an object so elements of the row can be retrieved via
 L<delegation|Moose::Manual::Delegation/NATIVE DELEGATION>
 
 B<Accepts:> nothing
@@ -389,7 +389,7 @@ B<Returns:> (1|0) depending on the presence of a currently stored row
 
 =over
 
-B<Definition:> This returns the row number (in count from 1 mode) for the currently stored 
+B<Definition:> This returns the row number (in count from 1 mode) for the currently stored
 row.
 
 B<Accepts:> nothing
@@ -402,10 +402,10 @@ B<Returns:> an integer $row
 
 =over
 
-B<Definition:> This returns the column data for the selected $column.  If the request is 
-for a column with no data then it returns undef.  If the column is requested pased the 
-last column with data but before the end of the span it returns 'EOD'.  If the request is 
-for a column past the end of the span it returns 'EOF'.  THe request and return are all 
+B<Definition:> This returns the column data for the selected $column.  If the request is
+for a column with no data then it returns undef.  If the column is requested pased the
+last column with data but before the end of the span it returns 'EOD'.  If the request is
+for a column past the end of the span it returns 'EOF'.  THe request and return are all
 handled in count from 1 context.
 
 B<Accepts:> an integer $column number
@@ -418,8 +418,8 @@ B<Returns:> The cell contents for that column (or undef, 'EOD', or 'EOF')
 
 =over
 
-B<Definition:> like get_new_column this will return one cell.  However, this method 
-will only return cells with content or 'EOR'.  The role keeps track of which one 
+B<Definition:> like get_new_column this will return one cell.  However, this method
+will only return cells with content or 'EOR'.  The role keeps track of which one
 was called last even it it was through get_new_column.
 
 B<Accepts:> nothing
@@ -432,7 +432,7 @@ B<Returns:> the cell contents or 'EOR'
 
 =over
 
-B<Definition:> This is returns an array ref of each of the values in the current row placed 
+B<Definition:> This is returns an array ref of each of the values in the current row placed
 in their 'count from 0' position.
 
 B<Accepts:> nothing
@@ -445,7 +445,7 @@ B<Returns:> an array ref
 
 =over
 
-B<Definition:> This will attempt to advance to the row provided by $row.  It will continue to 
+B<Definition:> This will attempt to advance to the row provided by $row.  It will continue to
 advance past that row until it arrives at a row with values or the end of the file.
 
 B<Accepts:> $row (integer in count from 1 context)
@@ -467,9 +467,9 @@ L<github Spreadsheet::Reader::ExcelXML/issues
 
 =over
 
-B<1.> If a the primary cell of a merge range is hidden show that value 
+B<1.> If a the primary cell of a merge range is hidden show that value
 in the top left unhidden cell even when the attribute
-L<Spreadsheet::Reader::ExcelXML::Workbook/spread_merged_values> is not 
+L<Spreadsheet::Reader::ExcelXML::Workbook/spread_merged_values> is not
 set.  (This is the way excel does it(ish))
 
 =back

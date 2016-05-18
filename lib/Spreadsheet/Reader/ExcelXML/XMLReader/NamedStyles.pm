@@ -5,11 +5,11 @@ use version; our $VERSION = version->declare('v0.10.0');
 use 5.010;
 use Moose::Role;
 requires qw(
-		get_defined_conversion		start_the_file_over			close_the_file	
+		get_defined_conversion		start_the_file_over			close_the_file
 		advance_element_position	parse_element				set_defined_excel_formats
 		current_named_node			set_error					squash_node
 		parse_excel_format_string	good_load
-	);		
+	);
 use Types::Standard qw( Bool HashRef );
 use Carp qw( confess );
 use Clone qw( clone );
@@ -41,7 +41,7 @@ my $date_keys ={# SpreadsheetML to Excel 2007+ custom date formats
 	};
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
-	
+
 has cache_positions =>(
 		isa		=> Bool,
 		reader	=> 'should_cache_positions',
@@ -60,8 +60,8 @@ sub get_format{
 	###LogSD			"Get defined formats named: $name",
 	###LogSD			( $header ? "Returning only the values for header: $header - $xml_target_header" : '' ),
 	###LogSD			( $exclude_header ? "..excluding the values for header: $exclude_header - $xml_exclude_header" : '' ) , ] );
-	
-	
+
+
 	my $target_ref;
 	my $found_it = 0;
 	if( $self->_has_styles ){# Check for stored value - when caching implemented
@@ -99,7 +99,7 @@ sub get_format{
 			}
 		}
 	}
-	
+
 	# Restrict the return value based on passed parameters
 	if( $found_it ){
 		###LogSD	$phone->talk( level => 'debug', message => [
@@ -130,7 +130,7 @@ sub load_unique_bits{
 	my( $self, ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
-	
+
 	# Check for empty node and react
 	my( $result, $node_name, $node_level, $result_ref );
 	my $current_node = $self->current_node_parsed;
@@ -155,7 +155,7 @@ sub load_unique_bits{
 		$self->set_error( "No 'Styles' element with content found - can't parse this as a styles file" );
 		return undef;
 	}
-	
+
 	# Cache nodes as needed (No standard number formats to record)
 	my ( $success, $top_level_ref );
 	if( $self->should_cache_positions ){
@@ -163,11 +163,11 @@ sub load_unique_bits{
 		###LogSD	$phone->talk( level => 'trace', message => [
 		###LogSD		"Parsing the whole thing for caching", $top_level_ref ] );
 		$self->close_the_file;# Don't need the file open any more!
-		
+
 		$top_level_ref = $self->squash_node( $top_level_ref );#, 'numFmts'
 		###LogSD	$phone->talk( level => 'trace', message => [
 		###LogSD		"Squashed ref:", $top_level_ref ] );
-		
+
 		# Handle the single style case
 		if( exists $top_level_ref->{Style} ){
 			###LogSD	$phone->talk( level => 'debug', message => [
@@ -189,7 +189,7 @@ sub load_unique_bits{
 }
 
 #########1 Private Attributes 3#########4#########5#########6#########7#########8#########9
-	
+
 has _styles =>(
 		isa		=> HashRef,
 		traits	=> ['Hash'],
@@ -236,9 +236,9 @@ sub _transform_element{
 			if( $key =~ /NumberFormat/ ){
 				###LogSD	$phone->talk( level => 'debug', message => [
 				###LogSD		"Found a number format: ", $sub_element->{$key} ] );
-				my $replaced_string = 
+				my $replaced_string =
 					!defined $sub_element->{$key} ? undef :
-					exists( $date_keys->{$sub_element->{$key}->{'ss:Format'}} ) ? 
+					exists( $date_keys->{$sub_element->{$key}->{'ss:Format'}} ) ?
 						$date_keys->{$sub_element->{$key}->{'ss:Format'}} :
 						$sub_element->{$key}->{'ss:Format'} ;
 				###LogSD	$phone->talk( level => 'debug', message => [
@@ -249,8 +249,8 @@ sub _transform_element{
 				}
 				###LogSD	$phone->talk( level => 'debug', message => [
 				###LogSD		"Processing the date format string: " . ($replaced_string//'undef') ] );
-				$new_sub->{$cell_attributes->{$key}} = 
-					defined( $replaced_string ) ? 
+				$new_sub->{$cell_attributes->{$key}} =
+					defined( $replaced_string ) ?
 						$self->parse_excel_format_string( $replaced_string ) : undef;
 				###LogSD	$phone->talk( level => 'debug', message => [
 				###LogSD		"Finished the excel format parsing" ] );
@@ -270,7 +270,7 @@ sub _transform_element{
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
 no Moose::Role;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -278,13 +278,12 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles - 
-Support for Excel 2003 XML Styles files
+Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles - Support for Excel 2003 XML Styles files
 
 =head1 SYNOPSYS
 
 	!!!! Example code - will not run standalone !!!!
-	
+
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	use Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles;
 	use Spreadsheet::Reader::ExcelXML::XMLReader;
@@ -300,15 +299,15 @@ Support for Excel 2003 XML Styles files
 
 =head1 DESCRIPTION
 
-This role is written to provide the methods 'get_format' and 'get_default_format' for 
-the styles file reading where the styles file elements are called out by name.  This 
-generally implies that the styles section was a node in a flat xml file written to the 
-Microsoft (TM) Excel 2003 xml format.  The extration should be accomplished external 
+This role is written to provide the methods 'get_format' and 'get_default_format' for
+the styles file reading where the styles file elements are called out by name.  This
+generally implies that the styles section was a node in a flat xml file written to the
+Microsoft (TM) Excel 2003 xml format.  The extration should be accomplished external
 to this instance creation usually with L<Spreadsheet::Reader::ExcelXML::XMLReader/extract_file>.
 
 =head2 Requires
 
-These are the methods required by this role and their default provider.  All 
+These are the methods required by this role and their default provider.  All
 methods are imported straight across with no re-naming.
 
 =over
@@ -339,27 +338,27 @@ L<Spreadsheet::Reader::ExcelXML::Error/set_error( $error_string )>
 
 =head2 Method(s)
 
-These are the methods mandated by this interface. 
+These are the methods mandated by this interface.
 
 =head3 get_format( $name, [$header], [$exclude_header] )
 
 =over
 
-B<Definition:> This will return the styles information from the identified $name in the 
-style node.  The target name is usually drawn from the cell data stored in the worksheet.  
-The information is returned as a perl hash ref.  Since the styles data is in two tiers it 
-finds all the subtier information for each indicated piece and appends them to the hash 
+B<Definition:> This will return the styles information from the identified $name in the
+style node.  The target name is usually drawn from the cell data stored in the worksheet.
+The information is returned as a perl hash ref.  Since the styles data is in two tiers it
+finds all the subtier information for each indicated piece and appends them to the hash
 ref as values for each type key.
 
-B<Accepts position 0:> $name = a (sub) node name indicating which styles node should be 
+B<Accepts position 0:> $name = a (sub) node name indicating which styles node should be
 returned
 
-B<Accepts position 1:> $header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 1:> $header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will cause only this header subset to be returned
 
-B<Accepts position 2:> $exclude_header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 2:> $exclude_header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will exclude the header from the returned data set.
 
 B<Returns:> a hash ref of data
@@ -370,17 +369,17 @@ B<Returns:> a hash ref of data
 
 =over
 
-B<Definition:> For any cell that does not have a unquely identified format excel generally 
-stores a default format for the remainder of the sheet.  This will return the two 
-tiered default styles information.  The information is returned in the same format as the 
+B<Definition:> For any cell that does not have a unquely identified format excel generally
+stores a default format for the remainder of the sheet.  This will return the two
+tiered default styles information.  The information is returned in the same format as the
 get_format method.
 
-B<Accepts position 0:> $header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 0:> $header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will cause only this header subset to be returned
 
-B<Accepts position 1:> $exclude_header = the target header key (optional at position 2) (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 1:> $exclude_header = the target header key (optional at position 2) (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will exclude the header from the returned data set.
 
 B<Returns:> a hash ref of data
@@ -391,8 +390,8 @@ B<Returns:> a hash ref of data
 
 =over
 
-B<Definition:> When the xml file first loads this is available to pull customized data.  
-It mostly pulls metadata and stores it in hidden attributes for use later.  If all goes 
+B<Definition:> When the xml file first loads this is available to pull customized data.
+It mostly pulls metadata and stores it in hidden attributes for use later.  If all goes
 according to plan it sets L<Spreadsheet::Reader::ExcelXML::XMLReader/good_load> to 1.
 
 B<Accepts:> Nothing
@@ -403,27 +402,27 @@ B<Returns:> Nothing
 
 =head2 Attributes
 
-Data passed to new when creating an instance with this role. For 
-modification of this(ese) attribute(s) see the listed 'attribute 
-methods'.  For more information on attributes see 
-L<Moose::Manual::Attributes>.  The easiest way to modify this(ese) 
-attribute(s) is during instance creation before it is passed to the 
+Data passed to new when creating an instance with this role. For
+modification of this(ese) attribute(s) see the listed 'attribute
+methods'.  For more information on attributes see
+L<Moose::Manual::Attributes>.  The easiest way to modify this(ese)
+attribute(s) is during instance creation before it is passed to the
 workbook or parser.
 
 =head3 cache_positions
 
 =over
 
-B<Definition:> Especially for sheets with lots of stored formats the 
-parser can slow way down when accessing each postion.  This is 
-because the are not stored sequentially and the reader is a JIT linear 
-parser.  To go back it must restart and index through each position till 
-it gets to the right place.  This is especially true for excel sheets 
-that have experienced any significant level of manual intervention prior 
+B<Definition:> Especially for sheets with lots of stored formats the
+parser can slow way down when accessing each postion.  This is
+because the are not stored sequentially and the reader is a JIT linear
+parser.  To go back it must restart and index through each position till
+it gets to the right place.  This is especially true for excel sheets
+that have experienced any significant level of manual intervention prior
 to being read.  This attribute sets caching (default on) for styles
-so the parser builds and stores all the styles settings at the beginning.  
-If the file is cached it will close and release the file handle in order 
-to free up some space. (a small win in exchange for the space taken by 
+so the parser builds and stores all the styles settings at the beginning.
+If the file is cached it will close and release the file handle in order
+to free up some space. (a small win in exchange for the space taken by
 the cache).
 
 B<Default:> 1 = caching is on
@@ -433,7 +432,7 @@ B<Range:> 1|0
 B<Attribute required:> yes
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 none - (will be autoset by L<Spreadsheet::Reader::ExcelXML/cache_positions>)

@@ -214,7 +214,7 @@ sub get_merged_areas{
 	###LogSD			$self->get_all_space . '::get_merged_areas', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			'Pulling the merge map ParseExcel style' ] );
-	
+
 	# Get the raw merge map
 	my $raw_map = $self->get_merge_map;
 	###LogSD	$phone->talk( level => 'trace', message =>[
@@ -254,7 +254,7 @@ sub is_column_hidden{
 	###LogSD			$self->get_all_space . '::is_column_hidden', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			'Pulling the hidden state for the columns:', @column_requests ] );
-	
+
 	my @result_list;
 	for my $item ( @column_requests ){
 		my $column;
@@ -266,7 +266,7 @@ sub is_column_hidden{
 			###LogSD		"Parsed -$item- to column number: $column" ] );
 		}
 		my $column_formats = $self->get_custom_column_data( $column );
-		push @result_list, 
+		push @result_list,
 			( $column < $self->_min_col or $self->_max_col < $column ) ? undef :
 			( $column_formats and exists $column_formats->{hidden}) ? $column_formats->{hidden} : 0;
 	}
@@ -283,7 +283,7 @@ sub is_row_hidden{
 	###LogSD			$self->get_all_space . '::is_row_hidden', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			'Pulling the hidden state for the rows:', [@row_requests] ] );
-	
+
 	my @result_list;
 	for my $row ( @row_requests ){
 		my $code_row = $self->get_excel_position( $row );
@@ -292,7 +292,7 @@ sub is_row_hidden{
 		my $row_formats = $self->get_custom_row_data( $code_row );
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Returned row formats:", $row_formats ] );
-		push @result_list, 
+		push @result_list,
 			( $code_row < $self->_min_row or $self->_max_row < $code_row ) ? undef :
 			($row_formats and exists $row_formats->{hidden}) ? $row_formats->{hidden} : 0;
 	}
@@ -311,7 +311,7 @@ sub get_cell{
 	###LogSD			"Arrived at get_cell with: ",
 	###LogSD			"Requested row: " . (defined( $requested_row ) ? $requested_row : ''),
 	###LogSD			"Requested column: " . (defined( $requested_column ) ? $requested_column : '' ),] );
-	
+
 	# Ensure we have a good column and row to work from
 	my( $excel_requested_column, $excel_requested_row );
 	if( !defined $requested_row ){
@@ -330,7 +330,7 @@ sub get_cell{
 		###LogSD	$phone->talk( level => 'info', message =>[
 		###LogSD		"Updated column to (count from 1): $excel_requested_column", ] );
 	}
-	
+
 	# Get information
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		'Requesting [ $column, $row ]: [ ' . $excel_requested_column . ', ' . $excel_requested_row . ' ]' ] );
@@ -340,7 +340,7 @@ sub get_cell{
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Arrived at row: $current_row", "..searching for column: $excel_requested_column" ] );
 		$current_column =
-			( $current_row == $excel_requested_row ) ? $self->get_new_column( $excel_requested_column ) : 
+			( $current_row == $excel_requested_row ) ? $self->get_new_column( $excel_requested_column ) :
 			( $self->has_max_col and $requested_column > $self->max_col) ? 'EOR' : undef ;
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Column search result: ", ($current_column//'undef') ] );
@@ -348,15 +348,15 @@ sub get_cell{
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Requested a row past the end of the file" ] );
 	}
-	
+
 	# Handle returns including EOF EOD and EOR flags
 	my $return = undef;
 	if( $current_column and is_HashRef( $current_column ) ){
 		###LogSD	$phone->talk( level => 'trace', message =>[ 'Got a cell to build and return' ] );
 		$return = $self->_build_out_the_cell( $current_column );
 	}else{
-		$return = 
-			$current_column ? $current_column : 
+		$return =
+			$current_column ? $current_column :
 			is_Int( $current_row ) ? undef : $current_row;
 		###LogSD	$phone->talk( level => 'trace', message =>[ "Initial boundary flag: " . ($return//'undef') ] );
 		if( $return ){# Handle some exceptions
@@ -386,7 +386,7 @@ sub get_cell{
 		}
 	}
 	###LogSD	$phone->talk( level => 'trace', message =>[ "Cell search returning:", $return ] );
-	
+
 	$self->_set_reported_row_col( [ $excel_requested_row, $excel_requested_column ] );
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Set the reported [ row, col ] to: [ $excel_requested_row, $excel_requested_column ]", ] );
@@ -399,7 +399,7 @@ sub get_next_value{
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::get_next_value', );
 	###LogSD		$phone->talk( level => 'info', message =>[ 'Arrived at get_next_value', ] );
-	
+
 	# Get next position
 	my $next_cell;
 	if( $self->has_new_row_inst ){
@@ -407,7 +407,7 @@ sub get_next_value{
 		###LogSD		"Current row number: " . $self->get_new_row_number, ] );
 		while( !$next_cell ){# To handle values only in a pre-cached environment
 			$next_cell = $self->get_new_next_value;
-			###LogSD	$phone->talk( level => 'debug', message =>[ 
+			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		'Returned from next search with cell:', $next_cell ] );
 			if( $self->get_values_only and is_HashRef( $next_cell ) and
 				(	(!exists $next_cell->{cell_xml_value} and !exists $next_cell->{cell_unformatted}) or
@@ -417,26 +417,26 @@ sub get_next_value{
 			}
 		}
 	}else{
-		###LogSD	$phone->talk( level => 'debug', message =>[ 
+		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		'No row instance currently loaded' ] );
 	}
 	if( !$next_cell or $next_cell eq 'EOR' ){ # Handle no current row or no cell left case
 		$next_cell = undef;# Clear 'EOR'
 		my $current_row = $self->go_to_or_past_row;
-		###LogSD	$phone->talk( level => 'debug', message =>[ 
+		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		'Updated Row: ' . $current_row] );
 		while( !$next_cell ){# To handle values only in a pre-cached environment
 			$next_cell = $current_row eq 'EOF' ? 'EOF' : $self->get_new_next_value;
-			###LogSD	$phone->talk( level => 'debug', message =>[ 
+			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		'Returned from next search with cell:', $next_cell ] );
-	
+
 			# Handle EOF here
 			if( $next_cell eq 'EOF' ){
 				###LogSD	$phone->talk( level => 'debug', message =>[ 'Reached the EOF' ] );
 				$self->_set_reported_row_col( [ 0, 0 ] );
 				return $self->boundary_flag_setting ? $next_cell : undef;
 			}
-			
+
 			# Skip empty cells based on get_values_only
 			if( $self->get_values_only and is_HashRef( $next_cell ) and
 				(	(!exists $next_cell->{cell_xml_value} and !exists $next_cell->{cell_unformatted}) or
@@ -446,15 +446,15 @@ sub get_next_value{
 			}
 		}
 	}
-	
+
 	# Build out the cell
-	###LogSD	$phone->talk( level => 'trace', message =>[ 
+	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		'Reporting the current row col for cell:', $next_cell ] );
 	$self->_set_reported_row_col( [ $next_cell->{cell_row}, $next_cell->{cell_col} ] );
 	my $cell_instance = $self->_build_out_the_cell( $next_cell );
-	###LogSD	$phone->talk( level => 'trace', message =>[ 
+	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		'Built cell instance:', $cell_instance ] );
-	
+
 	return $cell_instance;
 }
 
@@ -464,7 +464,7 @@ sub fetchrow_arrayref{
 	###LogSD			$self->get_all_space . '::fetchrow_arrayref', );
 	###LogSD		$phone->talk( level => 'info', message =>[
 	###LogSD			"Arrived at fetchrow_arrayref for row: " . ((defined $row) ? $row : ''), ] );
-	
+
 	# Handle an implied next
 	if( !defined $row ){
 		my $last_row = $self->_get_reported_row;
@@ -476,20 +476,20 @@ sub fetchrow_arrayref{
 		###LogSD	$phone->talk( level => 'info', message =>[
 		###LogSD		"Updated row to (count from 1): $row", ] );
 	}
-	
+
 	# Advance to the proper row
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Requesting row: $row" ] );
 	my $current_row = $self->go_to_or_past_row( $row );
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Arrived at row: $current_row" ] );
-	
+
 	# Pull the data
-	my $result = 
-		(is_Int( $current_row) and $current_row == $row) ? $self->get_new_row_all : 
+	my $result =
+		(is_Int( $current_row) and $current_row == $row) ? $self->get_new_row_all :
 		$current_row eq 'EOF' ? 'EOF' : undef;
 	###LogSD	$phone->talk( level => 'debug', message =>[ 'Returned row ref;', $result ] );
-	
+
 	# Build the return
 	my $return = [];
 	my ( $reported_row, $reported_col ) = ( $row, undef );
@@ -500,7 +500,7 @@ sub fetchrow_arrayref{
 					###LogSD	$phone->talk( level => 'debug', message =>[
 					###LogSD		'Building out the cell:', $cell ] );
 					$reported_col = $cell->{cell_col};
-			
+
 					# Skip empty cells based on get_values_only
 					if( $self->get_values_only and is_HashRef( $cell ) and
 						(	(!exists $cell->{cell_xml_value} and !exists $cell->{cell_unformatted}) or
@@ -522,13 +522,13 @@ sub fetchrow_arrayref{
 	}else{
 		$reported_col = $self->_max_col;
 	}
-	
+
 	# Handle full rows with empty_is_end = 0
 	$self->_set_reported_row_col( [ $reported_row, $reported_col ] );
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Set the reported [ row, col ] to: [ $reported_row, $reported_col ]", ] );
 	###LogSD	$phone->talk( level => 'trace', message =>[ 'Final return:', $return ] );
-	
+
 	return $return;
 }
 
@@ -540,7 +540,7 @@ sub fetchrow_array{
 	###LogSD			"Arrived at fetchrow_array for row: " . ((defined $row) ? $row : ''), ] );
 	my $array_ref = $self->fetchrow_arrayref( $row );
 	###LogSD	$phone->talk( level => 'trace', message =>[ 'Initial return:', $array_ref ] );
-	my @return = 
+	my @return =
 		is_ArrayRef( $array_ref ) ? @$array_ref :
 		is_Str( $array_ref ) ? $array_ref : ();
 	###LogSD	$phone->talk( level => 'trace', message =>[ 'Final return:', @return ] );
@@ -636,7 +636,7 @@ sub fetchrow_hashref{
 	###LogSD	$phone->talk( level => 'info', message =>[
 	###LogSD		((defined $min_col) ? "Minimum header column offset: $min_col" : undef),
 	###LogSD		((defined $max_col) ? "Maximum header column offset: $max_col" : undef), ] );
-	
+
 	# Build the ref
 	my $return;
 	my $blank_count = 0;
@@ -650,13 +650,13 @@ sub fetchrow_hashref{
 			$return->{$header} = $array_ref->[$x];
 		}
 	}
-	
+
 	return $return;
 }
 
 sub set_custom_formats{
     my ( $self, @input_args ) = @_;
-	my $args; 
+	my $args;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::set_custom_formats', );
 	###LogSD		$phone->talk( level => 'info', message =>[
@@ -758,7 +758,7 @@ sub _build_out_the_cell{
 	my ( $self, $result, ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::_hidden::_build_out_the_cell', );
-	###LogSD		$phone->talk( level => 'debug', message =>[  
+	###LogSD		$phone->talk( level => 'debug', message =>[
 	###LogSD			 "Building out the cell ref:", $result, "..with results as: ". $self->get_group_return_type, ] );
 	my ( $return, $hidden_format );
 	if( is_HashRef( $result ) ){
@@ -766,7 +766,7 @@ sub _build_out_the_cell{
 		$return->{cell_unformatted} = $result->{cell_unformatted} if exists $result->{cell_unformatted} and defined $result->{cell_unformatted};
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"processing cell object from cell ref:", $result ] );
-		my $scientific_format; 
+		my $scientific_format;
 		if( !exists $return->{cell_unformatted} and exists $return->{cell_xml_value} and  #Implement implied output formatting intrensic to Excel for scientific notiation
 			$return->{cell_xml_value} =~ /^(\-)?((\d{1,3})?(\.\d+)?)[Ee](\-)?(\d+)$/ and $2 and $6 and $6 < 309){# Maximum Excel value 1.79769313486232E+308 -> https://support.microsoft.com/en-us/kb/78113
 			#~ warn $return->{cell_xml_value};
@@ -778,7 +778,7 @@ sub _build_out_the_cell{
 			my	$exponent = $6;
 				$decimal = sprintf '%.14f', $decimal;
 			$decimal =~ /([1-9])?\.(.*[1-9])?(0*)$/;
-			my	$last_sig_digit = 
+			my	$last_sig_digit =
 					!$2         ? 0 :
 					defined $3 ? 14 - length( $3 ) : 14 ;
 			my $initial_significant_digits = length( $exp_sign ) > 0 ? ($last_sig_digit + $exponent) : ($last_sig_digit - $exponent);
@@ -804,10 +804,10 @@ sub _build_out_the_cell{
 			}
 			my	$short_decimal = sprintf '%.5f', $decimal;
 				$short_decimal =~ /([1-9])?\.(.*[1-9])?(0*)$/;
-			my	$short_sig_digit = 
+			my	$short_sig_digit =
 					!$2         ? 0 :
 					defined $3 ? 5 - length( $3 ) : 5 ;
-			
+
 			$scientific_format =
 				( $initial_significant_digits < 10  ) ? SpecialDecimal :
 				( $short_sig_digit == 0 ) ? SpecialZeroScientific :
@@ -820,7 +820,7 @@ sub _build_out_the_cell{
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Resolved the final formatted output to formatter: " . $scientific_format->display_name ] );
 		}
-			
+
 		$return->{cell_type} = $result->{cell_type};
 		$return->{r} = $result->{r};
 		$return->{cell_merge} = $result->{cell_merge} if exists $result->{cell_merge};
@@ -831,7 +831,7 @@ sub _build_out_the_cell{
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"No crazy number stuff the unformatted value is: $return->{cell_unformatted}"] );
 		}
-		
+
 		#Implement user defined changes in encoding
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Current cell: ", $return ] );
 		if( $return->{cell_unformatted} and length( $return->{cell_unformatted} ) > 0 ){
@@ -854,7 +854,7 @@ sub _build_out_the_cell{
 			###LogSD		"Sending back just the unformatted value: " . ($return->{cell_xml_value}//'') ] ) ;
 			return $return->{cell_xml_value};
 		}
-		
+
 		# Get any relevant custom format
 		my	$custom_format;
 		if( $self->has_custom_format( $result->{r} ) ){
@@ -874,7 +874,7 @@ sub _build_out_the_cell{
 				$custom_format = $self->get_custom_format( $excel_row );
 			}
 		}
-		
+
 		# Initial check for return of value only (custom format case)
 		if( $custom_format ){
 			###LogSD	$phone->talk( level => 'debug', message =>[
@@ -885,7 +885,7 @@ sub _build_out_the_cell{
 				###LogSD	$phone->talk( level => 'trace', message =>[
 				###LogSD		'Returning value coerced by custom format:', $custom_format ] );
 				return	Spreadsheet::Reader::ExcelXML::Cell->_return_value_only(
-							$return->{cell_unformatted}, 
+							$return->{cell_unformatted},
 							$custom_format,
 							$self->get_error_inst,
 				###LogSD	$self->get_log_space . '::Cell::_hidden::_return_value_only',
@@ -894,18 +894,18 @@ sub _build_out_the_cell{
 			$return->{cell_coercion} = $custom_format;
 			$return->{cell_type} = 'Custom';
 		}
-		
+
 		# handle the formula
 		if( exists $result->{cell_formula} and defined $result->{cell_formula} and length( $result->{cell_formula} ) > 0 ){
 			$return->{cell_formula} = $result->{cell_formula};
 		}
-		
+
 		# convert the row column to user defined
 		$return->{cell_row} = $self->get_used_position( $result->{cell_row} );
 		$return->{cell_col} = $self->get_used_position( $result->{cell_col} );
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Cell args to this point:", $return] );
-		
+
 		if( exists $result->{s} ){
 			my $header = ($self->get_group_return_type eq 'value') ? 'cell_coercion' : undef;
 			my $exclude_header = ($custom_format) ? 'cell_coercion' : undef;
@@ -929,8 +929,8 @@ sub _build_out_the_cell{
 				###LogSD		"Custom formats override this cell", $custom_format->display_name] );
 				delete $format->{cell_coercion};
 			}elsif( $scientific_format and
-						(	!exists $format->{cell_coercion} or 
-							$format->{cell_coercion}->display_name eq 'Excel_number_0' or 
+						(	!exists $format->{cell_coercion} or
+							$format->{cell_coercion}->display_name eq 'Excel_number_0' or
 							$format->{cell_coercion}->display_name eq 'Excel_text_0'		) ){
 				###LogSD	$phone->talk( level => 'debug', message =>[
 				###LogSD		"The generic number case will implement a hidden scientific format", $scientific_format] );
@@ -942,7 +942,7 @@ sub _build_out_the_cell{
 				###LogSD	$phone->talk( level => 'debug', message =>[
 				###LogSD		'Applying (a possible) regular format to: ' .  ($return->{cell_unformatted}//''), $return, $format ] );
 				return	Spreadsheet::Reader::ExcelXML::Cell->_return_value_only(
-							$return->{cell_unformatted}, 
+							$return->{cell_unformatted},
 							$return->{cell_coercion} // $format->{cell_coercion},
 							$self->get_error_inst,
 				###LogSD	$self->get_log_space . '::Cell::_hidden::_return_value_only',
@@ -974,7 +974,7 @@ sub _build_out_the_cell{
 					$return->{cell_alignment}->{horizontal} = 'left';
 					$return->{cell_formula} = $return->{cell_formula} ? ("'" . $return->{cell_formula}) : "'";
 				}
-					
+
 			}
 		}
 		###LogSD	$phone->talk( level => 'debug', message =>[
@@ -984,7 +984,7 @@ sub _build_out_the_cell{
 			###LogSD		"The generic number case will implement a hidden scientific format", $scientific_format] );
 			$return->{cell_coercion} = $scientific_format;
 		}
-			
+
 		###LogSD	$phone->talk( level => 'trace', message =>[
 		###LogSD		"Checking return type: " . $self->get_group_return_type,  ] );
 		# Final check for value only - for the text case
@@ -992,7 +992,7 @@ sub _build_out_the_cell{
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		'Applying (a possible) regular format to: |' .  ($return->{cell_unformatted}//'') . '|' ] );
 			return	Spreadsheet::Reader::ExcelXML::Cell->_return_value_only(
-						$return->{cell_unformatted}, 
+						$return->{cell_unformatted},
 						$return->{cell_coercion},
 						$self->get_error_inst,
 			###LogSD	$self->get_log_space . '::Cell::_hidden::_return_value_only',
@@ -1040,14 +1040,14 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::Worksheet - Top level XLSX::Reader Worksheet interface
+Spreadsheet::Reader::ExcelXML::Worksheet - Top level Worksheet interface
 
 =head1 SYNOPSIS
 
 	use strict;
 	use warnings;
 	use Data::Dumper;
-	
+
 	use Spreadsheet::Reader::ExcelXML;
 	my $workbook =	Spreadsheet::Reader::ExcelXML->new( #similar style to Spreadsheet::XLSX
 						file => 't/test_files/TestBook.xlsx',# in the test folder of this package
@@ -1080,56 +1080,56 @@ Spreadsheet::Reader::ExcelXML::Worksheet - Top level XLSX::Reader Worksheet inte
 	###########################
 
 
-The best example for use of this module alone is the test file in this package 
+The best example for use of this module alone is the test file in this package
 t/Spreadsheet/Reader/ExcelXML/10-worksheet.t
-    
+
 =head1 DESCRIPTION
 
-This module is the worksheet interface.  Even thought it will not provide all worksheet 
-access itself it's role is to manage a consistent way of parsing Excel worksheets.  If 
+This module is the worksheet interface.  Even thought it will not provide all worksheet
+access itself it's role is to manage a consistent way of parsing Excel worksheets.  If
 the sheet/tab is a 'chartsheet' then please review the documentation for L<Chartsheets
 |Spreadsheet::Reader::ExcelXML::Chartsheet>. The documentation in this file will include
-all publicly accesable elements.  This include elements provided through other roles and 
-the base class.  The purpose of this instance is to extract worksheet level formats and 
+all publicly accesable elements.  This include elements provided through other roles and
+the base class.  The purpose of this instance is to extract worksheet level formats and
 cell level content for parsing. The workbook also has several L<Settings
-|Spreadsheet::Reader::ExcelXML/Attributes> that affect the outcome of methods from this 
-interface.  For example the workbook level attribute setting 
-L<Spreadsheet::Reader::ExcelXML/count_from_zero> will directly affect how this data is 
-returned when retreiving cell data.  Please review all workbook level attribute 
-documentation for information covering those possibilities.  It is best to generate a 
+|Spreadsheet::Reader::ExcelXML/Attributes> that affect the outcome of methods from this
+interface.  For example the workbook level attribute setting
+L<Spreadsheet::Reader::ExcelXML/count_from_zero> will directly affect how this data is
+returned when retreiving cell data.  Please review all workbook level attribute
+documentation for information covering those possibilities.  It is best to generate a
 worksheet instance from the workbook class using one of the various L<worksheet
 |Spreadsheet::Reader::ExcelXML/worksheet( $name )> methods.
 
 =head2 Modification of this Interface
 
-The final worksheet instance provided by this package is an amalgam of a base class and a 
-few roles aggregated at run time based on attribute settings from the workbook level 
-class.  The easiest way to modify behaviour in this instance is to build an additional 
-or replacement element and have it built into the interface by the workbook.   The 
-settings for this type of injection/adjustement are stored in the raw code of 
-L<Spreadsheet::Reader::ExcelXML::Workbook> within the 'worksheet_interface' key of the 
-$parser_modules variable.  The file t/Spreadsheet/Reader/ExcelXML/10-worksheet.t 
-in the distribution represents a good 'under the hood' example of the way all the elements 
+The final worksheet instance provided by this package is an amalgam of a base class and a
+few roles aggregated at run time based on attribute settings from the workbook level
+class.  The easiest way to modify behaviour in this instance is to build an additional
+or replacement element and have it built into the interface by the workbook.   The
+settings for this type of injection/adjustement are stored in the raw code of
+L<Spreadsheet::Reader::ExcelXML::Workbook> within the 'worksheet_interface' key of the
+$parser_modules variable.  The file t/Spreadsheet/Reader/ExcelXML/10-worksheet.t
+in the distribution represents a good 'under the hood' example of the way all the elements
 are integrated into the larger worksheet class as a whole.
 
 =head2 Methods
 
-These are the various functions that are available to extract cell (values) to read or 
-to extract worksheet level formats. There are several different methods provided to 
-extract the same content in different ways.  All the methods are object methods performed 
+These are the various functions that are available to extract cell (values) to read or
+to extract worksheet level formats. There are several different methods provided to
+extract the same content in different ways.  All the methods are object methods performed
 on the worksheet.
 
 B<Example:>
 
 	my $cell_data = $worksheet->get_cell( $row, $column );
-	
+
 =head3 min_row
 
 =over
 
-B<Definition:> This is the minimum row determined when the sheet is opened.  This 
-value is affected by the workbook attributes 
-L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and 
+B<Definition:> This is the minimum row determined when the sheet is opened.  This
+value is affected by the workbook attributes
+L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and
 L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero>
 
 B<Accepts:> nothing
@@ -1142,7 +1142,7 @@ B<Returns:> an integer $row
 
 =over
 
-B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods> 
+B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods>
 of min_row
 
 =back
@@ -1151,18 +1151,18 @@ of min_row
 
 =over
 
-B<Definition:> This is the maximum row with data listed in the sheet.  This value 
-is affected by the workbook attribute 
-L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero>. B<Warning: 
-This value is extracted from the sheet metadata, however if your sheet has been 
-damaged or 'adjusted' by non-microsoft code (This is more common than you would think 
-in the data processing world) then this value may be wrong or missing when the sheet 
-is first opened.  The goal of this package is to minimize memory consumption so it 
-will learn what the correct value is over the first pass through the sheet as you 
-collect data but it does not attempt to validate this value in detail initially. If 
-you have an idea of the range for a damaged sheet before you open it you can use 
-L<EOF|change_boundary_flag( $Bool )> flags.  Otherwise the methods 
-L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are 
+B<Definition:> This is the maximum row with data listed in the sheet.  This value
+is affected by the workbook attribute
+L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero>. B<Warning:
+This value is extracted from the sheet metadata, however if your sheet has been
+damaged or 'adjusted' by non-microsoft code (This is more common than you would think
+in the data processing world) then this value may be wrong or missing when the sheet
+is first opened.  The goal of this package is to minimize memory consumption so it
+will learn what the correct value is over the first pass through the sheet as you
+collect data but it does not attempt to validate this value in detail initially. If
+you have an idea of the range for a damaged sheet before you open it you can use
+L<EOF|change_boundary_flag( $Bool )> flags.  Otherwise the methods
+L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are
 recomended.>
 
 B<Accepts:> nothing
@@ -1175,7 +1175,7 @@ B<Returns:> an integer
 
 =over
 
-B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods> 
+B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods>
 of max_row
 
 =back
@@ -1184,20 +1184,20 @@ of max_row
 
 =over
 
-B<Definition:> This returns a list containing the minimum row number followed 
-by the maximum row number.  This list is affected by the workbook attributes 
-L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and 
-L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning: 
-This result is extracted from the sheet metadata, however if your sheet has been 
-damaged or 'adjusted' by non-microsoft code (This is more common than you would think 
-in the data processing world) then the return list may be wrong or missing when the 
-sheet is first opened.  The goal of this package is to minimize memory consumption so it 
-will learn what the correct list is over the first pass through the sheet as you 
-collect data but it does not attempt to validate this list in detail initially. If 
-you have an idea of the range for a damaged sheet before you open it you can use 
-L<EOR-EOF|change_boundary_flag( $Bool )> flags.  Otherwise the methods 
-L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are 
-recomended.>  For missing values the minimum is set to the first row and the maximum 
+B<Definition:> This returns a list containing the minimum row number followed
+by the maximum row number.  This list is affected by the workbook attributes
+L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and
+L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning:
+This result is extracted from the sheet metadata, however if your sheet has been
+damaged or 'adjusted' by non-microsoft code (This is more common than you would think
+in the data processing world) then the return list may be wrong or missing when the
+sheet is first opened.  The goal of this package is to minimize memory consumption so it
+will learn what the correct list is over the first pass through the sheet as you
+collect data but it does not attempt to validate this list in detail initially. If
+you have an idea of the range for a damaged sheet before you open it you can use
+L<EOR-EOF|change_boundary_flag( $Bool )> flags.  Otherwise the methods
+L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are
+recomended.>  For missing values the minimum is set to the first row and the maximum
 is set to undef.
 
 B<Accepts:> nothing
@@ -1210,9 +1210,9 @@ B<Returns:> ( $minimum_row, $maximum_row )
 
 =over
 
-B<Definition:> This is the minimum column with data listed in the sheet.  This value 
-is affected by the workbook attributes 
-L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and 
+B<Definition:> This is the minimum column with data listed in the sheet.  This value
+is affected by the workbook attributes
+L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and
 L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero>
 
 B<Accepts:> nothing
@@ -1225,7 +1225,7 @@ B<Returns:> an integer
 
 =over
 
-B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods> 
+B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods>
 of min_col
 
 =back
@@ -1234,18 +1234,18 @@ of min_col
 
 =over
 
-B<Definition:> This is the maximum row with data listed in the sheet.  This value 
-is affected by the workbook attribute 
-L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning: 
-This value is extracted from the sheet metadata, however if your sheet has been 
-damaged or 'adjusted' by non-microsoft code (This is more common than you would think 
-in the data processing world) then this value may be wrong or missing when the sheet 
-is first opened.  The goal of this package is to minimize memory consumption so it 
-will learn what the correct value is over the first pass through the sheet as you 
-collect data but it does not attempt to validate this value in detail initially. If 
-you have an idea of the range for a damaged sheet before you open it you can use 
-L<EOR|change_boundary_flag( $Bool )> flags.  Otherwise the methods 
-L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are 
+B<Definition:> This is the maximum row with data listed in the sheet.  This value
+is affected by the workbook attribute
+L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning:
+This value is extracted from the sheet metadata, however if your sheet has been
+damaged or 'adjusted' by non-microsoft code (This is more common than you would think
+in the data processing world) then this value may be wrong or missing when the sheet
+is first opened.  The goal of this package is to minimize memory consumption so it
+will learn what the correct value is over the first pass through the sheet as you
+collect data but it does not attempt to validate this value in detail initially. If
+you have an idea of the range for a damaged sheet before you open it you can use
+L<EOR|change_boundary_flag( $Bool )> flags.  Otherwise the methods
+L<get_next_value|/get_next_value> or L<fetchrow_arrayref|/fetchrow_arrayref> are
 recomended.>
 
 B<Accepts:> nothing
@@ -1258,7 +1258,7 @@ B<Returns:> an integer
 
 =over
 
-B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods> 
+B<Definition:> The L<predicate|Moose::Manual::Attributes/Predicate and clearer methods>
 of max_col
 
 =back
@@ -1267,9 +1267,9 @@ of max_col
 
 =over
 
-B<Definition:> This returns a list containing the minimum column number followed 
-by the maximum column number.  This list is affected by the workbook attributes 
-L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and 
+B<Definition:> This returns a list containing the minimum column number followed
+by the maximum column number.  This list is affected by the workbook attributes
+L<from_the_edge|Spreadsheet::Reader::ExcelXML/from_the_edge>, and
 L<count_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero>
 
 B<Accepts:> nothing
@@ -1282,11 +1282,11 @@ B<Returns:> ( $minimum_column, $maximum_column )
 
 =over
 
-B<Definition:> This method returns an array ref of cells that are merged.  This method does 
-respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning: 
-This result is extracted from the sheet metadata for 2007+ Excel files, however if you 
-are parsing an Excel 2003 xml file this data is stored at the cell level.  Since this 
-parser reads the data 'Just In Time' it will not know about a set of merged cells until the 
+B<Definition:> This method returns an array ref of cells that are merged.  This method does
+respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero> B<Warning:
+This result is extracted from the sheet metadata for 2007+ Excel files, however if you
+are parsing an Excel 2003 xml file this data is stored at the cell level.  Since this
+parser reads the data 'Just In Time' it will not know about a set of merged cells until the
 upper left cell of the group has been read.>
 
 B<Accepts:> nothing
@@ -1301,29 +1301,29 @@ B<Returns:> An arrayref of arrayrefs of merged areas or undef if no merged areas
 
 =over
 
-B<Definition:> Method indicates if the excel program would hide the identified column(s) or show 
-it|them if the file were opened in the Microsoft Excel application.  If more than one column is 
-passed then it returns true if any of the columns are hidden in scalar context and a list of 
-1 and 0 values for each of the requested positions in array (list) context.  This method (input) 
-does respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  For 2003 
-xml files this data is stored at the cell level so the parser will not 'know' until you have 
+B<Definition:> Method indicates if the excel program would hide the identified column(s) or show
+it|them if the file were opened in the Microsoft Excel application.  If more than one column is
+passed then it returns true if any of the columns are hidden in scalar context and a list of
+1 and 0 values for each of the requested positions in array (list) context.  This method (input)
+does respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  For 2003
+xml files this data is stored at the cell level so the parser will not 'know' until you have
 read (past) the cell.
 
 B<Accepts:> integer values or column letter values selecting the columns in question
 
-B<Returns:> in scalar context it returns a boolean value indicating if any of the requested 
-columns would be hidden by Excel.  In array/list context it returns a list of boolean values 
+B<Returns:> in scalar context it returns a boolean value indicating if any of the requested
+columns would be hidden by Excel.  In array/list context it returns a list of boolean values
 for each requested column indicating it's hidden state for Excel. (1 = hidden)
 
 B<Examples:> (Indicating the 3rd and 4th of 6 columns are hidden)
 
-	
-	$worksheet_instance->is_column_hidden( 0 .. 5 ), 
+
+	$worksheet_instance->is_column_hidden( 0 .. 5 ),
 	###########################
 	# Example Output
 	# [ 0, 0, 1, 1, 0, 0 ]
 	###########################
-	
+
 	$worksheet_instance->is_column_hidden( 'A', 'B', 'C', 'D', 'E', 'F' )
 	###########################
 	# Example Output
@@ -1336,19 +1336,19 @@ B<Examples:> (Indicating the 3rd and 4th of 6 columns are hidden)
 
 =over
 
-B<Definition:> Method indicates if the excel program would hide the identified row(s) or show 
-it|them if the file were opened in the Microsoft Excel application.  If more than one row is 
-passed then it returns true if any of the rows are hidden in scalar context and a list of 
-1 and 0 values for each of the requested positions in array (list) context.  This method (input) 
-does respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  B<Warning: 
-This method will only be accurate after the user has read at least one cell from or past the row 
-inspected for it's hidden state.  This allows the sheet to avoid reading all the way through once 
+B<Definition:> Method indicates if the excel program would hide the identified row(s) or show
+it|them if the file were opened in the Microsoft Excel application.  If more than one row is
+passed then it returns true if any of the rows are hidden in scalar context and a list of
+1 and 0 values for each of the requested positions in array (list) context.  This method (input)
+does respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  B<Warning:
+This method will only be accurate after the user has read at least one cell from or past the row
+inspected for it's hidden state.  This allows the sheet to avoid reading all the way through once
 before starting the cell parsing.>
 
 B<Accepts:> integer values selecting the rows in question
 
-B<Returns:> in scalar context it returns a boolean value indicating if any of the requested 
-rows would be hidden by Excel.  In array/list context it returns a list of boolean values 
+B<Returns:> in scalar context it returns a boolean value indicating if any of the requested
+rows would be hidden by Excel.  In array/list context it returns a list of boolean values
 for each requested row indicating it's hidden state for Excel. (1 = hidden)
 
 =back
@@ -1357,14 +1357,14 @@ for each requested row indicating it's hidden state for Excel. (1 = hidden)
 
 =over
 
-B<Definition:> Indicate both the requested row and requested column and the information for 
+B<Definition:> Indicate both the requested row and requested column and the information for
 that position will be returned.  Both $row and $column are required
 
-B<Accepts:> the list ( $row, $column ) both required  See the attribute 
-L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which row and column 
+B<Accepts:> the list ( $row, $column ) both required  See the attribute
+L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which row and column
 are returned for $row and $colum.
 
-B<Returns:> see the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type> for 
+B<Returns:> see the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type> for
 details on what is returned
 
 =back
@@ -1373,15 +1373,15 @@ details on what is returned
 
 =over
 
-B<Definition:> Reading left to right and top to bottom this will return the next cell with 
-a value.  This can includes cells with no value but some unique formatting such as 
-cells that have been merged with other cells.  See the attributes 
-L<Spreadsheet::Reader::ExcelXML/values_only> and 
+B<Definition:> Reading left to right and top to bottom this will return the next cell with
+a value.  This can includes cells with no value but some unique formatting such as
+cells that have been merged with other cells.  See the attributes
+L<Spreadsheet::Reader::ExcelXML/values_only> and
 L<Spreadsheet::Reader::ExcelXML/spaces_are_empty> for more information.
 
 B<Accepts:> nothing
 
-B<Returns:> see the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type> for 
+B<Returns:> see the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type> for
 details on what is returned
 
 =back
@@ -1390,14 +1390,14 @@ details on what is returned
 
 =over
 
-B<Definition:> In an homage to L<DBI> I included this function to return an array ref of 
-the cells or values in the requested $row.  If no row is requested this returns the 'next' 
+B<Definition:> In an homage to L<DBI> I included this function to return an array ref of
+the cells or values in the requested $row.  If no row is requested this returns the 'next'
 row.  In the array ref any empty cell will show as 'undef'.
 
-B<Accepts:> undef = next|$row = a row integer indicating the desired row  See the attribute 
+B<Accepts:> undef = next|$row = a row integer indicating the desired row  See the attribute
 L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which row is returned for $row.
 
-B<Returns:> an array ref of all possible column positions in that row with data filled in 
+B<Returns:> an array ref of all possible column positions in that row with data filled in
 per the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type>.
 
 =back
@@ -1406,13 +1406,13 @@ per the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type>.
 
 =over
 
-B<Definition:> This function is just like L<fetchrow_arrayref|/fetchrow_arrayref( $row )> 
+B<Definition:> This function is just like L<fetchrow_arrayref|/fetchrow_arrayref( $row )>
 except it returns an array instead of an array ref
 
-B<Accepts:> undef = next|$row = a row integer indicating the desired row.  See the attribute 
-L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which row is returned for $row. 
+B<Accepts:> undef = next|$row = a row integer indicating the desired row.  See the attribute
+L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which row is returned for $row.
 
-B<Returns:> an array ref of all possible column positions in that row with data filled in 
+B<Returns:> an array ref of all possible column positions in that row with data filled in
 per the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type>.
 
 =back
@@ -1421,19 +1421,19 @@ per the attribute L<Spreadsheet::Reader::ExcelXML/group_return_type>.
 
 =over
 
-B<Definition:> This function is used to set headers used in the function 
-L<fetchrow_hashref|/fetchrow_hashref( $row )>.  It accepts a list of row numbers that 
+B<Definition:> This function is used to set headers used in the function
+L<fetchrow_hashref|/fetchrow_hashref( $row )>.  It accepts a list of row numbers that
 will be collated into a set of headers used to build the hashref for each row.
-The header rows are coallated in sequence with the first position taking precedence.  
-The list is also used to set the lowest row of the headers in the table.  All rows 
-at that level and higher will be considered out of the table and will return undef 
-while setting the error instance.  If some of the header columns do not have values 
-then the instance will auto generate unique headers for each empty header column to 
-fill out the header ref. [ optionally: it is possible to pass a coderef at the end of 
-the list to scrub the headers so they make some sense.] When the headers are loaded 
-the top level information row of any pull for 'fetchrow_hashref' will be considered 
-the first row after the header row.  Any header build will not be tested again during 
-fetchrow_hashref the content columns will be matched to the header columns by position.  
+The header rows are coallated in sequence with the first position taking precedence.
+The list is also used to set the lowest row of the headers in the table.  All rows
+at that level and higher will be considered out of the table and will return undef
+while setting the error instance.  If some of the header columns do not have values
+then the instance will auto generate unique headers for each empty header column to
+fill out the header ref. [ optionally: it is possible to pass a coderef at the end of
+the list to scrub the headers so they make some sense.] When the headers are loaded
+the top level information row of any pull for 'fetchrow_hashref' will be considered
+the first row after the header row.  Any header build will not be tested again during
+fetchrow_hashref the content columns will be matched to the header columns by position.
 for example;
 
 	my $scrubber = sub{
@@ -1446,10 +1446,10 @@ for example;
 	# Returns/stores the headers set at row 2 and 1 with values from row 2 taking precedence
 	#  Then it scrubs the values by removing newlines and replacing spaces with underscores.
 
-B<Accepts:> a list of row numbers (modified as needed by the attribute state of 
+B<Accepts:> a list of row numbers (modified as needed by the attribute state of
 L<Spreadsheet::Reader::ExcelXML/count_from_zero>) and an optional L<closure
-|http://www.perl.com/pub/2002/05/29/closure.html>.  See the attribute 
-L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which rows are 
+|http://www.perl.com/pub/2002/05/29/closure.html>.  See the attribute
+L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which rows are
 used when the @header_row_list is called.
 
 B<Returns:> an array ref of the built headers for review.
@@ -1460,8 +1460,8 @@ B<Returns:> an array ref of the built headers for review.
 
 =over
 
-B<Definition:> This returns the final row of headers in the sheet.  The return value is 
-in the context of the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  It is 
+B<Definition:> This returns the final row of headers in the sheet.  The return value is
+in the context of the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.  It is
 determined by the function 'set_headers'.
 
 B<Accepts:> nothing
@@ -1474,7 +1474,7 @@ B<Returns:> the last (largest) row number used in the coallated header.
 
 =over
 
-B<Definition:> This predicate will indicate if any header build has occured from the 
+B<Definition:> This predicate will indicate if any header build has occured from the
 method 'set_headers'.
 
 B<Accepts:> nothing
@@ -1487,19 +1487,19 @@ B<Returns:> Boolean on off for set headers (1 = headers are set)
 
 =over
 
-B<Definition:> This function is used to return a hashref representing the data in the 
-specified row.  If no $row value is passed it will return the 'next' row of data.  A call 
-to this function without L<setting|/set_headers( @header_row_list )> the headers first 
+B<Definition:> This function is used to return a hashref representing the data in the
+specified row.  If no $row value is passed it will return the 'next' row of data.  A call
+to this function without L<setting|/set_headers( @header_row_list )> the headers first
 will return 'undef' and set the error instance.
 
-B<Accepts:> a target $row number for return values or undef meaning 'next'  See the 
-attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which rows 
+B<Accepts:> a target $row number for return values or undef meaning 'next'  See the
+attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero> to understand which rows
 are targeted by $row.
 
-B<Returns:> a hash ref of the values for that row.  This function ignores the attribute 
-L<group_return_type|Spreadsheet::Reader::ExcelXML/group_return_type> when it is 
-set to 'instance' and returns 'value's instead.  See also the attributes 
-L<min_header_col|/min_header_col> and L<max_header_col|/max_header_col> to pare the 
+B<Returns:> a hash ref of the values for that row.  This function ignores the attribute
+L<group_return_type|Spreadsheet::Reader::ExcelXML/group_return_type> when it is
+set to 'instance' and returns 'value's instead.  See also the attributes
+L<min_header_col|/min_header_col> and L<max_header_col|/max_header_col> to pare the
 start and end columns of the returned hash ref.
 
 =back
@@ -1508,26 +1508,26 @@ start and end columns of the returned hash ref.
 
 =over
 
-B<Definition:> This package will generate value conversions that generally match the 
-numerical conversions set in the Excel spreadsheet.  However, it may be that you want 
-to convert the unformatted values for certain cells, rows, or columns in some user 
-defined way.  The simplest way to do this is by storing an 
+B<Definition:> This package will generate value conversions that generally match the
+numerical conversions set in the Excel spreadsheet.  However, it may be that you want
+to convert the unformatted values for certain cells, rows, or columns in some user
+defined way.  The simplest way to do this is by storing an
 L<Excel custom number format string
 |https://support.office.com/en-au/article/Create-or-delete-a-custom-number-format-78f2a361-936b-4c03-8772-09fab54be7f4>
-in this instance using 'set_custom_formats' against either a CellID, a Row Number, or a 
+in this instance using 'set_custom_formats' against either a CellID, a Row Number, or a
 Column letter. As an example you could say;
 
 	$worksheet->set_custom_formats( {
 	    A => '# ?/?',
 	} );
-	
-And any subsequent call for a $cell->value from column 'A' will attempt to convert the 
-raw xml contents of that cell to an integer and fraction combination with one position 
-in the denominator or less (an integer only).  If the cell is text then it will act as 
-a pass-through.  Where there is overlap between the formats the instance will select 
+
+And any subsequent call for a $cell->value from column 'A' will attempt to convert the
+raw xml contents of that cell to an integer and fraction combination with one position
+in the denominator or less (an integer only).  If the cell is text then it will act as
+a pass-through.  Where there is overlap between the formats the instance will select
 one based on the following priority; cellID, column letter, row number.
 
-For the truly adventurous you can build an object instance that has the two following 
+For the truly adventurous you can build an object instance that has the two following
 methods; 'assert_coerce' and 'display_name'.  Then add it to the attribute as above.
 
 =over
@@ -1541,9 +1541,9 @@ B<A Complicated Example:> Building a converter on the fly from L<Type::Tiny
 	use Type::Tiny;
 	my @args_list  = ( system_type => 'apple_excel' );
 	my $num_converter  = DateTimeX::Format::Excel->new( @args_list );
-	
+
 	# build conversion subroutines (number and strings to DateTime objects)
-	my $string_via = sub{ 
+	my $string_via = sub{
 	      my $str = $_[0];
 	      return DateTime::Format::Flexible->parse_datetime( $str );
 	};
@@ -1551,51 +1551,51 @@ B<A Complicated Example:> Building a converter on the fly from L<Type::Tiny
 	      my $num = $_[0];
 	      return $num_converter->parse_datetime( $num );
 	};
-	
-	# Combine conversion subroutines into a coercion object! 
+
+	# Combine conversion subroutines into a coercion object!
 	#  (Note numbers are attempted first)
-	my $date_time_from_value = Type::Coercion->new( 
+	my $date_time_from_value = Type::Coercion->new(
 		type_coercion_map => [ Num, $num_via, Str, $string_via, ],
 	);
-	
+
 	# Install the coercion in a type that ensures it passes through a DateTime check
 	$date_time_type = Type::Tiny->new(
 	   name       => 'Custom_date_type',
 	   constraint => sub{ ref($_) eq 'DateTime' },
 	   coercion   => $date_time_from_value,
 	);
-	
-	# Chained coercions! to handle first the $date_time_from_value coercion 
+
+	# Chained coercions! to handle first the $date_time_from_value coercion
 	#    and then build a specific date string output
 	$string_type = Type::Tiny->new(
 	   name       => 'YYYYMMDD',
 	   constraint => sub{
 	      !$_ or (
 	         $_ =~ /^\d{4}\-(\d{2})-(\d{2})$/ and
-	         $1 > 0 and $1 < 13 and $2 > 0 and $2 < 32 
+	         $1 > 0 and $1 < 13 and $2 > 0 and $2 < 32
 	      )
 	   },
 	   coercion => Type::Coercion->new(
 	   type_coercion_map =>[
-	      $date_time_type->coercibles, sub{ 
+	      $date_time_type->coercibles, sub{
 	         my $tmp = $date_time_type->coerce( $_ );
 	         $tmp->format_cldr( 'yyyy-MM-dd' )
 	      },
 	   ],
 	), );
-	
+
 	# Then set the coercions in the worksheet for targeted positions
 	$worksheet->set_custom_formats( {
 	    E10 => $date_time_type,
 	    10  => $string_type,
 	    D14 => $string_type,
 	} );
-	
+
 =back
 
-B<Accepts:> a set of $key => $value pairs where the $key can either be a 
-row number, a column letter, or a cell ID.  The $value must either be a 
-string that complies with excel custom number formatting conventions or 
+B<Accepts:> a set of $key => $value pairs where the $key can either be a
+row number, a column letter, or a cell ID.  The $value must either be a
+string that complies with excel custom number formatting conventions or
 an object instance with two methods 'display_name' and 'assert_coerce'.
 
 B<Returns:> nothing
@@ -1618,9 +1618,9 @@ B<Returns:> a boolean where 1 = formats exist
 
 =over
 
-B<Definition:> This will retrieve the $value_ref of the custom format stored 
-against the given $key.  For formats saved as Excel custom format strings this 
-will return a package built object instance that performs the conversion 
+B<Definition:> This will retrieve the $value_ref of the custom format stored
+against the given $key.  For formats saved as Excel custom format strings this
+will return a package built object instance that performs the conversion
 indicated by the custom format string.
 
 B<Accepts:> $key
@@ -1643,21 +1643,21 @@ B<Returns:> a hashref of all custom formats
 
 =head2 Attributes
 
-These are attributes of the built instance.  Most of these are provided as metadata for 
-the specific parsed sheet and should be provided by the object that builds the worksheet 
-instance.  (The workbook)  However, a few can be set after worksheet creation to affect the 
-data retreival results.  These attributes are presented first. The end of the list is the 
-attribute that stores a reference to the workbook.  Follow the link in thats attribute 
-documentation to learn a tricksy way to adjust several workbook level settings with the 
+These are attributes of the built instance.  Most of these are provided as metadata for
+the specific parsed sheet and should be provided by the object that builds the worksheet
+instance.  (The workbook)  However, a few can be set after worksheet creation to affect the
+data retreival results.  These attributes are presented first. The end of the list is the
+attribute that stores a reference to the workbook.  Follow the link in thats attribute
+documentation to learn a tricksy way to adjust several workbook level settings with the
 worksheet instance.
 
 =head3 min_header_col
 
 =over
 
-B<Definition:> This attribute affects the hashref that is returned in the method 
-L<fetchrow_hashref|/fetchrow_hashref( $row )>.    This attribute tells fetchrow_hashref 
-what column to use to start the hash ref build.  This attribute (input) 
+B<Definition:> This attribute affects the hashref that is returned in the method
+L<fetchrow_hashref|/fetchrow_hashref( $row )>.    This attribute tells fetchrow_hashref
+what column to use to start the hash ref build.  This attribute (input)
 does respond to the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.
 
 B<Default:> undef (which is equivalent to the minimum column of the sheet)
@@ -1701,14 +1701,14 @@ B<Definition:> Indicates if the attribute has a stored value
 
 =over
 
-B<Definition:> This attribute affects the hashref that is returned in the method 
-L<fetchrow_hashref|/fetchrow_hashref( $row )>.  This attribute tells fetchrow_hashref 
-what column to use to end the hash ref build.  This attribute (input) does respond to 
-the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>. 
+B<Definition:> This attribute affects the hashref that is returned in the method
+L<fetchrow_hashref|/fetchrow_hashref( $row )>.  This attribute tells fetchrow_hashref
+what column to use to end the hash ref build.  This attribute (input) does respond to
+the attribute L<Spreadsheet::Reader::ExcelXML/count_from_zero>.
 
 B<Default:> undef (equal to the maximum column of the sheet)
 
-B<Range:> The maximum column of the sheet to or less than the 
+B<Range:> The maximum column of the sheet to or less than the
 L<min_header_col|/min_header_col>
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1742,31 +1742,31 @@ B<Definition:> Indicates if the attribute has a stored value
 =back
 
 =back
-	
+
 =head3 file
 
 =over
 
-B<Definition:> This attribute holds the file handle for the file being read.  If 
-the full file name and path is passed to the attribute the class will coerce that 
+B<Definition:> This attribute holds the file handle for the file being read.  If
+the full file name and path is passed to the attribute the class will coerce that
 into an L<IO::File> file handle.
 
 B<Default:> no default - this must be provided to read a file
 
 B<Required:> yes
 
-B<Range:> any unencrypted xml file name and path or IO::File file handle set to 
+B<Range:> any unencrypted xml file name and path or IO::File file handle set to
 read.
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<set_file>
 
 =over
 
-B<Definition:> change the file value in the attribute (this will reboot 
+B<Definition:> change the file value in the attribute (this will reboot
 the file instance and should lock the file)
 
 =back
@@ -1775,7 +1775,7 @@ B<get_file>
 
 =over
 
-B<Definition:> Returns the file handle of the file even if a file name 
+B<Definition:> Returns the file handle of the file even if a file name
 was passed
 
 =back
@@ -1822,7 +1822,7 @@ L<getline|IO::Handle/$io-E<gt>getline>
 
 =over
 
-returns the next line of the file handle with '<' set as the 
+returns the next line of the file handle with '<' set as the
 L<input_record_separator ($E<sol>)|http://perldoc.perl.org/perlvar.html>
 
 =back
@@ -1835,7 +1835,7 @@ L<input_record_separator ($E<sol>)|http://perldoc.perl.org/perlvar.html>
 
 =over
 
-B<Definition:> This is the sheet 'type' which will always be 'worksheet' 
+B<Definition:> This is the sheet 'type' which will always be 'worksheet'
 (as opposed to chartsheet)
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1858,7 +1858,7 @@ B<Definition:> returns the value stored in the attribute (worsheet)
 
 =over
 
-B<Definition:> This is the relId of the sheet listed in the XML of the .xlsx file.  
+B<Definition:> This is the relId of the sheet listed in the XML of the .xlsx file.
 You probably don't care and you should never set this value.
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1881,8 +1881,8 @@ B<Definition:> returns the value stored in the attribute
 
 =over
 
-B<Definition:> This is the Id of the sheet listed in the XML of the .xlsx file.  
-I beleive this to be the number used in vbscript to reference the sheet.  You 
+B<Definition:> This is the Id of the sheet listed in the XML of the .xlsx file.
+I beleive this to be the number used in vbscript to reference the sheet.  You
 should never set this value.
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1905,7 +1905,7 @@ B<Definition:> returns the value stored in the attribute
 
 =over
 
-B<Definition:> This is the visual sheet position in the .xlsx file.  
+B<Definition:> This is the visual sheet position in the .xlsx file.
 You should never set this value.
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1928,7 +1928,7 @@ B<Definition:> returns the value stored in the attribute
 
 =over
 
-B<Definition:> This is the visual sheet name in the .xlsx file 
+B<Definition:> This is the visual sheet name in the .xlsx file
 on the tab.  You should never set this value.
 
 B<attribute methods> Methods provided to adjust this attribute
@@ -1951,12 +1951,12 @@ B<Definition:> returns the value stored in the attribute
 
 =over
 
-B<Definition:> This attribute holds a reference back to the workbook instance so that 
-the worksheet has access to the global settings managed there.  As a consequence many 
-of the workbook methods are be exposed here.  This includes some setter methods for 
-workbook attributes. I<Beware that setting or adjusting the workbook level attributes 
-with methods here will be universal and affect other worksheets.  So don't forget to 
-return the old value if you want the old behavour after you are done.>  If that 
+B<Definition:> This attribute holds a reference back to the workbook instance so that
+the worksheet has access to the global settings managed there.  As a consequence many
+of the workbook methods are be exposed here.  This includes some setter methods for
+workbook attributes. I<Beware that setting or adjusting the workbook level attributes
+with methods here will be universal and affect other worksheets.  So don't forget to
+return the old value if you want the old behavour after you are done.>  If that
 doesn't make sense then don't use these methods.  (Nothing to see here! Move along.)
 
 B<Default:> a Spreadsheet::Reader::ExcelXML::Workbook instance
@@ -1976,7 +1976,7 @@ B<Definition:> Sets the attribute with a new workbook instance
 =back
 
 B<Delegated attribute methods> Since this list can float please L<follow the link
-|Spreadsheet::Reader::ExcelXML::XMLReader/Delegated Methods (required)> 
+|Spreadsheet::Reader::ExcelXML::XMLReader/Delegated Methods (required)>
 to the documented delegations in that file.
 
 =back
