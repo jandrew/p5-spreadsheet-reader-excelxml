@@ -11,6 +11,12 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
+	* 	Another cool change
+
+v0.10.2   2016-06-06 20:24:10-07:00 America/Los_Angeles
+
+	! Added 002-synopsis_use.t in order to validate the synopsis for all CPAN testers implementations
+		closes #2 in github
 	! Fixed Worksheet, Chartsheet, WorksheetToRow, NamedSharedStrings, NamedStyles,
 		PositionSharedStrings, and PositionStyles POD titles
 

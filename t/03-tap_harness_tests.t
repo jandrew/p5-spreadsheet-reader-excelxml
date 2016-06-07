@@ -60,6 +60,7 @@ my	$args ={
 			xml_workbook_meta_test		=>[ $dir . 'test_files/' ],
 			xml_workbook_props_test		=>[ $dir . 'test_files/' ],
 			workbook_integration_test	=>[ $dir . 'test_files/' ],
+			synopsis_test				=>[ $dir . 'test_files/' ],
 			zip_workbook_meta_test		=>[ $dir . 'test_files/xl/' ],
 			styles_sheet_test			=>[ $dir . 'test_files/xl/' ],
 			position_shared_strings_test	=>[ $dir . 'test_files/xl/' ],
@@ -115,6 +116,7 @@ my	@tests =(
 		[  $dir . $tests . '12-merge_function_alignment.t', 'merged_areas_test' ],
 		[  $dir . $tests . '13-hidden_formatting.t', 'hidden_formatting_test' ],
 		[  $dir . $tests . '14-read_xlsm_feature.t', 'read_xlsm_feature' ],
+		[  $dir . 'github_issues/002-synopsis_use.t', 'synopsis_test' ],
 	);
 use	TAP::Harness;
 use	TAP::Parser::Aggregator;

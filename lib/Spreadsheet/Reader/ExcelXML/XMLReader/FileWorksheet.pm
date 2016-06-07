@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-use version; our $VERSION = version->declare('v0.10.0');
+use version; our $VERSION = version->declare('v0.10.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet-$VERSION";
 
 use	5.010;
