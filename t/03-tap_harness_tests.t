@@ -116,7 +116,7 @@ my	@tests =(
 		[  $dir . $tests . '12-merge_function_alignment.t', 'merged_areas_test' ],
 		[  $dir . $tests . '13-hidden_formatting.t', 'hidden_formatting_test' ],
 		[  $dir . $tests . '14-read_xlsm_feature.t', 'read_xlsm_feature' ],
-		[  $dir . 'github_issues/002-synopsis_use.t', 'synopsis_test' ],
+		[  $dir . 'github_issues/006-synopsis_use.t', 'synopsis_test' ],
 	);
 use	TAP::Harness;
 use	TAP::Parser::Aggregator;

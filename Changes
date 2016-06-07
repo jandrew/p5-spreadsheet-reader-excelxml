@@ -11,12 +11,12 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
-	* 	Another cool change
+	* Another cool change
 
-v0.10.2   2016-06-06 20:24:10-07:00 America/Los_Angeles
+v0.10.4   2016-06-07 06:33:16-07:00 America/Los_Angeles
 
-	! Added 002-synopsis_use.t in order to validate the synopsis for all CPAN testers implementations
-		closes #2 in github
+	! Added 006-synopsis_use.t in order to validate the synopsis for all CPAN testers implementations
+		closes #6 in github with a test to catch the potential fail
 	! Fixed Worksheet, Chartsheet, WorksheetToRow, NamedSharedStrings, NamedStyles,
 		PositionSharedStrings, and PositionStyles POD titles
 
@@ -30,7 +30,7 @@ v0.8.0    2016-05-15 04:58:48-07:00 America/Los_Angeles
 
 v0.6.0    2016-05-14 23:21:47-07:00 America/Los_Angeles
 
-	! Updated the requirement for Spreadsheet::Reader::Format to v0.6.0 to avoid casading
+	! Updated the requirement for Spreadsheet::Reader::Format to v0.6.0 to avoid cascading
 			CPAN testers fails
 
 v0.4.0    2016-05-11 12:44:12-07:00 America/Los_Angeles
