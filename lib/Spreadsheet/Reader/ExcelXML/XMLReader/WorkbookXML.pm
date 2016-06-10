@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML;
-use version; our $VERSION = version->declare('v0.10.4');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML-$VERSION";
 
 use	Moose::Role;
@@ -22,7 +22,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Testing if the flat XML workbook opened correctly", $self->has_progid ] );
-	
+
 	# Check progid setting
 	if( !$self->has_progid ){
 		###LogSD	$phone->talk( level => 'warn', message => [
@@ -61,7 +61,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML -  Workbook flat XML file test
 
 =head1 SYNOPSIS
-	
+
 	#!/usr/bin/env perl
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	use Spreadsheet::Reader::ExcelXML::XMLReader;
@@ -79,29 +79,29 @@ Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookXML -  Workbook flat XML file 
 		);
 	my $sub_file = $test_instance->extract_file( 'Styles' );
 	print $sub_file->getline;
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: <?xml version="1.0"?><Styles><Style ss:ID="Default"/ ~~ / ss:ID="s22"><Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="14" ss:Color="#000000"
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This is the XML based file adaptor for reading the base xml flat file and determining 
-if it has the expected attribute in the mso-application header indicating it is a 
-L<SpreadsheetML|https://en.wikipedia.org/wiki/SpreadsheetML> format file.  ( 
-progid="Excel.Sheet" ) When combined with the generic XML reader and the 
+This is the XML based file adaptor for reading the base xml flat file and determining
+if it has the expected attribute in the mso-application header indicating it is a
+L<SpreadsheetML|https://en.wikipedia.org/wiki/SpreadsheetML> format file.  (
+progid="Excel.Sheet" ) When combined with the generic XML reader and the
 WorkbookFileInterface interface it makes a complete base xml flat file reader.
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the default implementation of 
+These are the methods required by the role.  A link to the default implementation of
 these methods is provided.
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/progid>
@@ -118,9 +118,9 @@ These are the methods provided by this role (only).
 
 =over
 
-B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-When it does the reader will call this function as available when it first starts the file.  
-This particular version only tests for the correct attribute (progid="Excel.Sheet") in the 
+B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+When it does the reader will call this function as available when it first starts the file.
+This particular version only tests for the correct attribute (progid="Excel.Sheet") in the
 'mso-application' header.
 
 B<Accepts:> nothing

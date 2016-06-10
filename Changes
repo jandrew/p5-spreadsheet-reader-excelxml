@@ -13,6 +13,13 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 	* Another cool change
 
+v0.12.2   2016-06-10 06:05:23-07:00 America/Los_Angeles
+
+	! Attempt to fix a couple of CPAN Testers fails
+		http://www.cpantesters.org/cpan/report/03c61060-2cf2-11e6-8f3d-886e3422d01a
+		http://www.cpantesters.org/cpan/report/2e4c1c6c-2cf2-11e6-816f-dbd7a8618baf
+	! Fixed PositionStyles POD title
+
 v0.10.4   2016-06-07 06:33:16-07:00 America/Los_Angeles
 
 	! Added 006-synopsis_use.t in order to validate the synopsis for all CPAN testers implementations

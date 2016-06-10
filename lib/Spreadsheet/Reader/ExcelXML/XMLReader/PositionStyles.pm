@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles;
-use version; our $VERSION = version->declare('v0.10.4');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles-$VERSION";
 
 use 5.010;
@@ -575,7 +575,7 @@ __END__
 
 =head1 NAME
 
-Spreadsheet::Reader::ExcelXML::PositionStyles - Support for Excel 2007+ Styles files
+Spreadsheet::Reader::ExcelXML::PositionStyles - Position based styles reader
 
 =head1 SYNOPSYS
 

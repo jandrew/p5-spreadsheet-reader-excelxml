@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface-$VERSION";
 
 use	Moose::Role;
@@ -50,32 +50,32 @@ For a fully functioning example see examples/Spreadsheet/Reader/ExcelXML/workboo
 	use Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface; # Optional
 	$meta_instance = build_instance(
 		superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
-		add_roles_in_sequence =>[ 
+		add_roles_in_sequence =>[
 			'Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta',
 			'Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface',
 		],
 		file => $file_handle,# Should be a handle built with 'xl/workbook.xml' from a zip file
 	);
 	$meta_instance->get_epoch_year;
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: 1904
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This module (role) is provided as a way to standardize access to or L<interface
-|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base meta data files 
-containing workbook level information accross zip and flat xml types.  It doesn't provide 
-any functionality itself it just provides requirements for any built classes so a consumer 
-of this interface will be able to use a consistent interface.  The base class will generally 
+|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base meta data files
+containing workbook level information accross zip and flat xml types.  It doesn't provide
+any functionality itself it just provides requirements for any built classes so a consumer
+of this interface will be able to use a consistent interface.  The base class will generally
 be;
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader>
@@ -88,7 +88,7 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta>
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the Zip implementation of these 
+These are the methods required by the role.  A link to the Zip implementation of these
 methods is provided.  The XML versions are documented in ~::XMLReader::WorkbookMeta.
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta/get_epoch_year>

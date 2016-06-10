@@ -1,7 +1,7 @@
 package Spreadsheet::Reader::ExcelXML::Types;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Types-$VERSION";
-		
+
 use strict;
 use warnings;
 use Type::Utils -all;
@@ -32,7 +32,7 @@ if( $try_xs and exists $INC{'Type/Tiny/XS.pm'} ){
 
 
 #########1 Type Library       3#########4#########5#########6#########7#########8#########9
-	
+
 declare XMLFile,
 	as Str,
 	where{ $_ =~ /\.(xml|rels)$/i and -r $_},
@@ -61,22 +61,22 @@ declare XLSXFile,
 				"Unmanageable value '" . ($test ? $test : '' ) . "' passed" ;
 		return $return;
     };
-	
+
 declare IOFileType,
 	as InstanceOf[ 'IO::File' ];#, 'File::Temp'
-	
+
 coerce IOFileType,
 	from GlobRef,
 	via{	my $fh = bless( $_, 'IO::File' );
 			$fh->binmode();
 			return $fh;							};
-	
+
 coerce IOFileType,
 	from XMLFile,
 	via{	my $fh = IO::File->new( $_, 'r' );
 			$fh->binmode();
 			return $fh;							};
-	
+
 coerce IOFileType,
 	from XLSXFile,
 	via{	my $fh = IO::File->new( $_, 'r' );
@@ -92,10 +92,10 @@ declare SubString,
 declare ErrorString,
 	as SubString,
 	where{ $_ !~ /\)\n;/ };
-	
+
 coerce SubString,
 	from Object,
-	via{ 
+	via{
 	my	$object = $_;
 		if( $object->can( 'as_string' ) ){
 			return $object->as_string;
@@ -104,7 +104,7 @@ coerce SubString,
 		}
 		return $object;
 	};
-	
+
 coerce ErrorString,
 	from SubString->coercibles,
 	via{
@@ -115,11 +115,11 @@ coerce ErrorString,
 
 declare SpecialZeroScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+E-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+E-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialZeroScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -134,11 +134,11 @@ coerce SpecialZeroScientific,
 
 declare SpecialOneScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+\.\dE-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+\.\dE-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialOneScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -153,11 +153,11 @@ coerce SpecialOneScientific,
 
 declare SpecialTwoScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+\.\d{2}E-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+\.\d{2}E-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialTwoScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -172,11 +172,11 @@ coerce SpecialTwoScientific,
 
 declare SpecialThreeScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+\.\d{3}E-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+\.\d{3}E-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialThreeScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -191,11 +191,11 @@ coerce SpecialThreeScientific,
 
 declare SpecialFourScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+\.\d{4}E-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+\.\d{4}E-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialFourScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -210,11 +210,11 @@ coerce SpecialFourScientific,
 
 declare SpecialFiveScientific,
 	as Str,
-	where{ return $_ =~ /^\-?[0-9]+\.\d{5}E-?\d{2,50}/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /^\-?[0-9]+\.\d{5}E-?\d{2,50}/i };#print "--$_\n";
+
 coerce SpecialFiveScientific,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		$string =~ /([\-\d\.]+)[Ee](-)?(\d+)/i;#
 		#~ print "$1\n";
@@ -229,11 +229,11 @@ coerce SpecialFiveScientific,
 
 declare SpecialDecimal,
 	as Str,
-	where{ return $_ =~ /\.\d{1,9}$/i };#print "--$_\n"; 
-	
+	where{ return $_ =~ /\.\d{1,9}$/i };#print "--$_\n";
+
 coerce SpecialDecimal,
 	from Str,
-	via{ 
+	via{
 		my	$string = $_;
 		my	$return = sprintf '%.9f', $string;
 		#~ print "$return\n";
@@ -242,7 +242,7 @@ coerce SpecialDecimal,
 		#~ print "$significant_decimal\n";
 		return $significant_decimal;
 	};
-	
+
 #~ declare PositiveNum,
 	#~ as Num,
 	#~ where{ $_ > 0 };
@@ -250,11 +250,11 @@ coerce SpecialDecimal,
 #~ declare NegativeNum,
 	#~ as Num,
 	#~ where{ $_ < 0 };
-	
+
 #~ declare ZeroOrUndef,
 	#~ as Maybe[Num],
 	#~ where{ !$_ };
-	
+
 #~ declare NotNegativeNum,
 	#~ as Num,
 	#~ where{ $_ > -1 };
@@ -270,7 +270,7 @@ coerce SpecialDecimal,
 
 
 #########1 Private Methods    3#########4#########5#########6#########7#########8#########9
-	
+
 
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
@@ -283,24 +283,24 @@ __END__
 =head1 NAME
 
 Spreadsheet::Reader::ExcelXML::Types - A type library for the ExcelXML reader
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module.  To use the general 
+This documentation is written to explain ways to use this module.  To use the general
 package for excel parsing out of the box please review the documentation for L<Workbooks
 |Spreadsheet::Reader::ExcelXML::Workbook>, L<Worksheets
-|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>.
 
-This is a L<Type::Library|Type::Tiny::Manual::Libraries> for this package.  There are no 
-real tricks here outside of the standard Type::Tiny stuf.  For the cool number and date 
+This is a L<Type::Library|Type::Tiny::Manual::Libraries> for this package.  There are no
+real tricks here outside of the standard Type::Tiny stuf.  For the cool number and date
 formatting implementation see L<Spreadsheet::Reader::Format::ParseExcelFormatStrings>.
 
 =head1 TYPES
 
 =head2 XMLFile
 
-This type checks that the value is a readable file (full path - no file find magic 
+This type checks that the value is a readable file (full path - no file find magic
 used) with an \.xml extention
 
 =head3 coercions
@@ -309,7 +309,7 @@ none
 
 =head2 XLSXFile
 
-This type checks that the value is a readable file (full path - no file find magic 
+This type checks that the value is a readable file (full path - no file find magic
 used)  with an \.xlsx, \.xlsm, or \.xml extention
 
 =head3 coercions
@@ -334,14 +334,14 @@ B<XMLFile:>  by opening it as an IO::File instance 'via{  IO::File->new( $_, 'r'
 
 =head2 ParserType
 
-For now this type checks that the parser type string == 'reader'.  As future parser 
+For now this type checks that the parser type string == 'reader'.  As future parser
 types are added to the package I will update this type.
 
 =head3 coercions
 
 =over
 
-B<Str:> this will lower case any other version of the string 'reader' (Reader| READER) 
+B<Str:> this will lower case any other version of the string 'reader' (Reader| READER)
 to get it to pass
 
 =back
@@ -372,7 +372,7 @@ none
 
 =head2 NotNegativeNum
 
-This type checks that the value is a number and that the number is greater than 
+This type checks that the value is a number and that the number is greater than
 or equal to 0
 
 =head3 coercions
@@ -389,22 +389,22 @@ none
 
 =head2 SubString
 
-This is a precurser type to ErrorString.  It is used to perform the first layer of coersions 
-so that error objects can be consumed as-is in this package when a subcomponent throws an 
+This is a precurser type to ErrorString.  It is used to perform the first layer of coersions
+so that error objects can be consumed as-is in this package when a subcomponent throws an
 object rather than a string as an error.
 
 =head3 coercions
 
 =over
 
-B<Object:>  it will test the object for two methods and if either one is present it will use 
+B<Object:>  it will test the object for two methods and if either one is present it will use
 the results of that method as the string.  The methods in order are; 'as_string' and 'message'
 
 =back
 
 =head2 ErrorString
 
-This is a string that can't match the following sequence /\)\n;/ 
+This is a string that can't match the following sequence /\)\n;/
 #I don't even remember why that sequence is bad but it is
 
 =head3 coercions
@@ -419,8 +419,8 @@ B<SubString:> by using the following substitution on the string; s/\)\n;/\);/g
 
 =head2 Excel_number_0
 
-This is essentially a pass through coercion used as a convenience rather than writing the 
-pass through each time a coercion is needed but no actual work should be performed on the 
+This is essentially a pass through coercion used as a convenience rather than writing the
+pass through each time a coercion is needed but no actual work should be performed on the
 value
 
 =head1 SUPPORT

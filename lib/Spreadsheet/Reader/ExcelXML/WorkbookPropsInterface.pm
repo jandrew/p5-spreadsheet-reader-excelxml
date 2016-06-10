@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface-$VERSION";
 
 use	Moose::Role;
@@ -41,7 +41,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface - Workbook docProps file interface
 
 =head1 SYNOPSIS
-	
+
 	#!/usr/bin/env perl
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	use Types::Standard qw( HashRef );
@@ -53,7 +53,7 @@ Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface - Workbook docProps file i
 			superclasses => ['Spreadsheet::Reader::ExcelXML::XMLReader'],
 			package => 'ExtractorInstance',
 			file => '../../../../t/test_files/TestBook.xml',
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::WorkbookFileInterface',
 			],
 		);
@@ -61,31 +61,31 @@ Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface - Workbook docProps file i
 	my	$test_instance = build_instance(
 			superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
 			package	=> 'WorkbookPropsInterface',
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookProps',
 				'Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface',
 			],
 			file => $file_handle,# No extractor needed for zip files so call 't/test_files/docProps/core.xml' directly
 		);
 	print $test_instance->$get_date_created . "\n";
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: 2013-11-10T08:27:01Z
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This module (role) is provided as a way to standardize access to or L<interface
-|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base docProps data files 
-containing workbook level meta data.  It doesn't provide any functionality itself it just 
-provides requirements for any built classes so a consumer of this interface will be able 
+|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base docProps data files
+containing workbook level meta data.  It doesn't provide any functionality itself it just
+provides requirements for any built classes so a consumer of this interface will be able
 to use a consistent interface.  The base class will generally be;
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader>
@@ -98,7 +98,7 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookProps>
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the Zip implementation of these 
+These are the methods required by the role.  A link to the Zip implementation of these
 methods is provided.  The XML versions are documented in ~::XMLReader::WorkbookRels.
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta/get_creator>

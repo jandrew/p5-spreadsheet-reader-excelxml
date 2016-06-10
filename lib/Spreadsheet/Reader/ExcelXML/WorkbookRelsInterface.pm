@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface-$VERSION";
 
 use	Moose::Role;
@@ -43,7 +43,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface - Workbook rels file interface
 
 =head1 SYNOPSIS
-	
+
 	#!/usr/bin/env perl
 	use Data::Dumper;
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
@@ -105,7 +105,7 @@ Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface - Workbook rels file interf
 	my	$test_instance =  build_instance(
 			package	=> 'WorkbookRelsInterface',
 			superclasses => ['Spreadsheet::Reader::ExcelXML::XMLReader'],
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels',
 				'Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface',
 			],
@@ -113,7 +113,7 @@ Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface - Workbook rels file interf
 			workbook_inst => $workbook_instance,
 		);
 	print Dumper( $rels_instance->get_worksheet_list );
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: $VAR1 = [
@@ -122,20 +122,20 @@ Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface - Workbook rels file interf
 	# 01:   'Sheet1'
 	# 01: ]
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This module (role) is provided as a way to standardize access to or L<interface
-|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base rels data files 
-containing workbook level relationships between zip sub file types.  It doesn't provide 
-any functionality itself it just provides requirements for any built classes so a consumer 
-of this interface will be able to use a consistent interface.  The base class will generally 
+|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base rels data files
+containing workbook level relationships between zip sub file types.  It doesn't provide
+any functionality itself it just provides requirements for any built classes so a consumer
+of this interface will be able to use a consistent interface.  The base class will generally
 be;
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader>
@@ -148,7 +148,7 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels>
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the Zip implementation of these 
+These are the methods required by the role.  A link to the Zip implementation of these
 methods is provided.  The XML versions are documented in ~::XMLReader::WorkbookRels.
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta/get_sheet_lookup>

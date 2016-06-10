@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Styles;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Styles-$VERSION";
 
 use 5.010;
@@ -32,7 +32,7 @@ requires qw(
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
 no Moose::Role;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -156,7 +156,7 @@ Spreadsheet::Reader::ExcelXML::Styles - The styles interface
 	# 28: 'cell_coercion' => bless( {
 	~~ Skipped 142 lines ~~
 	#170:                             'display_name' => 'Excel_date_164',
-	#171:							  'name' => 'DATESTRING',			
+	#171:							  'name' => 'DATESTRING',
 	#172:                           }, 'Type::Tiny' ),
 	#173: 'applyNumberFormat' => '1',
 	#174: };
@@ -164,47 +164,47 @@ Spreadsheet::Reader::ExcelXML::Styles - The styles interface
 
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module.  To use the general 
+This documentation is written to explain ways to use this module.  To use the general
 package for excel parsing out of the box please review the documentation for L<Workbooks
 |Spreadsheet::Reader::ExcelXML>, L<Worksheets
-|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>.
 
-This role is written as the interface for getting useful data from the sub file 'styles.xml' 
-that is a member of a zipped (.xlsx) archive or a stand alone XML text file containing an 
-equivalent subset of information in the 'Styles' node.  The styles.xml file contains the 
-format and display options used by Excel for showing the stored data.  The SYNOPSIS shows 
-the (very convoluted) way to get this interface wired up and working.  Unless you are 
-trying to rewrite this package don't pay attention to that.  The package will build it 
-for you.  This interface doesn't hold any of the functionality it just mandates certain 
-behaviors below it.  The documentation is the explanation of how the final class should 
+This role is written as the interface for getting useful data from the sub file 'styles.xml'
+that is a member of a zipped (.xlsx) archive or a stand alone XML text file containing an
+equivalent subset of information in the 'Styles' node.  The styles.xml file contains the
+format and display options used by Excel for showing the stored data.  The SYNOPSIS shows
+the (very convoluted) way to get this interface wired up and working.  Unless you are
+trying to rewrite this package don't pay attention to that.  The package will build it
+for you.  This interface doesn't hold any of the functionality it just mandates certain
+behaviors below it.  The documentation is the explanation of how the final class should
 perform when the layers below are correctly implemented.
 
 =head2 Method(s)
 
-These are the methods mandated by this interface. 
+These are the methods mandated by this interface.
 
 =head3 get_format( ($position|$name), [$header], [$exclude_header] )
 
 =over
 
-B<Definition:> This will return the styles information from the identified $position 
-(counting from zero) or $name.  The target position is usually drawn from the cell 
-data stored in the worksheet.  The information is returned as a perl hash ref.  Since 
-the styles data is in two tiers it finds all the subtier information for each indicated 
+B<Definition:> This will return the styles information from the identified $position
+(counting from zero) or $name.  The target position is usually drawn from the cell
+data stored in the worksheet.  The information is returned as a perl hash ref.  Since
+the styles data is in two tiers it finds all the subtier information for each indicated
 piece and appends them to the hash ref as values for each type key.
 
-B<Accepts position 0:> dependant on the role implementation; $position = an integer for 
-the styles $position. (from L<Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles>), 
-$name = a (sub) node name indicating which styles node should be returned (from 
+B<Accepts position 0:> dependant on the role implementation; $position = an integer for
+the styles $position. (from L<Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles>),
+$name = a (sub) node name indicating which styles node should be returned (from
 L<Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles>)
 
-B<Accepts position 1:> $header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 1:> $header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will cause only this header subset to be returned
 
-B<Accepts position 2:> $exclude_header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 2:> $exclude_header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will exclude the header from the returned data set.
 
 B<Returns:> a hash ref of data
@@ -215,17 +215,17 @@ B<Returns:> a hash ref of data
 
 =over
 
-B<Definition:> For any cell that does not have a unquely identified format excel generally 
-stores a default format for the remainder of the sheet.  This will return the two 
-tiered default styles information.  The information is returned in the same format as the 
+B<Definition:> For any cell that does not have a unquely identified format excel generally
+stores a default format for the remainder of the sheet.  This will return the two
+tiered default styles information.  The information is returned in the same format as the
 get_format method.
 
-B<Accepts position 0:> $header = the target header key (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 0:> $header = the target header key (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will cause only this header subset to be returned
 
-B<Accepts position 1:> $exclude_header = the target header key (optional at position 2) (use the 
-L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition 
+B<Accepts position 1:> $exclude_header = the target header key (optional at position 2) (use the
+L<Spreadsheet::Reader::ExcelXML::Cell/Attributes> that are cell formats as the definition
 of range for this.)  It will exclude the header from the returned data set.
 
 B<Returns:> a hash ref of data
@@ -236,7 +236,7 @@ B<Returns:> a hash ref of data
 
 =over
 
-B<Definition:> When building a styles reader it may be that the file is deformed.  This is 
+B<Definition:> When building a styles reader it may be that the file is deformed.  This is
 the way to know if the reader thought the file was good.
 
 B<Accepts:> Nothing
@@ -247,37 +247,37 @@ B<Returns:> (1|0)
 
 =head2 Attributes
 
-Data passed to new when creating an instance with this interface. For 
-modification of this(ese) attribute(s) see the listed 'attribute 
-methods'.  For more information on attributes see 
-L<Moose::Manual::Attributes>.  The easiest way to modify this(ese) 
-attribute(s) is during instance creation before it is passed to the 
+Data passed to new when creating an instance with this interface. For
+modification of this(ese) attribute(s) see the listed 'attribute
+methods'.  For more information on attributes see
+L<Moose::Manual::Attributes>.  The easiest way to modify this(ese)
+attribute(s) is during instance creation before it is passed to the
 workbook or parser.
-	
+
 =head3 file
 
 =over
 
-B<Definition:> This attribute holds the file handle for the file being read.  If 
-the full file name and path is passed to the attribute the class will coerce that 
+B<Definition:> This attribute holds the file handle for the file being read.  If
+the full file name and path is passed to the attribute the class will coerce that
 into an L<IO::File> file handle.
 
 B<Default:> no default - this must be provided to read a file
 
 B<Required:> yes
 
-B<Range:> any unencrypted styles.xml file name and path or IO::File file 
+B<Range:> any unencrypted styles.xml file name and path or IO::File file
 handle with that content.
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<set_file>
 
 =over
 
-B<Definition:> change the file value in the attribute (this will reboot 
+B<Definition:> change the file value in the attribute (this will reboot
 the file instance and lock the file)
 
 =back
@@ -286,7 +286,7 @@ B<get_file>
 
 =over
 
-B<Definition:> Returns the file handle of the file even if a file name 
+B<Definition:> Returns the file handle of the file even if a file name
 was passed
 
 =back
@@ -315,16 +315,16 @@ B<Definition:> this clears (and unlocks) the file handle
 
 =over
 
-B<Definition:> Especially for sheets with lots of stored formats the 
-parser can slow way down when accessing each postion.  This is 
-because the are not stored sequentially and the reader is a JIT linear 
-parser.  To go back it must restart and index through each position till 
-it gets to the right place.  This is especially true for excel sheets 
-that have experienced any significant level of manual intervention prior 
+B<Definition:> Especially for sheets with lots of stored formats the
+parser can slow way down when accessing each postion.  This is
+because the are not stored sequentially and the reader is a JIT linear
+parser.  To go back it must restart and index through each position till
+it gets to the right place.  This is especially true for excel sheets
+that have experienced any significant level of manual intervention prior
 to being read.  This attribute sets caching (default on) for styles
-so the parser builds and stores all the styles settings at the beginning.  
-If the file is cached it will close and release the file handle in order 
-to free up some space. (a small win in exchange for the space taken by 
+so the parser builds and stores all the styles settings at the beginning.
+If the file is cached it will close and release the file handle in order
+to free up some space. (a small win in exchange for the space taken by
 the cache).
 
 B<Default:> 1 = caching is on
@@ -334,7 +334,7 @@ B<Range:> 1|0
 B<Attribute required:> yes
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 none - (will be autoset by L<Spreadsheet::Reader::ExcelXML/cache_positions>)

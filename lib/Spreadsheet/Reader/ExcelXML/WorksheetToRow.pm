@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorksheetToRow;
-use version; our $VERSION = version->declare('v0.10.4');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorksheetToRow-$VERSION";
 
 use	5.010;
@@ -251,6 +251,7 @@ has _cached_row_insts =>(# For cached sheets
 		traits		=> ['Array'],
 		reader		=> '_get_row_inst_all',
 		clearer		=> '_clear_row_inst_all',
+		default		=> sub{ [] },
 		handles	=>{
 			_get_row_inst 	=> 'get',
 			_set_row_inst 	=> 'set',

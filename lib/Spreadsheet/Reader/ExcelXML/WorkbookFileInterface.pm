@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorkbookFileInterface;
-use version; our $VERSION = version->declare('v0.1_1');
+use version; our $VERSION = version->declare('v0.12.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorkbookFileInterface-$VERSION";
 
 use	Moose::Role;
@@ -43,24 +43,24 @@ Spreadsheet::Reader::ExcelXML::WorkbookFileInterface - XLSX and XML workbook fil
 			package => 'ZipWorkbookFileInterface',
 			superclasses => ['Spreadsheet::Reader::ExcelXML::ZipReader'],
 			file => $test_file,
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::WorkbookFileInterface',
 			],
 		);
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This module (role) is provided as a way to standardize access to or L<interface
-|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base workbook files 
-accross zip and flat xml types.  It doesn't provide any functionality itself it just 
-provides requirements for any built classes so a consumer of this interface will be 
-able to use a consistent interface.  The two most likely base classes for this interface 
+|http://www.cs.utah.edu/~germain/PPS/Topics/interfaces.html> with base workbook files
+accross zip and flat xml types.  It doesn't provide any functionality itself it just
+provides requirements for any built classes so a consumer of this interface will be
+able to use a consistent interface.  The two most likely base classes for this interface
 are;
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader>
@@ -69,7 +69,7 @@ L<Spreadsheet::Reader::ExcelXML::XMLReader>
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the Zip implementation of these 
+These are the methods required by the role.  A link to the Zip implementation of these
 methods is provided.  The XML versions are documented in the ~::XMLReader.
 
 L<Spreadsheet::Reader::ExcelXML::ZipReader/get_file_type>

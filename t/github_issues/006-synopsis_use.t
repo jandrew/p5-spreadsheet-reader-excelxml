@@ -267,13 +267,13 @@ use	lib	'../../../../Log-Shiras/lib',
 use Spreadsheet::Reader::ExcelXML;
 $test_file = ( @ARGV ) ? $ARGV[0] : $test_file;
 $test_file .= 'TestBook.xlsx';
-my  ( 
+my  (
 		$error_instance, $parser, $workbook, $row_ref, $cell,
 	);
 my	$answer_ref = [
 		'Sheet2', 0, 0, 6, 0, 2,
 		[
-			[ 
+			[
 				[qw(Category Total Date) ],
 				[qw( Red 5 2017-02-14 )],
 				[qw( Blue 7 2017-02-14 )],
@@ -355,7 +355,7 @@ lives_ok{
 						);
 }										"Prep a test parser instance";
 ###LogSD	$phone->talk( level => 'info', message => [ "parser only loaded" ] );
-lives_ok{ 	
+lives_ok{
 			$workbook = $parser->parse( $test_file );
 }										"Attempt to unzip the file and prepare to read data";
 			#~ print Dumper( $workbook );
@@ -387,7 +387,8 @@ ok			1,							"The file unzipped and the parser set up without issues";
 ###LogSD	}
 			for my $worksheet ( $workbook->worksheets() ) {
 			my	$x = 0;
-is			$worksheet->get_name, $answer_ref->[$offset_ref->[$y] + $x],
+			my	$worksheet_name = $worksheet->get_name;
+is		$worksheet_name	, $answer_ref->[$offset_ref->[$y] + $x],
 									'Confirm the worksheet is named: ' . $answer_ref->[$offset_ref->[$y] + $x++];
 is			$worksheet->is_sheet_hidden, $answer_ref->[$offset_ref->[$y] + $x],
 									'Check that the sheet knows correctly if it is hidden (' . ($answer_ref->[$offset_ref->[$y] + $x++] ? 'Is' : 'Not') .')';
@@ -447,12 +448,12 @@ is			$col_max, $answer_ref->[$offset_ref->[$y] + $x],
 ###LogSD	}
 
 lives_ok{	$cell = $worksheet->get_cell( $row, $col ); }
-									"Check that calling the cell for row -$row- and column -$col- doesn't kill the sheet";
+									"Check that getting the cell for row -$row- and column -$col- doesn't kill the sheet: $worksheet_name";
 			next unless $cell;
 is			$cell->value(), $answer_ref->[$offset_ref->[$y] + $x]->[0]->[$row]->[$col],
-									"Check that the coerced value returned from row -$row- and column -$col- is: " . $answer_ref->[$offset_ref->[$y] + $x]->[0]->[$row]->[$col];
+									"Check that the coerced value returned from sheet -$worksheet_name- row -$row- and column -$col- is: " . $answer_ref->[$offset_ref->[$y] + $x]->[0]->[$row]->[$col];
 is			$cell->unformatted(), $answer_ref->[$offset_ref->[$y] + $x]->[1]->[$row]->[$col],
-									"Check that the unformatted value returned from row -$row- and column -$col- is: " . $answer_ref->[$offset_ref->[$y] + $x]->[1]->[$row]->[$col];
+									"Check that the unformatted value returned from sheet -$worksheet_name- row -$row- and column -$col- is: " . $answer_ref->[$offset_ref->[$y] + $x]->[1]->[$row]->[$col];
 ###LogSD	if( $show_worksheet_build and $worksheet_name eq $test_worksheet ){
 ###LogSD	exit 1;
 ###LogSD	}
@@ -470,7 +471,7 @@ done_testing();# $total_tests
 ###LogSD	}
 ###LogSD	sub add_line{
 ###LogSD		shift;
-###LogSD		my @input = ( ref $_[0]->{message} eq 'ARRAY' ) ? 
+###LogSD		my @input = ( ref $_[0]->{message} eq 'ARRAY' ) ?
 ###LogSD						@{$_[0]->{message}} : $_[0]->{message};
 ###LogSD		my ( @print_list, @initial_list );
 ###LogSD		no warnings 'uninitialized';
@@ -482,7 +483,7 @@ done_testing();# $total_tests
 ###LogSD			$line =~ s/\n/\n\t\t/g;
 ###LogSD			push @print_list, $line;
 ###LogSD		}
-###LogSD		printf( "| level - %-6s | name_space - %-s\n| line  - %04d   | file_name  - %-s\n\t:(\t%s ):\n", 
+###LogSD		printf( "| level - %-6s | name_space - %-s\n| line  - %04d   | file_name  - %-s\n\t:(\t%s ):\n",
 ###LogSD					$_[0]->{level}, $_[0]->{name_space},
 ###LogSD					$_[0]->{line}, $_[0]->{filename},
 ###LogSD					join( "\n\t\t", @print_list ) 	);
