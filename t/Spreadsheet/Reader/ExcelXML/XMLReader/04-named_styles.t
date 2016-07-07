@@ -43,19 +43,19 @@ use	lib
 ###LogSD						name_space_bounds =>{
 ###LogSD							main =>{
 ###LogSD								UNBLOCK =>{
-###LogSD									log_file => 'info',
+###LogSD									log_file => 'trace',
 ###LogSD								},
 ###LogSD							},
 #~ ###LogSD							Test =>{
 #~ ###LogSD								XMLReader =>{
 #~ ###LogSD									_load_unique_bits =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'warn',
-###LogSD										},
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'trace',
+#~ ###LogSD										},
 #~ ###LogSD									},
 #~ ###LogSD								},
 #~ ###LogSD							},
-###LogSD							Test =>{
+#~ ###LogSD							Test =>{
 #~ ###LogSD								StylesInterface =>{
 #~ ###LogSD									_build_perl_node_from_xml_perl =>{
 #~ ###LogSD										UNBLOCK =>{
@@ -103,7 +103,7 @@ use	lib
 #~ ###LogSD										log_file => 'warn',
 #~ ###LogSD									},
 #~ ###LogSD								},
-###LogSD							},
+#~ ###LogSD							},
 ###LogSD						},
 ###LogSD						reports =>{
 ###LogSD							log_file =>[ Print::Log->new ],

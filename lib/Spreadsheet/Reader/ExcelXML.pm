@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.12.2');
+use version 0.77; our $VERSION = version->declare('v0.14.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -442,7 +442,7 @@ There are additional methods and other approaches that can be used by this packa
 spreadsheet reading but the basic access to data from newer xml based Excel files can be
 as simple as above.
 
-This is L<not the only perl package|SEE ALSO> able to parse .xlsx files on METACPAN.  For
+This is L<not the only perl package|/SEE ALSO> able to parse .xlsx files on METACPAN.  For
 now it does appear to be the only package that will parse .xlsm and Excel 2003 .xml
 workbooks.
 
@@ -1995,9 +1995,9 @@ L<Spreadsheet::Read> - generic Spreadsheet reader
 
 L<Spreadsheet::ParseExcel> - Excel binary files from 2003 and earlier
 
-L<Spreadsheet::XLSX> - Excel version 2007 and later
-
 L<Spreadsheet::ParseXLSX> - Excel version 2007 and later
+
+L<Spreadsheet::XLSX> - Excel version 2007 and later (Very rough)
 
 L<Log::Shiras|https://github.com/jandrew/Log-Shiras>
 

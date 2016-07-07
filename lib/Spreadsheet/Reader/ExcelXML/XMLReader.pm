@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader;
-use version; our $VERSION = version->declare('v0.12.2');
+use version; our $VERSION = version->declare('v0.14.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader-$VERSION";
 
 use 5.010;
@@ -10,7 +10,7 @@ use MooseX::HasDefaults::RO;
 use Types::Standard qw(
 		Int					Bool					Enum					Num
 		Str					ArrayRef				is_ArrayRef				is_HashRef
-		is_Int
+		is_Int				HashRef
     );
 use Carp qw( confess longmess );
 use Clone qw( clone );
@@ -84,6 +84,14 @@ has	xml_header =>(
 		writer		=> '_set_xml_header',
 		predicate	=> '_has_xml_header',
 		clearer		=> '_clear_xml_header',
+	);
+
+has	xml_doctype =>(
+		isa			=> 	HashRef,
+		reader		=> 'doctype',
+		predicate	=> 'has_doctype',
+		writer		=> '_set_xml_doctype',
+		clearer		=> '_clear_xml_doctype',
 	);
 
 has position_index =>(
@@ -890,34 +898,11 @@ sub _build_out_the_return{
 			my @attribute_args = $self->_reconcile_attribute_strings( $element->{attribute_strings} );
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Reconciled attribute list:", @attribute_args ] );
-			for my $att ( @attribute_args ){
-				next if !$att or $att eq 'xml:space="preserve"';
-				###LogSD	$phone->talk( level => 'debug', message =>[ "parsing attribute string: $att" ] );
-				my( $att_name, $att_val, $form_val ) = split /\s*=\s*/, $att;
-				#~ $att_val = substr( $att_val, 1, -3 ) if substr( $att_val, 0, 1 ) eq '"';# Remove bracing quotes from values
-				$att_val = $self->_remove_escapes( $att_val );
-				$form_val = $self->_remove_escapes( $form_val );
-				###LogSD	$phone->talk( level => 'debug', message =>[ "Final result:", $att_name, $att_val, $form_val ] );
-				$att_val = substr( $att_val, 1, -1 ) if $att_val and (substr( $att_val, 0, 1 ) eq '"') and (substr( $att_val, -1, 1 ) eq '"');
-				if( $att_name eq 'val' ){
-					###LogSD	$phone->talk( level => 'debug', message =>[
-					###LogSD		"found a value attribute" ] );
-					$element->{$att_name} = $att_val;
-				}elsif( $form_val ){
-					###LogSD	$phone->talk( level => 'debug', message =>[
-					###LogSD		"found a formula value: $form_val" ] );
-					#~ $element->{attributes}->{$att_name} = '"' if substr( $form_val, -1, 1 ) eq '"';
-					$element->{attributes}->{$att_name} .=
-						substr( $form_val, -1, 1 ) eq '"' ?
-							substr( $form_val, 0, -1 )	: $form_val ;
-					###LogSD	$phone->talk( level => 'debug', message =>[
-					###LogSD		"final formula value: $element->{attributes}->{$att_name}" ] );
-				}else{
-					$element->{attributes}->{$att_name} = $att_val;
-				}
-				###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $element ] );
-			}
+			$element->{attribute_strings} = [ @attribute_args ];
+			$element = (defined $element->{name} and $element->{name} eq 'DOCTYPE') ? $self->_build_doctype_attributes( $element ) : $self->_build_regular_attributes( $element ) ;
 			delete $element->{attribute_strings};
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"Updated element:", $element ] );
 		}
 		
 		###LogSD	$phone->talk( level => 'debug', message =>[
@@ -1064,18 +1049,18 @@ sub _read_file{
 		###LogSD	$phone->talk( level => 'debug', message =>[ "Processing section: ", $node] );
 		my( $node_ref, $node_name, @node_split );
 		my $initial_string = $node;
-	
-		# Handle header nodes with quotes
-		if( substr( $node, 0, 1 ) eq '?' ){
-			$is_xml_header = 1;
-			$node = substr( $node, 1, -1 );
-			###LogSD	$phone->talk( level => 'debug', message =>[
-			###LogSD		"Removed question marks from node: " . $node,
-			###LogSD		"is_xml_header set to: $is_xml_header" ] );
-		}
 		
 		# Handle the first pass
 		if( $x == 0 ){
+	
+			# Handle header nodes with quotes
+			if( substr( $node, 0, 1 ) eq '?' or substr( $node, 0, 1 ) eq '!' ){
+				$is_xml_header = 1;
+				$node = (substr( $node, 0, 1 ) eq '?') ? substr( $node, 1, -1 ) : substr( $node, 1 ) ;
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Removed question marks from node: " . $node,
+				###LogSD		"is_xml_header set to: $is_xml_header" ] );
+			}
 			
 			# Handle end nodes - always subtractive to the stack and then exits 
 			if( substr( $node, 0, 1 ) eq '/' ){
@@ -1224,9 +1209,10 @@ sub _load_header{
 	###LogSD			"loading file level settings since the header was found", $header_node] );
 	my $test_ref =
 		exists $header_node->{xml} ? $header_node->{xml} :
-		exists $header_node->{'mso-application'} ? $header_node->{'mso-application'} : {};
+		exists $header_node->{'mso-application'} ? $header_node->{'mso-application'} :
+		exists $header_node->{'DOCTYPE'} ? $header_node : {};
 	
-	for my $attribute ( qw( version encoding progid ) ){
+	for my $attribute ( qw( version encoding progid DOCTYPE ) ){
 		if( exists $test_ref->{$attribute} ){
 			#~ if( $attribute eq 'encoding' ){
 				#~ $test_ref->{$attribute} = $test_ref->{$attribute} eq 'UTF-8' ? 'utf8' :  $test_ref->{$attribute};
@@ -1236,7 +1222,7 @@ sub _load_header{
 				#~ print "Setting file handle encoding to -> $encoding\n";
 				#~ $self->binmode( $encoding );
 			#~ }
-			my $setter = '_set_xml_' . $attribute;
+			my $setter = '_set_xml_' . lc( $attribute );
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"Performing the action -$setter- on the data: $test_ref->{$attribute}", ] );
 			$self->$setter( $test_ref->{$attribute} );
@@ -1452,6 +1438,57 @@ sub _reconcile_attribute_strings{
 	}
 	###LogSD	$phone->talk( level => 'trace', message =>[ "returning split:", @attributes ] );
 	return @attributes;
+}
+
+sub _build_doctype_attributes{
+	my( $self, $node_ref ) = @_;
+	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
+	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_build_doctype_attributes', );
+	###LogSD		$phone->talk( level => 'debug', message => [
+	###LogSD			"attempting to build the DOCTYPE attributes for:", $node_ref] );
+	
+	$node_ref->{$node_ref->{attribute_strings}->[0]} = { $node_ref->{attribute_strings}->[1] => substr( $node_ref->{attribute_strings}->[2], 1, -1 ) };
+	###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $node_ref ] );
+	
+	return $node_ref;
+}
+
+sub _build_regular_attributes{
+	my( $self, $top_ref ) = @_;
+	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
+	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_build_regular_attributes', );
+	###LogSD		$phone->talk( level => 'debug', message => [
+	###LogSD			"attempting to build an attributes ref for:", $top_ref ] );
+	
+	for my $att ( @{$top_ref->{attribute_strings}} ){
+		next if !$att or $att eq 'xml:space="preserve"';
+		###LogSD	$phone->talk( level => 'debug', message =>[ "parsing attribute string: $att" ] );
+		my( $att_name, $att_val, $form_val ) = split /\s*=\s*/, $att;
+		#~ $att_val = substr( $att_val, 1, -3 ) if substr( $att_val, 0, 1 ) eq '"';# Remove bracing quotes from values
+		$att_val = $self->_remove_escapes( $att_val );
+		$form_val = $self->_remove_escapes( $form_val );
+		###LogSD	$phone->talk( level => 'debug', message =>[ "Final result:", $att_name, $att_val, $form_val ] );
+		$att_val = substr( $att_val, 1, -1 ) if $att_val and (substr( $att_val, 0, 1 ) eq '"') and (substr( $att_val, -1, 1 ) eq '"');
+		if( $att_name eq 'val' ){
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"found a value attribute" ] );
+			$top_ref->{$att_name} = $att_val;
+		}elsif( $form_val ){
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"found a formula value: $form_val" ] );
+			#~ $element->{attributes}->{$att_name} = '"' if substr( $form_val, -1, 1 ) eq '"';
+			$top_ref->{attributes}->{$att_name} .=
+				substr( $form_val, -1, 1 ) eq '"' ?
+					substr( $form_val, 0, -1 )	: $form_val ;
+			###LogSD	$phone->talk( level => 'debug', message =>[
+			###LogSD		"final formula value: $top_ref->{attributes}->{$att_name}" ] );
+		}else{
+			$top_ref->{attributes}->{$att_name} = $att_val;
+		}
+		###LogSD	$phone->talk( level => 'debug', message =>[ "updated node ref:", $top_ref ] );
+	}
+	
+	return $top_ref;
 }
 
 sub DEMOLISH{
@@ -1856,6 +1893,42 @@ B<_set_xml_header>
 =over
 
 set the attribute value
+
+=back
+
+=back
+
+=back
+
+=head3 xml_doctype
+
+=over
+
+B<Definition:> This stores the DOCTYPE indicated in the XML header !DOCTYPE
+
+B<Default:> no default - this is auto read from the header
+
+B<Required:> no
+
+B<Range:> whatever it finds
+
+B<attribute methods> Methods provided to adjust this attribute
+
+=over
+
+B<doctype>
+
+=over
+
+get the attribute value
+
+=back
+
+B<has_doctype>
+
+=over
+
+predicate for the attribute
 
 =back
 

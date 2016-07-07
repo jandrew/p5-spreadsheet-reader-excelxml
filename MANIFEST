@@ -94,6 +94,7 @@ t/Spreadsheet/Reader/ExcelXML/ZipReader/01-zip_workbook_meta.t
 t/Spreadsheet/Reader/ExcelXML/ZipReader/02-zip_workbook_rels.t
 t/Spreadsheet/Reader/ExcelXML/ZipReader/03-zip_workbook_props.t
 t/github_issues/006-synopsis_use.t
+t/github_issues/007-bad_shared_strings.t
 t/test_files/Book1.xml
 t/test_files/ChartSheet.xls
 t/test_files/ChartSheet.xlsx
@@ -110,6 +111,7 @@ t/test_files/XMLMerge.xml
 t/test_files/[Content_Types].xml
 t/test_files/attr.xls
 t/test_files/attr.xlsx
+t/test_files/bad_sharedStrings.xml
 t/test_files/badfile.is
 t/test_files/docProps/app.xml
 t/test_files/docProps/core.xml

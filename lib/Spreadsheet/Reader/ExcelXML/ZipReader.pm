@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader;
-use version; our $VERSION = version->declare('v0.12.2');
+use version; our $VERSION = version->declare('v0.14.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader-$VERSION";
 
 use 5.010;

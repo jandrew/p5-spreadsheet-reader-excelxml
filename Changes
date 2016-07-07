@@ -13,6 +13,13 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 	* Another cool change
 
+v0.14.0   2016-07-06 19:24:49-07:00 America/Los_Angeles
+	
+	+ Added an attribute 'xml_doctype' to store any '!DOCTYPE' values
+	! Fixed miscategorized headers in the xml parser
+		closes #7 in github. added test 007-bad_shared_strings.t
+	! Updated a link in the main POD
+
 v0.12.2   2016-06-10 06:05:23-07:00 America/Los_Angeles
 
 	! Attempt to fix a couple of CPAN Testers fails
