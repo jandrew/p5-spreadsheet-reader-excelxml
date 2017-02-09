@@ -24,4 +24,5 @@ t/04-endless_loop_bug.t
 t/05-bad_xml_example_bug.t
 t/06-bad_gism_example.t
 t/07-test_se_data.t
-Presentation/*
+*initial_QI_load*
+*170122_Call Logs*

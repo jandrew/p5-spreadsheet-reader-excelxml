@@ -21,7 +21,7 @@ use FileHandle;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide;
 use Spreadsheet::Reader::ExcelXML::Types qw( IOFileType );
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
@@ -664,10 +664,10 @@ sub current_node_parsed{
 sub close_the_file{
 	my ( $self ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	###LogSD			$self->get_all_space . '::XMLReader::DEMOLISH::close_the_file', );
+	###LogSD			'Spreadsheet::Reader::ExcelXML::XMLReader::DEMOLISH::close_the_file', );# $self->get_all_space . 
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"clearing the XMLReader reader for log space:",
-	###LogSD			$self->get_all_space . '::XMLReader::DEMOLISH::close_the_file', ] );
+	###LogSD			'Spreadsheet::Reader::ExcelXML::XMLReader::DEMOLISH::close_the_file', ] );# $self->get_all_space . 
 	
 	# Close the file
 	if( $self->has_file ){
@@ -1494,7 +1494,7 @@ sub _build_regular_attributes{
 sub DEMOLISH{
 	my ( $self ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	###LogSD			$self->get_all_space . '::XMLReader::_hidden::DEMOLISH', );
+	###LogSD			'Spreadsheet::Reader::ExcelXML::XMLReader::_hidden::DEMOLISH', );# $self->get_all_space . 
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD			"XMLReader DEMOLISH called" ] );
 	
