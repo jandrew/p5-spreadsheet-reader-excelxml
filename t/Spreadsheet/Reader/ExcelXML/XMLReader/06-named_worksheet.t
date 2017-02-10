@@ -92,7 +92,7 @@ use	Data::Dumper;
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::XMLReader;
 use	Spreadsheet::Reader::ExcelXML::CellToColumnRow;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet;

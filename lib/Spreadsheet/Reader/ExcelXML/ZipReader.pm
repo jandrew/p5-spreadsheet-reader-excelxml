@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader-$VERSION";
 
 use 5.010;
@@ -16,7 +16,7 @@ use IO::File;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+
 use Spreadsheet::Reader::ExcelXML::Types qw( IOFileType );
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9

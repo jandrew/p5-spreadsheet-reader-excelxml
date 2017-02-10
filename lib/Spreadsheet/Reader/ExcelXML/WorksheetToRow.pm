@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorksheetToRow;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorksheetToRow-$VERSION";
 
 use	5.010;
@@ -18,7 +18,7 @@ use MooseX::ShortCut::BuildInstance qw ( build_instance should_re_use_classes );
 should_re_use_classes( 1 );
 use lib	'../../../../lib';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+
 use Spreadsheet::Reader::ExcelXML::Row;
 #~ use Data::Dumper;
 #########1 Dispatch Tables & Package Variables    5#########6#########7#########8#########9

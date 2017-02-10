@@ -73,7 +73,7 @@ use	lib	'../../../../Log-Shiras/lib',
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML;# ':debug'
 $test_file = ( @ARGV ) ? $ARGV[0] : $test_file;
 $file_name	= 'TestBook.xlsx';

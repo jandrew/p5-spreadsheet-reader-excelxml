@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet-$VERSION";
 
 use	5.010;
@@ -75,6 +75,8 @@ sub build_row_data{
 		$alt_row->{attributes} = $full_row_ref;
 		$full_row_ref = $alt_row;
 	}
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"New full row adjusted to:", $full_row_ref, ] );
 	my $new_ref;
 	@$new_ref{qw( row_number row_formats )} = exists $full_row_ref->{attributes} ?
 		( $full_row_ref->{attributes}->{r}, $full_row_ref->{attributes} ) :
@@ -124,12 +126,34 @@ sub build_row_data{
 				}else{
 					$cell->{cell_xml_value} = $position;
 				}
-			}elsif( $cell->{t} =~ /^(str|e)$/ ){
+			}elsif( $cell->{t} =~ /^(e|inlineStr)$/ ){
 				###LogSD	$phone->talk( level => 'debug', message =>[
 				###LogSD		"Identified a stored string in the worksheet file: ", $v_node ] );
 				$cell->{cell_xml_value} = $v_node;
+			}elsif( $cell->{t} eq 'str' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a potential formula stored in the core data position: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                if( !exists $cell->{f}  and $v_node =~ /\=/ ){
+                    $cell->{f} = $v_node;
+                }
+			}elsif( $cell->{t} eq 'b' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored boolean in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node ? 1 : 0 ;
+                $cell->{cell_type} = 'Numeric';
+			}elsif( $cell->{t} eq 'd' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored date in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                $cell->{cell_type} = 'Date';
+			}elsif( $cell->{t} eq 'n' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored number in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                $cell->{cell_type} = 'Numeric';
 			}else{
-				confess "Unknown 't' attribute set for the cell: $cell->{attributes}->{t}";
+				confess "Unknown 't' attribute set for the cell: $cell->{t}";
 			}
 			delete $cell->{t};
 			if( $self->are_spaces_empty and $cell->{cell_xml_value} and $cell->{cell_xml_value} =~ /^\s+$/ ){
@@ -169,6 +193,8 @@ sub build_row_data{
 	my $max_column = ( $last_value_column and $new_ref->{row_span}->[1] < $last_value_column) ?
 						$last_value_column : $new_ref->{row_span}->[1];
 	my( $cell_stack, $position_stack );
+	###LogSD	$phone->talk( level => 'debug', message => [
+	###LogSD		"Asking for row merge map of:", $new_ref ] );
 	my $merge_range = $self->_get_row_merge_map( $new_ref->{row_number} );
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Full row merge settings:", $merge_range ] );

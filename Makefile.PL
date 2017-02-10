@@ -51,13 +51,14 @@ my %WriteMakefileArgs = (
   "TEST_REQUIRES" => {
     "File::Copy" => 0,
     "File::Temp" => 0,
+    "Log::Shiras::Unhide" => 0,
     "Spreadsheet::ParseExcel" => 0,
     "Test::Deep" => 0,
     "Test::Moose" => "2.1801",
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-  "VERSION" => "v0.14.0",
+  "VERSION" => "v0.16.0",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t t/github_issues/*.t"
   }
@@ -77,6 +78,7 @@ my %FallbackPrereqs = (
   "FileHandle" => 0,
   "IO::File" => 0,
   "IO::Handle" => "1.25",
+  "Log::Shiras::Unhide" => 0,
   "Modern::Perl" => "1.20150127",
   "Moose" => 0,
   "Moose::Role" => 0,

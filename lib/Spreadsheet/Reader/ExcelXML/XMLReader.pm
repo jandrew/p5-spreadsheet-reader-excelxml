@@ -1,5 +1,6 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
+#~ use Log::Shiras::Unhide qw( :debug );
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader-$VERSION";
 
 use 5.010;
@@ -21,7 +22,6 @@ use FileHandle;
 use lib	'../../../../lib',;
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::Unhide;
 use Spreadsheet::Reader::ExcelXML::Types qw( IOFileType );
 
 #########1 Public Attributes  3#########4#########5#########6#########7#########8#########9
@@ -1455,8 +1455,8 @@ sub _build_doctype_attributes{
 
 sub _build_regular_attributes{
 	my( $self, $top_ref ) = @_;
-	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
-	###LogSD			$self->get_all_space . '::XMLReader::_hidden::_build_regular_attributes', );
+	###LogSD    my	$phone = Log::Shiras::Telephone->new( name_space =>
+	###LogSD                $self->get_all_space . '::XMLReader::_hidden::_build_regular_attributes', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"attempting to build an attributes ref for:", $top_ref ] );
 	

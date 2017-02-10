@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Row;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Row-$VERSION";
 
 $| = 1;
@@ -12,7 +12,7 @@ use Clone qw( clone );
 use Types::Standard qw( ArrayRef  Int  Bool  HashRef );
 use lib	'../../../../../lib';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+
 ###LogSD	with 'Log::Shiras::LogSpace';
 ###LogSD	sub get_class_space{ 'Row' }
 

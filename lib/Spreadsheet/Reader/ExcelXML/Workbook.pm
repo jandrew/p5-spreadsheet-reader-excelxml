@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Workbook;
-use version 0.77; our $VERSION = version->declare('v0.14.0');
+use version 0.77; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Workbook-$VERSION";
 
 use 5.010;
@@ -16,18 +16,11 @@ use Types::Standard qw(
     );
 use lib	'../../../../lib',;
 ###LogSD use Log::Shiras::Telephone;
-###LogSD use Log::Shiras::UnhideDebug;
-use	MooseX::ShortCut::BuildInstance 1.040 qw(
-		build_instance		should_re_use_classes	set_args_cloning
-	);
-should_re_use_classes( 1 );
-set_args_cloning ( 0 );
 ###LogSD use Spreadsheet::Reader::ExcelXML::ZipReader;
 ###LogSD use Spreadsheet::Reader::ExcelXML::Cell;
 ###LogSD use Spreadsheet::Reader::ExcelXML::CellToColumnRow;
 ###LogSD use Spreadsheet::Reader::ExcelXML::Chartsheet;
 ###LogSD use Spreadsheet::Reader::ExcelXML::Error;
-###LogSD use Log::Shiras::UnhideDebug;
 ###LogSD use Spreadsheet::Reader::ExcelXML::Row;
 ###LogSD use Spreadsheet::Reader::ExcelXML::SharedStrings;
 ###LogSD use Spreadsheet::Reader::ExcelXML::Styles;
@@ -39,11 +32,9 @@ set_args_cloning ( 0 );
 ###LogSD use Spreadsheet::Reader::ExcelXML::WorksheetToRow;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-###LogSD use Log::Shiras::UnhideDebug;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::NamedStyles;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet;
-###LogSD use Log::Shiras::UnhideDebug;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles;
 ###LogSD use Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta;
@@ -53,6 +44,11 @@ set_args_cloning ( 0 );
 ###LogSD use Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta;
 ###LogSD use Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps;
 ###LogSD use Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookRels;
+use	MooseX::ShortCut::BuildInstance 1.040 qw(
+		build_instance		should_re_use_classes	set_args_cloning
+	);
+should_re_use_classes( 1 );
+set_args_cloning ( 0 );
 use Spreadsheet::Reader::ExcelXML::Types qw( XLSXFile IOFileType is_XMLFile );
 ###LogSD with 'Log::Shiras::LogSpace';
 

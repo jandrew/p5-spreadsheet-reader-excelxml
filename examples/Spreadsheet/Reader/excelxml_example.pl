@@ -17,7 +17,7 @@ $| = 1;
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML;#
 
 my $parser   = Spreadsheet::Reader::ExcelXML->new();

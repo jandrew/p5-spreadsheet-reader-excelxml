@@ -82,17 +82,17 @@ use	Data::Dumper;
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::XMLReader;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::SharedStrings;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::CellToColumnRow;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::XMLReader::NamedWorksheet;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::WorksheetToRow;
 use	Spreadsheet::Reader::ExcelXML::Error;
 

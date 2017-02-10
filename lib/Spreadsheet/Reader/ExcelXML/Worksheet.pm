@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Worksheet;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.16.0');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Worksheet-$VERSION";
 
 use Modern::Perl;
@@ -26,7 +26,7 @@ use Types::Standard qw(
 );# Int
 use lib	'../../../../lib',;
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+
 use Spreadsheet::Reader::ExcelXML::Cell;
 use	Spreadsheet::Reader::ExcelXML::Types qw(
 		SpecialDecimal					SpecialZeroScientific
@@ -68,6 +68,7 @@ has sheet_position =>(# XML position
 has sheet_name =>(
 		isa		=> Str,
 		reader	=> 'get_name',
+		predicate	=> '_has_name',
 	);
 
 has min_header_col =>(
@@ -1020,8 +1021,10 @@ sub DEMOLISH{
 	my ( $self ) = @_;
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::_hidden::DEMOLISH', );
-	###LogSD		$phone->talk( level => 'debug', message =>[
+    ###LogSD	if( $self->_has_name ){
+    ###LogSD		$phone->talk( level => 'debug', message =>[
 	###LogSD			"Cleaning up worksheet: " . $self->get_name ] );
+    ###LogSD	}
 	if( $self->has_file ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Need to clear the file" ] );
