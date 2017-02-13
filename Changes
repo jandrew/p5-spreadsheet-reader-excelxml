@@ -13,6 +13,10 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
     * Another cool change
 
+v0.16.2   2017-02-13 09:45:12-08:00 America/Los_Angeles
+
+    ! Fix an unacknowledged dependancy on a newer format module version
+
 v0.16.0   2017-02-10 14:45:46-08:00 America/Los_Angeles
 
 	+ Added support for Excel cell XML value types ('t' attribute)

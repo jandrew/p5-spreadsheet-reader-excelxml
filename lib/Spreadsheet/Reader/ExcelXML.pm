@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.16.0');
+use version 0.77; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -16,11 +16,11 @@ use	MooseX::ShortCut::BuildInstance 1.040 qw(
 	);
 should_re_use_classes( 1 );
 set_args_cloning ( 0 );
-###LogSD use Log::Shiras::Telephone;
+###LogSD use Log::Shiras::Telephone v0.48.0;
 use lib	'../../../../lib',;
 use Spreadsheet::Reader::ExcelXML::Error;
 use Spreadsheet::Reader::ExcelXML::Workbook;
-use Spreadsheet::Reader::Format v0.6.0;
+use Spreadsheet::Reader::Format v0.6.2;
 use Spreadsheet::Reader::Format::FmtDefault;
 use Spreadsheet::Reader::Format::ParseExcelFormatStrings;
 use Spreadsheet::Reader::ExcelXML::Types qw( XLSXFile IOFileType );

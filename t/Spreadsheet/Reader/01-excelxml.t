@@ -28,7 +28,7 @@ use	lib	'../../../../Log-Shiras/lib',
         '../../../../../../PerlDev/p5-spreadsheet-reader-excelxml/lib',
         '../../../../../../PerlDev/p5-spreadsheet-reader-format/lib'
 	;
-use Log::Shiras::Unhide qw( :debug );
+#~ use Log::Shiras::Unhide qw( :debug );
 ###LogSD	use Log::Shiras::Switchboard;#
 ###LogSD	my	$operator = Log::Shiras::Switchboard->get_operator(
 ###LogSD						name_space_bounds =>{
@@ -51,7 +51,7 @@ use Log::Shiras::Unhide qw( :debug );
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::Unhide;
+###LogSD	use Log::Shiras::Unhide v0.48.0;
 use Spreadsheet::Reader::ExcelXML;
 use Spreadsheet::Reader::ExcelXML::Workbook;
 $test_file = ( @ARGV ) ? $ARGV[0] : $test_file;
