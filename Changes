@@ -11,10 +11,10 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
-	* Another cool change
+	! Added requirement for Spreadsheet::Reader::Format v0.6.4 due to a sub dependancy of it's own
 
 v0.14.0   2016-07-06 19:24:49-07:00 America/Los_Angeles
-	
+
 	+ Added an attribute 'xml_doctype' to store any '!DOCTYPE' values
 	! Fixed miscategorized headers in the xml parser
 		closes #7 in github. added test 007-bad_shared_strings.t

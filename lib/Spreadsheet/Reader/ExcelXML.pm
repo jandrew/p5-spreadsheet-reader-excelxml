@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.14.0');
+use version 0.77; our $VERSION = version->declare('v0.14.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -22,7 +22,7 @@ use Spreadsheet::Reader::ExcelXML::Error;
 ###LogSD use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::ExcelXML::Workbook;
 ###LogSD use Log::Shiras::UnhideDebug;
-use Spreadsheet::Reader::Format v0.6.0;
+use Spreadsheet::Reader::Format v0.6.4;
 use Spreadsheet::Reader::Format::FmtDefault;
 use Spreadsheet::Reader::Format::ParseExcelFormatStrings;
 use Spreadsheet::Reader::ExcelXML::Types qw( XLSXFile IOFileType );

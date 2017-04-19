@@ -95,6 +95,8 @@ t/Spreadsheet/Reader/ExcelXML/ZipReader/02-zip_workbook_rels.t
 t/Spreadsheet/Reader/ExcelXML/ZipReader/03-zip_workbook_props.t
 t/github_issues/006-synopsis_use.t
 t/github_issues/007-bad_shared_strings.t
+t/github_issues/008-file_worksheet.t
+'t/test_files/170122_Call Logs - QI - XIP.xlsx'
 t/test_files/Book1.xml
 t/test_files/ChartSheet.xls
 t/test_files/ChartSheet.xlsx
@@ -105,6 +107,7 @@ t/test_files/Rich.xls
 t/test_files/TestBook.xls
 t/test_files/TestBook.xlsx
 t/test_files/TestBook.xml
+t/test_files/TestBoolean.xlsx
 t/test_files/ValueFormatExample.xlsx
 t/test_files/XMLMerge.xlsx
 t/test_files/XMLMerge.xml
@@ -117,6 +120,7 @@ t/test_files/docProps/app.xml
 t/test_files/docProps/core.xml
 t/test_files/emptySharedStringsBug.xml
 t/test_files/hidden_format_test.xlsx
+t/test_files/initial_QI_load_definitions.xlsx
 t/test_files/merged.xlsx
 t/test_files/misc.xlsx
 t/test_files/perc.xls

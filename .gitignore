@@ -26,3 +26,4 @@ t/06-bad_gism_example.t
 t/07-test_se_data.t
 *initial_QI_load*
 *170122_Call Logs*
+t/test_files/TestBoolean.xlsx

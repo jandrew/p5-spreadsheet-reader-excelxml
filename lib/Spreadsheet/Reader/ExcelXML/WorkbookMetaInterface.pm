@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface;
-use version; our $VERSION = version->declare('v0.14.0');
+use version; our $VERSION = version->declare('v0.14.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface-$VERSION";
 
 use	Moose::Role;
