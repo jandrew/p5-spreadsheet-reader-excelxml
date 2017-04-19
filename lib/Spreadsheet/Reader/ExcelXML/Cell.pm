@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Cell;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Cell-$VERSION";
 
 $| = 1;
@@ -15,7 +15,6 @@ use Types::Standard qw(
     );
 use lib	'../../../../lib';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
 use	Spreadsheet::Reader::ExcelXML::Types qw( CellID );
 ###LogSD with 'Log::Shiras::LogSpace';
 

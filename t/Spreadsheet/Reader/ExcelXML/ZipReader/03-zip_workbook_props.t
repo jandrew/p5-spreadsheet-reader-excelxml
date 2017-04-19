@@ -71,12 +71,12 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 #~ use Spreadsheet::Reader::ExcelXML::WorkbookFileInterface;
 #~ use Spreadsheet::Reader::ExcelXML::ZipReader;
 use Spreadsheet::Reader::ExcelXML::XMLReader;
 use Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface;
 	$test_file = ( @ARGV ) ? $ARGV[0] : $test_file;
 	$test_file .= 'core.xml';

@@ -31,7 +31,7 @@ use	lib
 ###LogSD					);
 ###LogSD		$operator->add_skip_up_caller( qw( Carp __ANON__ ) );
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::Error;
 my  ( 
 			$test_instance, $capture, $capture_II,

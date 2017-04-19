@@ -13,6 +13,19 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 	! Added requirement for Spreadsheet::Reader::Format v0.6.4 due to a sub dependancy of it's own
 
+v0.16.2   2017-02-13 09:45:12-08:00 America/Los_Angeles
+
+    ! Fix an unacknowledged dependancy on a newer format module version
+
+v0.16.0   2017-02-10 14:45:46-08:00 America/Los_Angeles
+
+	+ Added support for Excel cell XML value types ('t' attribute)
+        'b' => forced into 1 or 0 with an exists style test
+        'd' => will show as a 'Date' cell type
+        'inlineStr' => handled just like a formula 'str'  (set to the 'Text' type)
+        'n' => this seems redundant because generally Excel just doesn't store 't' for numbers but it behaves the same way
+    ! Upgraded debug support to use Log::Shiras::Unhide
+
 v0.14.0   2016-07-06 19:24:49-07:00 America/Los_Angeles
 
 	+ Added an attribute 'xml_doctype' to store any '!DOCTYPE' values

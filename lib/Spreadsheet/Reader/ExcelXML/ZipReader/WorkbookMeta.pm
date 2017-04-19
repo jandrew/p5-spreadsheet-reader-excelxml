@@ -1,12 +1,12 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta-$VERSION";
 
 use	Moose::Role;
 requires qw(
 	advance_element_position	parse_element			start_the_file_over
 	close_the_file				squash_node				good_load
-);			
+);
 use Types::Standard qw( Enum ArrayRef HashRef Bool);
 ###LogSD	use Log::Shiras::Telephone;
 
@@ -26,7 +26,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the WorkbookMetaInterface unique bits" ] );
-	
+
 	# Set date epoch
 	#~ $self->start_the_file_over;
 	my( $result, $node_name, $node_level, $result_ref ) = $self->advance_element_position( 'workbookPr' );
@@ -40,7 +40,7 @@ sub load_unique_bits{
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Setting epoch start to: $epoch_start" ] );
 	$self->_set_epoch_year( $epoch_start );
-	
+
 	# Build sheet list
 	$result = undef;
 	for my $top_node (qw( sheets ) ){
@@ -51,12 +51,12 @@ sub load_unique_bits{
 		last if $result;
 	}
 	confess "Could not find any sheets" if !$result;
-	
+
 	# pull sheet list to perl ref
 	my $sheets_node = $self->squash_node( $self->parse_element );
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"parsed sheets ref is:", $sheets_node ] );
-	
+
 	# handle single sheet
 	if( (keys %$sheets_node)[0] eq 'sheet' ){
 		$sheets_node->{list} = [ $sheets_node->{sheet} ];
@@ -64,7 +64,7 @@ sub load_unique_bits{
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"after handling a single sheet case the sheets ref is:", $sheets_node ] );
 	}
-	
+
 	# Scrub worksheet and chartsheet level
 	my $x = 0;
 	my ( $list, $rel_lookup, $id_lookup, $new_sheet_ref );
@@ -87,14 +87,14 @@ sub load_unique_bits{
 	###LogSD		"sheet list is:", $list,
 	###LogSD		"rel lookup is:", $rel_lookup,
 	###LogSD		"id lookup is:", $id_lookup ] );
-	
+
 	#~ # Add pivot cache lookups
 	#~ $self->start_the_file_over;
 	#~ $result = $self->advance_element_position( 'pivotCaches' );;
 	#~ my $pivot_ref = $self->parse_element;
 	#~ ###LogSD	$phone->talk( level => 'debug', message => [
 	#~ ###LogSD		"parsed pivot ref is:", $pivot_ref ] );
-	
+
 	#~ # Clean up xml ref as needed
 	#~ if( exists $pivot_ref->{pivotCache} ){
 		#~ push @{$pivot_ref->{list}}, clone( $pivot_ref->{pivotCache} );
@@ -116,7 +116,7 @@ sub load_unique_bits{
 		#~ ###LogSD		"final rel lookup is:", $rel_lookup,
 		#~ ###LogSD		"final id lookup is:", $id_lookup ] );
 	#~ }
-	
+
 	$self->_set_sheet_list( $list );
 	$self->_set_sheet_lookup( $new_sheet_ref );
 	$self->_set_rel_lookup( $rel_lookup );
@@ -206,35 +206,35 @@ Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta - Zip file Workbook Meta 
 	use Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface; # Optional
 	$meta_instance = build_instance(
 		superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
-		add_roles_in_sequence =>[ 
+		add_roles_in_sequence =>[
 			'Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookMeta',
 			'Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface',
 		],
 		file => $file_handle,# Should be a handle built with 'xl/workbook.xml' from a zip file
 	);
 	$meta_instance->get_epoch_year;
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: 1904
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This is the Zip file adaptor for reading the workbook meta file 'xl/workbook.xml'.  The 
-file has several default sets of information that should be gathered.  They can all be 
-retrieved post file initialization with L<Methods|/Methods>.  The goal is to standardize 
+This is the Zip file adaptor for reading the workbook meta file 'xl/workbook.xml'.  The
+file has several default sets of information that should be gathered.  They can all be
+retrieved post file initialization with L<Methods|/Methods>.  The goal is to standardize
 the outputs of this metadata from non standard inputs.
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the default implementation of 
+These are the methods required by the role.  A link to the default implementation of
 these methods is provided.
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position( $element, [$iterations] )>
@@ -257,9 +257,9 @@ These are the methods provided by this role (only).
 
 =over
 
-B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-When it does the reader will call this function as available when it first starts the file.  
-Therefore this is where the unique Metadata for this file is found and stored. (in the 
+B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+When it does the reader will call this function as available when it first starts the file.
+Therefore this is where the unique Metadata for this file is found and stored. (in the
 attributes)
 
 B<Accepts:> nothing
@@ -284,7 +284,7 @@ B<Returns:> (1900|1904)
 
 =over
 
-B<Definition:> returns the full array ref containg all discovered sheets in the 
+B<Definition:> returns the full array ref containg all discovered sheets in the
 file.  This will include worksheets and chartsheets.
 
 B<Accepts:> nothing
@@ -297,7 +297,7 @@ B<Returns:> an array ref of strings
 
 =over
 
-B<Definition:> returns the hashref with relId's as keys and the sheet name as 
+B<Definition:> returns the hashref with relId's as keys and the sheet name as
 values
 
 B<Accepts:> nothing
@@ -310,8 +310,8 @@ B<Returns:> a hash ref with $relId => $sheet_name combos
 
 =over
 
-B<Definition:> returns the hashref with sheet id's as keys and the sheet 
-name as values.  I beleive that Sheet ID's are the id number used in vbscript 
+B<Definition:> returns the hashref with sheet id's as keys and the sheet
+name as values.  I beleive that Sheet ID's are the id number used in vbscript
 to identify the sheet.
 
 B<Accepts:> nothing

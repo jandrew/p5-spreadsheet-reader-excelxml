@@ -159,7 +159,7 @@ use	lib	'../../../../Log-Shiras/lib',
 ###LogSD			},
 ###LogSD		);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 ###LogSD	use MooseX::ShortCut::BuildInstance;
 use Spreadsheet::Reader::ExcelXML;# ':debug'
 #~ use Spreadsheet::Reader::ExcelXML::Error;

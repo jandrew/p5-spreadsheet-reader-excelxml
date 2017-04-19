@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet-$VERSION";
 
 use	5.010;
@@ -32,7 +32,7 @@ has is_hidden =>(
 		isa		=> Bool,
 		reader	=> 'is_sheet_hidden',
 	);
-	
+
 #########1 Public Methods     3#########4#########5#########6#########7#########8#########9
 
 sub advance_row_position{
@@ -46,7 +46,7 @@ sub advance_row_position{
 	###LogSD		$phone->talk( level => 'debug ', message => [
 	###LogSD			"advance result is:" . ($result//'fail') ] );
 	return undef if !$result;
-	
+
 	# Pull data about the row
 	my $row_ref = $self->current_node_parsed;
 	$row_ref = $row_ref->{row};
@@ -54,12 +54,12 @@ sub advance_row_position{
 	$self->_set_custom_row_data( $row_ref->{r} => $row_ref );# Should this be tied into cache_positions?
 	###LogSD		$phone->talk( level => 'debug ', message => [
 	###LogSD			"parse result is:", $row_ref, $self->_get_all_positions, ] );
-	
+
 	return $row_ref;
 }
 
 sub build_row_data{
-	my( $self, ) = @_;# $row_ref, $row_position 
+	my( $self, ) = @_;# $row_ref, $row_position
 	###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space =>
 	###LogSD			$self->get_all_space . '::FileWorksheet::build_row_data', );
 	###LogSD		$phone->talk( level => 'debug', message => [
@@ -67,7 +67,7 @@ sub build_row_data{
 	my $full_row_ref = $self->squash_node( $self->parse_element );
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Full row parsed to:", $full_row_ref, ] );
-	
+
 	# Confirm row list
 	if( exists  $full_row_ref->{c} ){
 		my $alt_row->{list} = [ $full_row_ref->{c} ];
@@ -75,6 +75,8 @@ sub build_row_data{
 		$alt_row->{attributes} = $full_row_ref;
 		$full_row_ref = $alt_row;
 	}
+	###LogSD	$phone->talk( level => 'trace', message =>[
+	###LogSD		"New full row adjusted to:", $full_row_ref, ] );
 	my $new_ref;
 	@$new_ref{qw( row_number row_formats )} = exists $full_row_ref->{attributes} ?
 		( $full_row_ref->{attributes}->{r}, $full_row_ref->{attributes} ) :
@@ -82,17 +84,17 @@ sub build_row_data{
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"updated Full row:", $full_row_ref,
 	###LogSD		"New row ref initialized as:", $new_ref ] );
-	
+
 	# set spans value
 	if( exists $full_row_ref->{attributes}->{spans} ){
-		$new_ref->{row_span} = 
+		$new_ref->{row_span} =
 			[ $full_row_ref->{attributes}->{spans} =~ /(\d+):(\d+)/ ];
 	}else{
 		$new_ref->{row_span} = [($self->_min_col//1),($self->_max_col//1)];
 	}
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Updated new ref:", $new_ref ] );
-	
+
 	# Parse the cells for position and range
 	my $column_to_cell_translations = [];
 	my $last_value_column;
@@ -103,7 +105,7 @@ sub build_row_data{
 		@$cell{qw( cell_col cell_row )} = $self->_parse_column_row( $cell->{r} );
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Cell column: $cell->{cell_col}", "Cell row: $cell->{cell_row}" ] );
-		
+
 		# load cell_type, cell_xml_value, and rich text
 		#   can't delay this because the information is required for 'empty_is_end'
 		$cell->{cell_type} = 'Text';
@@ -124,12 +126,34 @@ sub build_row_data{
 				}else{
 					$cell->{cell_xml_value} = $position;
 				}
-			}elsif( $cell->{t} =~ /^(str|e)$/ ){
+			}elsif( $cell->{t} =~ /^(e|inlineStr)$/ ){
 				###LogSD	$phone->talk( level => 'debug', message =>[
 				###LogSD		"Identified a stored string in the worksheet file: ", $v_node ] );
 				$cell->{cell_xml_value} = $v_node;
+			}elsif( $cell->{t} eq 'str' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a potential formula stored in the core data position: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                if( !exists $cell->{f}  and $v_node =~ /\=/ ){
+                    $cell->{f} = $v_node;
+                }
+			}elsif( $cell->{t} eq 'b' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored boolean in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node ? 1 : 0 ;
+                $cell->{cell_type} = 'Numeric';
+			}elsif( $cell->{t} eq 'd' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored date in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                $cell->{cell_type} = 'Date';
+			}elsif( $cell->{t} eq 'n' ){
+				###LogSD	$phone->talk( level => 'debug', message =>[
+				###LogSD		"Identified a stored number in the worksheet file: ", $v_node ] );
+				$cell->{cell_xml_value} = $v_node;
+                $cell->{cell_type} = 'Numeric';
 			}else{
-				confess "Unknown 't' attribute set for the cell: $cell->{attributes}->{t}";
+				confess "Unknown 't' attribute set for the cell: $cell->{t}";
 			}
 			delete $cell->{t};
 			if( $self->are_spaces_empty and $cell->{cell_xml_value} and $cell->{cell_xml_value} =~ /^\s+$/ ){
@@ -152,7 +176,7 @@ sub build_row_data{
 		}
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Updated cell:",  $cell] );
-		
+
 		# Handle formula, position translations, and last value
 		$cell->{cell_formula} = $cell->{f} if exists $cell->{f};
 		delete $cell->{f};
@@ -164,11 +188,13 @@ sub build_row_data{
 		###LogSD		"..with column to cell translations:", $column_to_cell_translations,
 		###LogSD		"..and last value column: $last_value_column",	] );
 	}
-	
+
 	# Scrub merge cells, column formats, and then empty values
 	my $max_column = ( $last_value_column and $new_ref->{row_span}->[1] < $last_value_column) ?
 						$last_value_column : $new_ref->{row_span}->[1];
 	my( $cell_stack, $position_stack );
+	###LogSD	$phone->talk( level => 'debug', message => [
+	###LogSD		"Asking for row merge map of:", $new_ref ] );
 	my $merge_range = $self->_get_row_merge_map( $new_ref->{row_number} );
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Full row merge settings:", $merge_range ] );
@@ -177,12 +203,12 @@ sub build_row_data{
 		###LogSD		"Processing column: $col", ,
 		###LogSD		(defined $column_to_cell_translations->[$col] ? $alt_ref->[$column_to_cell_translations->[$col]] : undef)	] );
 		my $new_cell;
-		
+
 		# Resolve additional merge info
 		if( $merge_range and $merge_range->[$col] ){# Do it different for named worksheets
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"Column -$col- is part of a merge range", $new_cell->{cell_merge} ] );
-			
+
 			# Handle primary position sharing
 			if( $self->spreading_merged_values ){
 				my $not_primary = 1;
@@ -219,9 +245,9 @@ sub build_row_data{
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"updated new cell now has: ", $new_cell ] );
 		}
-						
+
 		# Handle formats (especially from the column) including hidden - more work needed here!
-		if( $new_cell or (defined $column_to_cell_translations->[$col] and 
+		if( $new_cell or (defined $column_to_cell_translations->[$col] and
 			$alt_ref->[$column_to_cell_translations->[$col]] 		) ){
 			$new_cell->{cell_hidden} =
 				$self->is_sheet_hidden ? 'sheet' :
@@ -233,7 +259,7 @@ sub build_row_data{
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"updated new cell now has: ", $new_cell ] );
 		}
-		
+
 		# Load in remaining data
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Possibly loading additional cell data: ", defined $column_to_cell_translations->[$col] ? $alt_ref->[$column_to_cell_translations->[$col]] : $column_to_cell_translations->[$col] ] );
@@ -244,7 +270,7 @@ sub build_row_data{
 		}
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Updated new cell:",  $new_cell ] );
-		
+
 		# Skip hidden
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Should skip hidden: " . $self->should_skip_hidden,
@@ -254,7 +280,7 @@ sub build_row_data{
 			###LogSD		"Skipping a known hidden cell", $new_cell ] );
 			next SCRUBINGCELLSTACK;
 		}
-		
+
 		# Skip empty
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Checking values only: " . $self->get_values_only,
@@ -264,7 +290,7 @@ sub build_row_data{
 			###LogSD		"Skipping the empty cell", $new_cell ] );
 			next SCRUBINGCELLSTACK;
 		}
-		
+
 		# Stack new data
 		###LogSD	$phone->talk( level => 'debug', message =>[
 		###LogSD		"Checking if anything was stored in new_cell:", $new_cell ] );
@@ -278,7 +304,7 @@ sub build_row_data{
 		}
 	}
 	$new_ref->{column_to_cell_translations} = $position_stack;
-	
+
 	# Handle full empty rows here
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		'Updated cell stack:', $cell_stack,
@@ -316,8 +342,8 @@ sub build_row_data{
 		###LogSD		'No data available for this row',	] );
 		return undef;
 	}
-		
-		
+
+
 	###LogSD	$phone->talk( level => 'trace', message =>[
 	###LogSD		"Updated new ref:", $new_ref,] );
 	return $new_ref;
@@ -329,7 +355,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::FileWorksheet::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the Worksheet unique bits", ] );
-	
+
 	# Read the sheet row-column dimensions
 	my $good_load = 0;
 	my $current_named_node = $self->current_named_node;
@@ -351,12 +377,12 @@ sub load_unique_bits{
 		###LogSD		"parsed dimension value:", $dimension ] );
 		my	( $start, $end ) = split( /:/, $dimension->{dimension}->{ref} );
 		###LogSD	$phone->talk( level => 'debug', message => [
-		###LogSD		"Start position: $start", 
+		###LogSD		"Start position: $start",
 		###LogSD		( $end ? "End position: $end" : '' ), ] );
 		my ( $start_column, $start_row ) = ( $self->starts_at_the_edge ) ?
 												( 1, 1 ) : $self->_parse_column_row( $start );
-		my ( $end_column, $end_row	) = $end ? 
-				$self->_parse_column_row( $end ) : 
+		my ( $end_column, $end_row	) = $end ?
+				$self->_parse_column_row( $end ) :
 				( undef, undef ) ;
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		'Start column: ' . ($start_column//'undef'), 'Start row: ' . ($start_row//'undef'),
@@ -371,10 +397,10 @@ sub load_unique_bits{
 		$self->_set_min_row( 0 );
 		$self->set_error( "No sheet dimensions provided" );
 	}
-	
+
 	# Work without a net !!!!!
 	$self->change_stack_storage_to( 0 );
-	
+
 	#pull column stats
 	###LogSD	$phone->talk( level => 'trace', message => [
 	###LogSD		"Checking if column data should be collected: " . $self->collecting_column_formats ] );
@@ -386,18 +412,18 @@ sub load_unique_bits{
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Arrived at node named -$node_name- with result: $result", ] );
 		if( $result ){
-				
+
 			# Build the node and add it to the stack
 			my $node_ref = $self->initial_node_build( $node_name, $node_ref );
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Returned from initial node build with node:", $node_ref ] );
 			$self->add_node_to_stack( $node_ref );
-			
+
 			# Pull the data
 			my $column_data = $self->parse_element;
 			###LogSD	$phone->talk( level => 'trace', message => [
 			###LogSD		"parsed column elements to:", $column_data ] );
-			
+
 			# Process the data
 			my $column_store = [];
 			for my $definition ( @{$column_data->{list}} ){
@@ -420,7 +446,7 @@ sub load_unique_bits{
 			$self->_set_column_formats( $column_store );
 		}
 	}
-	
+
 	# Get sheet meta data merge information
 	my	$merge_ref = [];
 	###LogSD	$phone->talk( level => 'trace', message => [
@@ -432,15 +458,15 @@ sub load_unique_bits{
 		( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'mergeCells' );
 		###LogSD	$phone->talk( level => 'debug', message => [
 		###LogSD		"Arrived at node named -$node_name- with result: $result", ] );
-			
+
 		if( $result ){
-				
+
 			# Build the node and add it to the stack
 			my $node_ref = $self->initial_node_build( $node_name, $node_ref );
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Returned from initial node build with node:", $node_ref ] );
 			$self->add_node_to_stack( $node_ref );
-			
+
 			my $merge_range = $self->parse_element;
 			###LogSD	$phone->talk( level => 'debug', message => [
 			###LogSD		"Processing all merge ranges:", $merge_range ] );
@@ -473,7 +499,7 @@ sub load_unique_bits{
 			$self->_set_merge_map( $final_ref );
 		}# exit 1;
 	}
-	
+
 	# Record file state
 	if( $good_load ){
 		###LogSD	$phone->talk( level => 'debug', message => [
@@ -483,7 +509,7 @@ sub load_unique_bits{
 		$self->set_error( "No 'Worksheet' definition elements found - can't parse this as a Worksheet file" );
 		return undef;
 	}
-	
+
 	$self->start_the_file_over;
 	###LogSD	$phone->talk( level => 'trace', message => [
 	###LogSD		"Finished the worksheet unique bits" ] );
@@ -572,7 +598,7 @@ has _primary_merged_values =>(# Values for the top left corner of the merge rang
 #########1 Phinish            3#########4#########5#########6#########7#########8#########9
 
 no Moose::Role;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -585,33 +611,33 @@ Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet - Zip file worksheet int
 =head1 SYNOPSIS
 
 See t\Spreadsheet\Reader\ExcelXML\XMLReader\05-file_worksheet.t
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own excel 
-parser.  To use the general package for excel parsing out of the box please review the 
+This documentation is written to explain ways to use this module when writing your own excel
+parser.  To use the general package for excel parsing out of the box please review the
 documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This module incrementally adds functionality to the base class 
-L<Spreadsheet::Reader::ExcelXML::XMLReader>. The goal is to parse individual worksheet files 
-(not chartsheets) from the zip file format (.xlsx) into perl objects  The primary purpose 
-of this role is to normalize functions used by L<Spreadsheet::Reader::ExcelXML::WorksheetToRow> 
-where other roles could be used to normalize other formats.  It does not provide a way to read 
+This module incrementally adds functionality to the base class
+L<Spreadsheet::Reader::ExcelXML::XMLReader>. The goal is to parse individual worksheet files
+(not chartsheets) from the zip file format (.xlsx) into perl objects  The primary purpose
+of this role is to normalize functions used by L<Spreadsheet::Reader::ExcelXML::WorksheetToRow>
+where other roles could be used to normalize other formats.  It does not provide a way to read
 L<chartsheets|Spreadsheet::Reader::ExcelXML::Chartsheet>.
 
-I<All positions (row and column places and integers) at this level are stored and returned 
+I<All positions (row and column places and integers) at this level are stored and returned
 in count from one mode!>
-	
-To replace this part in the package look in the raw code of 
-L<Spreadsheet::Reader::ExcelXML::Workbook> and adjust the 'worksheet_interface' key of the 
+
+To replace this part in the package look in the raw code of
+L<Spreadsheet::Reader::ExcelXML::Workbook> and adjust the 'worksheet_interface' key of the
 $parser_modules variable.
 
 =head2 requires
 
-This module is a L<role|Moose::Manual::Roles> and as such only adds incremental methods and 
-attributes to some base class.  In order to use this role some base object methods are 
+This module is a L<role|Moose::Manual::Roles> and as such only adds incremental methods and
+attributes to some base class.  In order to use this role some base object methods are
 required.  The requirments are listed below with links to the default provider.
 
 =over
@@ -657,23 +683,23 @@ L<Spreadsheet::Reader::ExcelXML::SharedStrings/get_shared_string( $positive_intE
 
 =head2 Attributes
 
-Data passed to new when creating an instance.  This list only contains public attributes 
-incrementally provided by this role.  For access to the values in these attributes see 
-the listed 'attribute methods'. For general information on attributes see 
-L<Moose::Manual::Attributes>.  For ways to manage the instance when opened see the 
+Data passed to new when creating an instance.  This list only contains public attributes
+incrementally provided by this role.  For access to the values in these attributes see
+the listed 'attribute methods'. For general information on attributes see
+L<Moose::Manual::Attributes>.  For ways to manage the instance when opened see the
 L<Methods|/Methods>.
-	
+
 =head3 is_hidden
 
 =over
 
-B<Definition:> This data is collected at the workbook level for this file type.  It indicates 
+B<Definition:> This data is collected at the workbook level for this file type.  It indicates
 if the sheet is human visible.
 
 B<Range:> (1|0)
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<is_sheet_hidden>
@@ -687,18 +713,18 @@ B<Definition:> return the attribute value
 =back
 
 =back
-	
+
 =head3 _sheet_min_col
 
 =over
 
-B<Definition:> This is the minimum column in the sheet with data or formatting.  For this 
+B<Definition:> This is the minimum column in the sheet with data or formatting.  For this
 module it is pulled from the xml file at worksheet/dimension:ref = "upperleft:lowerright"
 
 B<Range:> an integer
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<_min_col>
@@ -720,18 +746,18 @@ B<Definition:> attribute predicate
 =back
 
 =back
-	
+
 =head3 _sheet_min_row
 
 =over
 
-B<Definition:> This is the minimum row in the sheet with data or formatting.  For this 
+B<Definition:> This is the minimum row in the sheet with data or formatting.  For this
 module it is pulled from the xml file at worksheet/dimension:ref = "upperleft:lowerright"
 
 B<Range:> an integer
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<_set_min_row>
@@ -761,18 +787,18 @@ B<Definition:> attribute predicate
 =back
 
 =back
-	
+
 =head3 _sheet_max_col
 
 =over
 
-B<Definition:> This is the maximum column in the sheet with data or formatting.  For this 
+B<Definition:> This is the maximum column in the sheet with data or formatting.  For this
 module it is pulled from the xml file at worksheet/dimension/ref = "upperleft:lowerright"
 
 B<Range:> an integer
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<_set_max_col>
@@ -802,18 +828,18 @@ B<Definition:> attribute predicate
 =back
 
 =back
-	
+
 =head3 _sheet_max_row
 
 =over
 
-B<Definition:> This is the maximum row in the sheet with data or formatting.  For this 
+B<Definition:> This is the maximum row in the sheet with data or formatting.  For this
 module it is pulled from the xml file at worksheet/dimension:ref = "upperleft:lowerright"
 
 B<Range:> an integer
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =over
 
 B<_set_max_row>
@@ -846,16 +872,16 @@ B<Definition:> attribute predicate
 
 =head2 Methods
 
-These are the methods provided by this class for use within the package but are not intended 
-to be used by the end user.  Other private methods not listed here are used in the module but 
-not used by the package.  If a method is listed here then replacement of this module 
+These are the methods provided by this class for use within the package but are not intended
+to be used by the end user.  Other private methods not listed here are used in the module but
+not used by the package.  If a method is listed here then replacement of this module
 either requires replacing the method or rewriting all the associated connecting roles and classes.
 
 =head3 load_unique_bits
 
 =over
 
-B<Definition:> This is called by L<Spreadsheet::Reader::ExcelXML::XMLReader> when the file is 
+B<Definition:> This is called by L<Spreadsheet::Reader::ExcelXML::XMLReader> when the file is
 loaded for the first time so that file specific metadata can be collected.
 
 B<Accepts:> nothing
@@ -868,12 +894,12 @@ B<Returns:> nothing
 
 =over
 
-B<Definition:> As an XML data structure each worksheet has three levels of information.  The 
-column data is stored separately in the file and just referenced.  The row data encases all 
-the cell data for that row.  Each cell contains modifiers to row and column settings.  The 
-column data is read during the 'load_unique_bits' method.  The cell specific data is not 
-completed here.  This method will advance to the next recorded row position in the XML file.  
-Not to be confused with the next row number.  If you want to advance to the 'next' position 
+B<Definition:> As an XML data structure each worksheet has three levels of information.  The
+column data is stored separately in the file and just referenced.  The row data encases all
+the cell data for that row.  Each cell contains modifiers to row and column settings.  The
+column data is read during the 'load_unique_bits' method.  The cell specific data is not
+completed here.  This method will advance to the next recorded row position in the XML file.
+Not to be confused with the next row number.  If you want to advance to the 'next' position
 more than one time then you can provide a value for $increment.
 
 B<Accepts:> a positive integer $increment (defaults to 1 if no value passed)
@@ -886,7 +912,7 @@ B<Returns:> The attribute ref of the top row node
 
 =over
 
-B<Definition:> Collects all the sub-information (XML node) for the row in order to build 
+B<Definition:> Collects all the sub-information (XML node) for the row in order to build
 the argument for populating a L<Spreadsheet::Reader::ExcelXML::Row> instance.
 
 B<Accepts:> nothing
@@ -899,7 +925,7 @@ B<Returns:> a hash ref of inputs for L<Spreadsheet::Reader::ExcelXML::Row>
 
 =over
 
-B<Definition:> Returns any collected custom column information for the indicated 
+B<Definition:> Returns any collected custom column information for the indicated
 $column.
 
 B<Accepts:> a positive integer $column in count from 1 context
@@ -924,14 +950,14 @@ B<Returns:> a hash ref of custom row settings
 
 =over
 
-B<Definition:> This returns the full merge map with merge ranges stored in each 
+B<Definition:> This returns the full merge map with merge ranges stored in each
 position for the range of known rows and columns.
 
 B<Accepts:> nothing
 
-B<Returns:> an array ref of array refs where the top level array represents 
-rows stored in count from 1 context and the second level array ref are the 
-columns stored in count from 1 context.  (The first position for each will 
+B<Returns:> an array ref of array refs where the top level array represents
+rows stored in count from 1 context and the second level array ref are the
+columns stored in count from 1 context.  (The first position for each will
 therefor be dead space)
 
 =back
@@ -949,9 +975,9 @@ L<github Spreadsheet::Reader::ExcelXML/issues
 
 =over
 
-B<1.> If a the primary cell of a merge range is hidden show that value 
+B<1.> If a the primary cell of a merge range is hidden show that value
 in the top left unhidden cell even when the attribute
-L<Spreadsheet::Reader::ExcelXML::Workbook/spread_merged_values> is not 
+L<Spreadsheet::Reader::ExcelXML::Workbook/spread_merged_values> is not
 set.  (This is the way excel does it(ish))
 
 =back

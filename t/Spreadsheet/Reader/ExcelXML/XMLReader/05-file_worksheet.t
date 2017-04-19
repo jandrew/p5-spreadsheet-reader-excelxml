@@ -31,7 +31,9 @@ use	lib
 		$lib,
 	;
 use	Data::Dumper;
-#~ use Log::Shiras::Switchboard qw( :debug );#
+use Log::Shiras::Unhide qw( :debug );
+###LogSD	use Log::Shiras::Report::Stdout;
+###LogSD	use Log::Shiras::Switchboard;
 ###LogSD	my	$operator = Log::Shiras::Switchboard->get_operator(
 ###LogSD						name_space_bounds =>{
 ###LogSD							UNBLOCK =>{
@@ -47,25 +49,25 @@ use	Data::Dumper;
 ###LogSD									log_file => 'warn',
 ###LogSD								},
 ###LogSD							},
-###LogSD							Test =>{
-###LogSD								Worksheet =>{
-###LogSD									_load_unique_bits =>{
-###LogSD										UNBLOCK =>{
-###LogSD											log_file => 'trace',
-###LogSD										},
-###LogSD									},
-###LogSD									XMLReader =>{
-###LogSD										squash_node =>{
-###LogSD											UNBLOCK =>{
-###LogSD												log_file => 'warn',
-###LogSD											},
-###LogSD										},
-###LogSD										_hidden =>{
-###LogSD											UNBLOCK =>{
-###LogSD												log_file => 'warn',
-###LogSD											},
-###LogSD										},
-###LogSD									},
+#~ ###LogSD							Test =>{
+#~ ###LogSD								Worksheet =>{
+#~ ###LogSD									_load_unique_bits =>{
+#~ ###LogSD										UNBLOCK =>{
+#~ ###LogSD											log_file => 'trace',
+#~ ###LogSD										},
+#~ ###LogSD									},
+#~ ###LogSD									XMLReader =>{
+#~ ###LogSD										squash_node =>{
+#~ ###LogSD											UNBLOCK =>{
+#~ ###LogSD												log_file => 'warn',
+#~ ###LogSD											},
+#~ ###LogSD										},
+#~ ###LogSD										_hidden =>{
+#~ ###LogSD											UNBLOCK =>{
+#~ ###LogSD												log_file => 'warn',
+#~ ###LogSD											},
+#~ ###LogSD										},
+#~ ###LogSD									},
 #~ ###LogSD									XMLToPerlData =>{
 #~ ###LogSD										UNBLOCK =>{
 #~ ###LogSD											log_file => 'warn',
@@ -76,25 +78,24 @@ use	Data::Dumper;
 #~ ###LogSD											log_file => 'warn',
 #~ ###LogSD										},
 #~ ###LogSD									},
-###LogSD								},
+#~ ###LogSD								},
 #~ ###LogSD								SharedStringsInterface =>{
 #~ ###LogSD									UNBLOCK =>{
 #~ ###LogSD										log_file => 'warn',
 #~ ###LogSD									},
 #~ ###LogSD								},
-###LogSD							},
-###LogSD							main =>{
-###LogSD								UNBLOCK =>{
-###LogSD									log_file => 'info',
-###LogSD								},
-###LogSD							},
+#~ ###LogSD							},
+#~ ###LogSD							main =>{
+#~ ###LogSD								UNBLOCK =>{
+#~ ###LogSD									log_file => 'info',
+#~ ###LogSD								},
+#~ ###LogSD							},
 ###LogSD						},
 ###LogSD						reports =>{
-###LogSD							log_file =>[ Print::Log->new ],
+###LogSD							log_file =>[ Log::Shiras::Report::Stdout->new ],
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
 use	Spreadsheet::Reader::ExcelXML::XMLReader;
 use	Spreadsheet::Reader::ExcelXML::CellToColumnRow;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
@@ -277,31 +278,3 @@ is_deeply	$test_instance->get_merge_map, $answer_ref->[$x++],
 										"Check that the merge map was recorded correctly";
 explain 								"...Test Done";
 done_testing();
-
-###LogSD	package Print::Log;
-###LogSD	use Data::Dumper;
-###LogSD	sub new{
-###LogSD		bless {}, shift;
-###LogSD	}
-###LogSD	sub add_line{
-###LogSD		shift;
-###LogSD		my @input = ( ref $_[0]->{message} eq 'ARRAY' ) ? 
-###LogSD						@{$_[0]->{message}} : $_[0]->{message};
-###LogSD		my ( @print_list, @initial_list );
-###LogSD		no warnings 'uninitialized';
-###LogSD		for my $value ( @input ){
-###LogSD			push @initial_list, (( ref $value ) ? Dumper( $value ) : $value );
-###LogSD		}
-###LogSD		for my $line ( @initial_list ){
-###LogSD			$line =~ s/\n$//;
-###LogSD			$line =~ s/\n/\n\t\t/g;
-###LogSD			push @print_list, $line;
-###LogSD		}
-###LogSD		printf( "| level - %-6s | name_space - %-s\n| line  - %04d   | file_name  - %-s\n\t:(\t%s ):\n", 
-###LogSD					$_[0]->{level}, $_[0]->{name_space},
-###LogSD					$_[0]->{line}, $_[0]->{filename},
-###LogSD					join( "\n\t\t", @print_list ) 	);
-###LogSD		use warnings 'uninitialized';
-###LogSD	}
-
-###LogSD	1;

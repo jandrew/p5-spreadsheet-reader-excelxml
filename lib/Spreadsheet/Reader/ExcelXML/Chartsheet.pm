@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Chartsheet;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Chartsheet-$VERSION";
 
 use	5.010;
@@ -10,7 +10,7 @@ use Carp qw( confess );
 use Types::Standard qw( Enum Int Str );
 use lib	'../../../../../../lib';
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+
 use Spreadsheet::Reader::ExcelXML::Types qw( IOFileType );
 
 #########1 Dispatch Tables & Package Variables    5#########6#########7#########8#########9

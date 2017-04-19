@@ -43,7 +43,7 @@ $| = 1;
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML v0.1_1 qw( :just_the_data );# :alt_default
 
 my $workbook  = Spreadsheet::Reader::ExcelXML->new(

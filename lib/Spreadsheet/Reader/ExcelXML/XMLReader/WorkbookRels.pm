@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels-$VERSION";
 
 use	Moose::Role;
@@ -26,7 +26,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the WorkbookRelsInterface unique bits" ] );
-	
+
 	# Build the list
 	my ( $worksheet_list, $chartsheet_list );
 	my $sheet_name_list = $self->get_sheet_names;
@@ -44,7 +44,7 @@ sub load_unique_bits{
 		###LogSD		"Updated sheet ref:", $sheet_ref ] );
 		$self->_set_sheet_info( $sheet => $sheet_ref );# No update needed for XML flat files - pass through
 	}
-	
+
 	###LogSD	$phone->talk( level => 'trace', message => [
 	###LogSD		"Closing out the xml file" ] );
 	$self->close_the_file;
@@ -100,7 +100,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels -  Workbook Rels XML file unique reader
 
 =head1 SYNOPSIS
-	
+
 	use Types::Standard qw( HashRef );
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	my	$workbook_instance = build_instance(
@@ -158,7 +158,7 @@ Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels -  Workbook Rels XML file
 	my	$rels_instance =  build_instance(
 			superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
 			package	=> 'WorkbookRelsInterface',
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels',
 				'Spreadsheet::Reader::ExcelXML::WorkbookRelsInterface',
 			],
@@ -166,7 +166,7 @@ Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels -  Workbook Rels XML file
 			workbook_inst => $workbook_instance,
 		);
 	print Dumper( $rels_instance->get_worksheet_list );
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: $VAR1 = [
@@ -175,24 +175,24 @@ Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookRels -  Workbook Rels XML file
 	# 04:   'Sheet1'
 	# 05: ]
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This is the XML based file adaptor for reading the workbook rels data and then updating 
-the general workbook metadata.  All the rels data for flat xml files is inferred so the 
-primary function is to transform the previously stored meta data for the rels stage.  
-The transformed data is then accesable through L<Methods|/Methods>.  The goal is to 
+This is the XML based file adaptor for reading the workbook rels data and then updating
+the general workbook metadata.  All the rels data for flat xml files is inferred so the
+primary function is to transform the previously stored meta data for the rels stage.
+The transformed data is then accesable through L<Methods|/Methods>.  The goal is to
 standardize the outputs of this transformation metadata from non standard inputs.
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the default implementation of 
+These are the methods required by the role.  A link to the default implementation of
 these methods is provided.
 
 L<Spreadsheet::Reader::ExcelXML/get_sheet_info( $name )>
@@ -209,9 +209,9 @@ These are the methods provided by this role (only).
 
 =over
 
-B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-When it does the reader will call this function as available when it first starts the file.  
-Therefore this is where the unique Metadata for this file is found and stored. (in the 
+B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+When it does the reader will call this function as available when it first starts the file.
+Therefore this is where the unique Metadata for this file is found and stored. (in the
 attributes)
 
 B<Accepts:> nothing
@@ -224,8 +224,8 @@ B<Returns:> nothing
 
 =over
 
-B<Definition:> The sheet lookup is a hashref with keys as sheet names and the values are a sub 
-hashref with $key => $value pairs of sheet meta data containing information like hiddeness and 
+B<Definition:> The sheet lookup is a hashref with keys as sheet names and the values are a sub
+hashref with $key => $value pairs of sheet meta data containing information like hiddeness and
 location.  This method returns the full set.
 
 B<Accepts:> nothing
@@ -238,7 +238,7 @@ B<Returns:> a full hashref of hashrefs
 
 =over
 
-B<Definition:> returns an ordered arrayref conataining only worksheet names in their visible order 
+B<Definition:> returns an ordered arrayref conataining only worksheet names in their visible order
 from the Excel workbook.
 
 B<Accepts:> nothing
@@ -251,7 +251,7 @@ B<Returns:> an arrayref of names
 
 =over
 
-B<Definition:> returns an ordered arrayref conataining only chartsheet names in their visible order 
+B<Definition:> returns an ordered arrayref conataining only chartsheet names in their visible order
 from the Excel workbook.
 
 B<Accepts:> nothing

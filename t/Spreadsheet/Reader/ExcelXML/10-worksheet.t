@@ -94,12 +94,12 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::Format::FmtDefault;
 use Spreadsheet::Reader::Format::ParseExcelFormatStrings;
 use Spreadsheet::Reader::Format;
 use	Spreadsheet::Reader::ExcelXML::Error;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::XMLReader;
 use Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
 use Spreadsheet::Reader::ExcelXML::SharedStrings;
@@ -107,7 +107,7 @@ use Spreadsheet::Reader::ExcelXML::XMLReader::PositionStyles;
 use Spreadsheet::Reader::ExcelXML::Styles;
 use Spreadsheet::Reader::ExcelXML::CellToColumnRow;
 use Spreadsheet::Reader::ExcelXML::XMLReader::FileWorksheet;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::WorksheetToRow;
 use Spreadsheet::Reader::ExcelXML::Worksheet;
 	$test_file = ( @ARGV ) ? $ARGV[0] : $test_file;

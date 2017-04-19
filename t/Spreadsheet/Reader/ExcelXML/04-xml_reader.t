@@ -47,7 +47,7 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 #~ use	Spreadsheet::Reader::ExcelXML::Workbook;# Required because the XMLReader will scrape the public methods
 #~ use	Spreadsheet::Reader::ExcelXML::XMLReader;
 use	Spreadsheet::Reader::ExcelXML::Error;
@@ -349,7 +349,7 @@ lives_ok{
 											get_empty_return_type => sub{ 1 },
 										},
 								);
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 require	Spreadsheet::Reader::ExcelXML::XMLReader;
 			$test_instance	=	build_instance(
 									superclasses	=>[ 'Spreadsheet::Reader::ExcelXML::XMLReader' ],

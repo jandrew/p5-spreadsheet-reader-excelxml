@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps-$VERSION";
 
 use	Moose::Role;
@@ -31,7 +31,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::_load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the WorkbookPropsInterface unique bits" ] );
-	
+
 	# turn workbook properties into a hashref
 	my( $result, $node_name, $node_level, $result_ref );
 	my $current_node = $self->current_node_parsed;
@@ -66,35 +66,35 @@ sub load_unique_bits{
 	}else{
 		###LogSD	$phone->talk( level => 'warn', message =>[ "no cp:coreProperties found" ] );
 	}
-	
+
 	###LogSD	$phone->talk( level => 'debug', message => [
 	###LogSD		"Closing out the xml file" ] );
 	$self->close_the_file;
 }
 
 #########1 Private Attributes 3#########4#########5#########6#########7#########8#########9
-	
+
 has _file_creator =>(
 		isa		=> Str,
 		reader	=> 'get_creator',
 		writer	=> '_set_creator',
 		clearer	=> '_clear_creator',
 	);
-	
+
 has _file_modified_by =>(
 		isa		=> Str,
 		reader	=> 'get_modified_by',
 		writer	=> '_set_modified_by',
 		clearer	=> '_clear_modified_by',
 	);
-	
+
 has _file_date_created =>(
 		isa		=> StrMatch[qr/^\d{4}\-\d{2}\-\d{2}/],
 		reader	=> 'get_date_created',
 		writer	=> '_set_date_created',
 		clearer	=> '_clear_date_created',
 	);
-	
+
 has _file_date_modified =>(
 		isa		=> StrMatch[qr/^\d{4}\-\d{2}\-\d{2}/],
 		reader	=> 'get_date_modified',
@@ -119,7 +119,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps - Workbook docProps Zip file unique reader
 
 =head1 SYNOPSIS
-	
+
 	#!/usr/bin/env perl
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	use Types::Standard qw( HashRef );
@@ -129,35 +129,35 @@ Spreadsheet::Reader::ExcelXML::ZipReader::WorkbookProps - Workbook docProps Zip 
 	my	$test_instance = build_instance(
 			superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
 			package	=> 'WorkbookPropsInterface',
-			add_roles_in_sequence =>[ 
+			add_roles_in_sequence =>[
 				'Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookProps',
 				'Spreadsheet::Reader::ExcelXML::WorkbookPropsInterface',
 			],
 			file => 't/test_files/docProps/core.xml',
 		);
 	print $test_instance->$get_date_created . "\n";
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: 2013-11-10T08:27:01Z
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This is the Zip based file adaptor for reading the workbook docProps data and then 
-updating the general workbook metadata.  The extracted data is accesible through 
-L<Methods|/Methods>.  The goal of this module is to standardize the outputs of this 
+This is the Zip based file adaptor for reading the workbook docProps data and then
+updating the general workbook metadata.  The extracted data is accesible through
+L<Methods|/Methods>.  The goal of this module is to standardize the outputs of this
 metadata from non standard inputs.
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the default implementation of 
+These are the methods required by the role.  A link to the default implementation of
 these methods is provided.
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position( $element, [$iterations] )>
@@ -178,9 +178,9 @@ These are the methods provided by this role (only).
 
 =over
 
-B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-When it does the reader will call this function as available when it first starts the file.  
-Therefore this is where the unique Metadata for this file is found and stored. (in the 
+B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+When it does the reader will call this function as available when it first starts the file.
+Therefore this is where the unique Metadata for this file is found and stored. (in the
 attributes)
 
 B<Accepts:> nothing
@@ -205,7 +205,7 @@ B<Returns:> the creator identification string
 
 =over
 
-B<Definition:> This returns the string stored in the file by Excel for the last file 
+B<Definition:> This returns the string stored in the file by Excel for the last file
 modification entity.
 
 B<Accepts:> nothing

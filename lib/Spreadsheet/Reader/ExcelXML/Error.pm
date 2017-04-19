@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::Error;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::Error-$VERSION";
 
 use Moose;
@@ -24,7 +24,7 @@ has error_string =>(
 		coerce		=> 1,
 		trigger	=> sub{
 			my ( $self, $error ) = @_;
-			###LogSD	my	$phone = Log::Shiras::Telephone->new( 
+			###LogSD	my	$phone = Log::Shiras::Telephone->new(
 			###LogSD				name_space => $self->get_all_space . '::set_error',  );
 			my $error_string;
 			###LogSD	$error_string = "In name_space: " . $self->get_all_space . "\n";
@@ -39,7 +39,7 @@ has error_string =>(
 			}
 		},
 	);
-	
+
 has should_warn =>(
 		isa		=> Bool,
 		default	=> 0,
@@ -70,7 +70,7 @@ has spew_longmess =>(
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
-	
+
 1;
 
 #########1 Documentation      3#########4#########5#########6#########7#########8#########9
@@ -82,14 +82,14 @@ __END__
 Spreadsheet::Reader::ExcelXML::Error - Moose class for remembering the last error
 
 =head1 SYNOPSIS
-	
+
     #!/usr/bin/env perl
     $|=1;
 	use MooseX::ShortCut::BuildInstance qw( build_instance );
 	use Spreadsheet::Reader::ExcelXML::Error;
 
 	my 	$action = build_instance(
-			add_attributes =>{ 
+			add_attributes =>{
 				error_inst =>{
 					handles =>[ qw( error set_error clear_error set_warnings if_warn ) ],
 				},
@@ -102,7 +102,7 @@ Spreadsheet::Reader::ExcelXML::Error - Moose class for remembering the last erro
 			$action->set_error( "You did something wrong" );
 	print	$action->dump;
 	print	$action->error . "\n";
-	
+
     ##############################################################################
     # SYNOPSIS Screen Output
     # 01: $VAR1 = bless( {
@@ -123,24 +123,24 @@ Spreadsheet::Reader::ExcelXML::Error - Moose class for remembering the last erro
     # 16:         }, 'ANONYMOUS_SHIRAS_MOOSE_CLASS_1' );
     # 17: You did something wrong
     ##############################################################################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own excel 
-parser.  To use the general package for excel parsing out of the box please review the 
+This documentation is written to explain ways to use this module when writing your own excel
+parser.  To use the general package for excel parsing out of the box please review the
 documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This L<Moose> class contains two L<attributes|Moose::Manual::Attributes>.  It is intended 
-to be used through (by) L<delegation|Moose::Manual::Delegation> in other classes.  The first 
-attribute is used to store the current error string.  The second, is set to turn on or off 
+This L<Moose> class contains two L<attributes|Moose::Manual::Attributes>.  It is intended
+to be used through (by) L<delegation|Moose::Manual::Delegation> in other classes.  The first
+attribute is used to store the current error string.  The second, is set to turn on or off
 pushing the error string to STDERR when the first attribute is (re)set.
 
 =head2 Attributes
 
-Data passed to new when creating an instance.   For modification of 
-these attributes see the listed 'attribute methods'. For more information on 
+Data passed to new when creating an instance.   For modification of
+these attributes see the listed 'attribute methods'. For more information on
 attributes see L<Moose::Manual::Attributes>.
 
 =head3 error_string
@@ -151,11 +151,11 @@ B<Definition:> This stores an error string for recall later.
 
 B<Default> undef (init_arg = undef)
 
-B<Range> any string (error objects with the 'as_string' or 'message' are auto coerced to 
+B<Range> any string (error objects with the 'as_string' or 'message' are auto coerced to
 a string)
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =back
 
 =head4 error
@@ -186,12 +186,12 @@ B<Definition:> sets the attribute with $error_string.
 
 =over
 
-B<Definition:> This determines if the package will push any low level errors logged 
-during processing to STDERR when they occur. (rather than just made available) It 
-should be noted that failures that kill the package should push to STDERR by default.  
-If your Excel sheet is malformed it can error without failing.  Sometimes this package 
-will handle those cases correctly and sometimes it wont.  If you want to know more 
-behind the scenes about the unexpected behaviour of the sheet then turn this attribute 
+B<Definition:> This determines if the package will push any low level errors logged
+during processing to STDERR when they occur. (rather than just made available) It
+should be noted that failures that kill the package should push to STDERR by default.
+If your Excel sheet is malformed it can error without failing.  Sometimes this package
+will handle those cases correctly and sometimes it wont.  If you want to know more
+behind the scenes about the unexpected behaviour of the sheet then turn this attribute
 on.
 
 B<Default> 1 -> it will push to STDERR
@@ -199,7 +199,7 @@ B<Default> 1 -> it will push to STDERR
 B<Range> Boolean values
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =back
 
 =head4 set_warnings( $bool )
@@ -222,8 +222,8 @@ B<Definition:> Returns the current setting of this attribute
 
 =over
 
-B<Definition:> This (the Error) class is capable of pulling the L<Carp/longmess> 
-for each error in order to understand what happened.  If that is just too much 
+B<Definition:> This (the Error) class is capable of pulling the L<Carp/longmess>
+for each error in order to understand what happened.  If that is just too much
 you can change the behaviour
 
 B<Default> 1 -> it will pull the longmess (using Carp);
@@ -231,7 +231,7 @@ B<Default> 1 -> it will pull the longmess (using Carp);
 B<Range> Boolean values
 
 B<attribute methods> Methods provided to adjust this attribute
-		
+
 =back
 
 =head4 should_spew_longmess( $bool )
@@ -263,7 +263,7 @@ L<github Spreadsheet::Reader::ExcelXML/issues
 
 =over
 
-B<1.> get clases in this package to return error numbers and or error strings and 
+B<1.> get clases in this package to return error numbers and or error strings and
 then provide opportunity for this class to localize.
 
 B<2.> Get the @CARP_NOT section to work and skip most of the Moose level reporting

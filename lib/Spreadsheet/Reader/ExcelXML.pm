@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.14.2');
+use version 0.77; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -8,20 +8,18 @@ use	MooseX::StrictConstructor;
 use	MooseX::HasDefaults::RO;
 use Types::Standard qw( is_HashRef is_Object );
 use Clone 'clone';
-#~ use Data::Dumper;
+###LogSD	use B::Deparse;
+###LogSD	my $deparser = B::Deparse->new;
 
 use	MooseX::ShortCut::BuildInstance 1.040 qw(
 		build_instance		should_re_use_classes	set_args_cloning
 	);
 should_re_use_classes( 1 );
 set_args_cloning ( 0 );
-###LogSD use Log::Shiras::Telephone;
+###LogSD use Log::Shiras::Telephone v0.48.0;
 use lib	'../../../../lib',;
-###LogSD use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::ExcelXML::Error;
-###LogSD use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::ExcelXML::Workbook;
-###LogSD use Log::Shiras::UnhideDebug;
 use Spreadsheet::Reader::Format v0.6.4;
 use Spreadsheet::Reader::Format::FmtDefault;
 use Spreadsheet::Reader::Format::ParseExcelFormatStrings;
@@ -294,7 +292,8 @@ around BUILDARGS => sub {
 	###LogSD			"Final BUILDARGS:", %args ] );
 	my $workbook = Spreadsheet::Reader::ExcelXML::Workbook->new( %args );
 	###LogSD	$phone->talk( level => 'trace', message =>[
-	###LogSD			"Assigning the built workbook to the _workbook attribute with: $orig" ] );
+	###LogSD			"Assigning the built workbook to the _workbook attribute with: ", $deparser->coderef2text( $orig ),
+	###LogSD			"..with workboook: ", $workbook->dump ] );
     return $class->$orig(
 				_workbook => $workbook,
 	###LogSD	log_space => $args{log_space}

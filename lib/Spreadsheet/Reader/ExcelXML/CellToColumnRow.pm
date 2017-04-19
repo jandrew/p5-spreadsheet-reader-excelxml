@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::CellToColumnRow;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::CellToColumnRow-$VERSION";
 
 use	Moose::Role;
@@ -35,7 +35,7 @@ sub parse_column_row{#? add the manual conversion to used vs excel on the next t
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		'File Column: ' . ($column//''), 'File Row: ' . ($row//'') ] );
 	###LogSD	use warnings 'uninitialized';
-	
+
 	# Convert to user numbers
 	my $user_row = $self->get_used_position( $row );
 	###LogSD	no warnings 'uninitialized';
@@ -54,7 +54,7 @@ sub build_cell_label{
 	###LogSD					($self->get_log_space .  '::build_cell_label' ), );
 	###LogSD		$phone->talk( level => 'debug', message =>[
 	###LogSD			"Converting file column -$column- and file row -$row- to a cell ID" ] );
-	
+
 	# Convert to code numbers
 	my $code_row = $self->get_excel_position( $row );
 	###LogSD	$phone->talk( level => 'debug', message =>[
@@ -62,7 +62,7 @@ sub build_cell_label{
 	my $code_column = $self->get_excel_position( $column );
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Parsing -$code_column- for column: $column" ] );
-	
+
 	my $cell_label = $self->_build_cell_label( $code_column, $code_row );
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Cell label is: $cell_label" ] );
@@ -115,7 +115,7 @@ sub _parse_column_row{
 	###LogSD			$self->get_all_space . '::_parse_column_row', );
 	###LogSD		$phone->talk( level => 'debug', message =>[
 	###LogSD			"Parsing excel row and column number from: $cell" ] );
-	
+
 	# Split the digits
 	my	$regex = qr/^([A-Z])?([A-Z])?([A-Z])?([0-9]*)$/;
 	my ( $one_column, $two_column, $three_column, $row ) = $cell =~ $regex;
@@ -123,7 +123,7 @@ sub _parse_column_row{
 	my	$column_text = $one_column . $two_column . $three_column;
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Regex result is: ( $one_column, $two_column, $three_column, $row )" ] );
-	
+
 	# Calculate the column value
 	if( !defined $one_column ){
 		push @$error_list_ref, "Could not parse the column component from -$cell-";
@@ -142,7 +142,7 @@ sub _parse_column_row{
 									"-$column- past the excel limit of: 16,384";
 		$column = undef;
 	}
-	
+
 	# Manage row out of bounds states
 	if( !defined $row or $row eq '' ){
 		push @$error_list_ref, "Could not parse the row component from -$cell-";
@@ -155,7 +155,7 @@ sub _parse_column_row{
 									"- you requested: $row";
 		$row = undef;
 	}
-	
+
 	# Handle collected errors
 	if( $error_list_ref ){
 		if( scalar( @$error_list_ref ) > 1 ){
@@ -180,7 +180,7 @@ sub _build_cell_label{
 	###LogSD			"Converting column -$column- and row -$row- to a cell ID" ] );
 	###LogSD	use	warnings 'uninitialized';
 	my $error_list;
-	
+
 	# Parse column
 	if( !defined $column ){
 		###LogSD	$phone->talk( level => 'debug', message =>[
@@ -208,7 +208,7 @@ sub _build_cell_label{
 			my $second_letter = int( $column / 26 );
 			$column = $column - $second_letter * 26;
 			$second_letter =
-				( $second_letter ) ? $lookup_list->[$second_letter - 1] : 
+				( $second_letter ) ? $lookup_list->[$second_letter - 1] :
 				( $first_letter ne '' ) ? 'A' : '' ;
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Second letter is: $second_letter", "New column is: $column" ] );
@@ -218,7 +218,7 @@ sub _build_cell_label{
 	}
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Column letters are: $column" ] );
-	
+
 	# Parse row
 	if( !defined $row ){
 		$row = '';
@@ -237,7 +237,7 @@ sub _build_cell_label{
 	) if $error_list;
 	###LogSD	$phone->talk( level => 'debug', message =>[
 	###LogSD		"Row is: $row" ] );
-	
+
 	# Concatenate column and row
 	my $cell_label = "$column$row";
 	###LogSD	$phone->talk( level => 'debug', message =>[
@@ -258,7 +258,7 @@ __END__
 Spreadsheet::Reader::ExcelXML::CellToColumnRow - Translate Excel cell IDs to column row
 
 =head1 SYNOPSIS
-	
+
 	#!/usr/bin/env perl
 	package MyPackage;
 	use Moose;
@@ -267,7 +267,7 @@ Spreadsheet::Reader::ExcelXML::CellToColumnRow - Translate Excel cell IDs to col
 	sub set_error{} # Required method of this role
 	sub error{ print "Missing the column or row\n" } # Required method of this role
 	sub counting_from_zero{ 0 } # Required method of this role
-		
+
 	sub my_method{
 		my ( $self, $cell ) = @_;
 		my ($column, $row ) = $self->parse_column_row( $cell );
@@ -279,39 +279,39 @@ Spreadsheet::Reader::ExcelXML::CellToColumnRow - Translate Excel cell IDs to col
 
 	my $parser = MyPackage->new;
 	print '(' . join( ', ', $parser->my_method( 'B2' ) ) . ")'\n";
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: (2, 2)
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your 
-own excel parser.  To use the general package for excel parsing out of the box please 
+This documentation is written to explain ways to use this module when writing your
+own excel parser.  To use the general package for excel parsing out of the box please
 review the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
-This is a L<Moose Role|Moose::Manual::Roles>. The role provides methods to convert back 
-and forth betwee Excel Cell ID and ($column $row) lists.  This role also provides a layer 
-of abstraction so that it is possible to implement 
-L<around|Moose::Manual::MethodModifiers/Around modifiers> modifiers on these methods so 
-that the data provided by the user can be in the user context and the method implementation 
-will still be in the Excel context.  For example this package uses this abstraction to allow 
-the user to call or receive row column numbers in either the 
-L<count-from-zero|Spreadsheet::Reader::ExcelXML/count_from_zero> context used by 
-L<Spreadsheet::ParseExcel> or the count-from-one context used by Excel.  It is important 
-to note that column letters do not equal digits in a modern 26 position numeral system 
+This is a L<Moose Role|Moose::Manual::Roles>. The role provides methods to convert back
+and forth betwee Excel Cell ID and ($column $row) lists.  This role also provides a layer
+of abstraction so that it is possible to implement
+L<around|Moose::Manual::MethodModifiers/Around modifiers> modifiers on these methods so
+that the data provided by the user can be in the user context and the method implementation
+will still be in the Excel context.  For example this package uses this abstraction to allow
+the user to call or receive row column numbers in either the
+L<count-from-zero|Spreadsheet::Reader::ExcelXML/count_from_zero> context used by
+L<Spreadsheet::ParseExcel> or the count-from-one context used by Excel.  It is important
+to note that column letters do not equal digits in a modern 26 position numeral system
 since the excel implementation is effectivly zeroless.
 
-The module counts from 1 (the excel convention) without implementation of around modifiers.  
-Meaning that cell ID 'A1' is equal to (1, 1) and column row (3, 2) is equal to the cell ID 
+The module counts from 1 (the excel convention) without implementation of around modifiers.
+Meaning that cell ID 'A1' is equal to (1, 1) and column row (3, 2) is equal to the cell ID
 'C2'.
 
 =head2 Requires
 
-These are the methods required by this role and their default provider.  All 
+These are the methods required by this role and their default provider.  All
 methods are imported straight across with no re-naming.
 
 =over
@@ -321,7 +321,7 @@ L<Spreadsheet::Reader::ExcelXML::Error/set_error>
 L<Spreadsheet::Reader::ExcelXML/count_from_zero>
 
 =back
-	
+
 =head2 Methods
 
 Methods are object methods (not functional methods)
@@ -330,12 +330,12 @@ Methods are object methods (not functional methods)
 
 =over
 
-B<Definition:> This is the way to turn an alpha numeric Excel cell ID into column and row 
-integers.  This method uses a count from 1 methodology.  Since this method is actually just 
-a layer of abstraction above the real method '_parse_column_row' for the calculation you can 
-wrap it in an L<around|Moose::Manual::MethodModifiers/Around modifiers> block to modify the 
-output to the desired user format without affecting other parts of the package that need the 
-unfiltered conversion.  If you want both then use the following call when unfiltered results 
+B<Definition:> This is the way to turn an alpha numeric Excel cell ID into column and row
+integers.  This method uses a count from 1 methodology.  Since this method is actually just
+a layer of abstraction above the real method '_parse_column_row' for the calculation you can
+wrap it in an L<around|Moose::Manual::MethodModifiers/Around modifiers> block to modify the
+output to the desired user format without affecting other parts of the package that need the
+unfiltered conversion.  If you want both then use the following call when unfiltered results
 are required;
 
 	$self->_parse_column_row( $excel_cell_id )
@@ -350,12 +350,12 @@ B<Returns:> ( $column_number, $row_number )
 
 =over
 
-B<Definition:> This is the way to turn a (column, row) pair into an Excel Cell ID.  The  
-underlying method uses a count from 1 methodology.  Since this method is actually just 
-a layer of abstraction above the real method for the calculation you can wrap it in an 
-L<around|Moose::Manual::MethodModifiers/Around modifiers> block to modify the input from 
-the implemented user format to the count from one methodology without affecting other parts 
-of the package that need the unfiltered conversion.  If you want both then use the following 
+B<Definition:> This is the way to turn a (column, row) pair into an Excel Cell ID.  The
+underlying method uses a count from 1 methodology.  Since this method is actually just
+a layer of abstraction above the real method for the calculation you can wrap it in an
+L<around|Moose::Manual::MethodModifiers/Around modifiers> block to modify the input from
+the implemented user format to the count from one methodology without affecting other parts
+of the package that need the unfiltered conversion.  If you want both then use the following
 call when unfiltered results are required;
 
 	$self->_build_cell_label( $column, $row )
@@ -370,9 +370,9 @@ B<Returns:> ( $excel_cell_id ) I<qr/[A-Z]{1,3}\d+/>
 
 =over
 
-B<Definition:> This will process a position integer and check the method 
-L<counting_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> to 
-see whether to pass the value through straight accross or decrement it by 1.  
+B<Definition:> This will process a position integer and check the method
+L<counting_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> to
+see whether to pass the value through straight accross or decrement it by 1.
 If the end user is using count from zero 'on' then the value is increased
 to arrive in the excel paradigm. (always counts from 1)
 
@@ -386,10 +386,10 @@ B<Returns:> an integer
 
 =over
 
-B<Definition:> This will process a position integer and check the method 
-L<counting_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> to 
-see whether to pass the value through straight accross or decrease it by 1.  
-If the end user is using count from zero 'on' then the value is decreased 
+B<Definition:> This will process a position integer and check the method
+L<counting_from_zero|Spreadsheet::Reader::ExcelXML/count_from_zero> to
+see whether to pass the value through straight accross or decrease it by 1.
+If the end user is using count from zero 'on' then the value is decreased
 to arrived in the end users paradigm.
 
 B<Accepts:> an integer

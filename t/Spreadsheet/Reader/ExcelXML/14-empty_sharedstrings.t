@@ -54,7 +54,7 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::XMLReader;
 use	Spreadsheet::Reader::ExcelXML::XMLReader::PositionSharedStrings;
 use	Spreadsheet::Reader::ExcelXML::SharedStrings;

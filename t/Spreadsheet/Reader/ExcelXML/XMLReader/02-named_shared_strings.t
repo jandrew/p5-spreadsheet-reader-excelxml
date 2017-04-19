@@ -43,9 +43,9 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::XMLReader;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::XMLReader::NamedSharedStrings;
 use	Spreadsheet::Reader::ExcelXML::Error;
 $test_file = ( @ARGV ) ? $ARGV[0] : $test_file;

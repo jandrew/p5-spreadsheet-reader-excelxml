@@ -288,7 +288,7 @@ use	lib	'../../../../../Log-Shiras/lib',
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use Spreadsheet::Reader::ExcelXML::Workbook;
 use	Spreadsheet::Reader::ExcelXML::Error;
 use	Spreadsheet::Reader::Format::FmtDefault;

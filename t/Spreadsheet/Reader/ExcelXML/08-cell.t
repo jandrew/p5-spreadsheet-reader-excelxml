@@ -26,7 +26,7 @@ use	lib
 ###LogSD						},
 ###LogSD					);
 ###LogSD	use Log::Shiras::Telephone;
-###LogSD	use Log::Shiras::UnhideDebug;
+###LogSD	use Log::Shiras::Unhide qw( :debug );
 use	Spreadsheet::Reader::ExcelXML::Cell;
 use	Spreadsheet::Reader::ExcelXML::Error;
 #~ use	Spreadsheet::Reader::ExcelXML::Types qw( PassThroughType ZeroFromNum FourteenFromWinExcelNum );

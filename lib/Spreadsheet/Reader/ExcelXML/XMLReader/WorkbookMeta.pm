@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta;
-use version; our $VERSION = version->declare('v0.14.2');
+use version; our $VERSION = version->declare('v0.16.2');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta-$VERSION";
 
 use	Moose::Role;
@@ -28,7 +28,7 @@ sub load_unique_bits{
 	###LogSD			$self->get_all_space . '::load_unique_bits', );
 	###LogSD		$phone->talk( level => 'debug', message => [
 	###LogSD			"Setting the WorkbookMetaInterface unique bits" ] );
-	
+
 	# Set date epoch
 	$self->start_the_file_over;
 	my( $result, $node_name, $node_level, $node_ref ) = $self->advance_element_position( 'Date1904' );
@@ -45,7 +45,7 @@ sub load_unique_bits{
 	###LogSD		"Setting epoch start to: $epoch_start" ] );
 	$self->_set_epoch_year( $epoch_start );
 	###LogSD	$phone->talk( level => 'trace', message =>[  "Epoch year set" ] );
-	
+
 	# Build sheet list
 	my( $sheet_lookup, $id_lookup, $sheet_list );
 	$self->start_the_file_over;
@@ -87,9 +87,9 @@ sub load_unique_bits{
 				delete $options_ref->{raw_text};
 				delete $options_ref->{xmlns};
 			}
-			$options_ref->{is_hidden} = 
+			$options_ref->{is_hidden} =
 				(exists $options_ref->{Visible} and $options_ref->{Visible} eq 'SheetHidden') ? 1 : 0;
-			@$options_ref{qw( sheet_id sheet_name sheet_position )} = 
+			@$options_ref{qw( sheet_id sheet_name sheet_position )} =
 				( $sheet_id, $sheet_name, $position );
 			###LogSD	$phone->talk( level => 'debug', message =>[
 			###LogSD		"Built sheet data:", $options_ref ] );
@@ -108,7 +108,7 @@ sub load_unique_bits{
 	}else{
 		confess "Could not find any worksheets";
 	}
-	
+
 	###LogSD	$phone->talk( level => 'debug', message =>[  "Setting attributes" ] );
 	$self->_set_sheet_list( $sheet_list );
 	$self->_set_sheet_lookup( $sheet_lookup );
@@ -202,35 +202,35 @@ Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta - XML file Workbook Meta 
 	use Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface; # Optional
 	$meta_instance = build_instance(
 		superclasses	=> ['Spreadsheet::Reader::ExcelXML::XMLReader'],
-		add_roles_in_sequence =>[ 
+		add_roles_in_sequence =>[
 			'Spreadsheet::Reader::ExcelXML::XMLReader::WorkbookMeta',
 			'Spreadsheet::Reader::ExcelXML::WorkbookMetaInterface',
 		],
 		file => 'TestBook.xml', (for xml flat files the meta parser needs the whole file)
 	);
 	$meta_instance->get_epoch_year;
-	
+
 	###########################
 	# SYNOPSIS Screen Output
 	# 01: 1904
 	###########################
-    
+
 =head1 DESCRIPTION
 
-This documentation is written to explain ways to use this module when writing your own 
-excel parser.  To use the general package for excel parsing out of the box please review 
+This documentation is written to explain ways to use this module when writing your own
+excel parser.  To use the general package for excel parsing out of the box please review
 the documentation for L<Workbooks|Spreadsheet::Reader::ExcelXML>,
-L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and 
+L<Worksheets|Spreadsheet::Reader::ExcelXML::Worksheet>, and
 L<Cells|Spreadsheet::Reader::ExcelXML::Cell>
 
 This is the XML based file adaptor for reading the workbook meta data.  The file can contain
-several default sets of information that should be gathered.  They can all be retrieved post 
-file initialization with L<Methods|/Methods>.  The goal is to standardize the outputs of this 
+several default sets of information that should be gathered.  They can all be retrieved post
+file initialization with L<Methods|/Methods>.  The goal is to standardize the outputs of this
 metadata from non standard inputs.
 
 =head2 Required Methods
 
-These are the methods required by the role.  A link to the default implementation of 
+These are the methods required by the role.  A link to the default implementation of
 these methods is provided.
 
 L<Spreadsheet::Reader::ExcelXML::XMLReader/advance_element_position( $element, [$iterations] )>
@@ -259,9 +259,9 @@ These are the methods provided by this role (only).
 
 =over
 
-B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.  
-When it does the reader will call this function as available when it first starts the file.  
-Therefore this is where the unique Metadata for this file is found and stored. (in the 
+B<Definition:> This role is meant to run on top of L<Spreadsheet::Reader::ExcelXML::XMLReader>.
+When it does the reader will call this function as available when it first starts the file.
+Therefore this is where the unique Metadata for this file is found and stored. (in the
 attributes)
 
 B<Accepts:> nothing
@@ -286,7 +286,7 @@ B<Returns:> (1900|1904)
 
 =over
 
-B<Definition:> returns the full array ref containg all discovered sheets in the 
+B<Definition:> returns the full array ref containg all discovered sheets in the
 file.  This will include worksheets and chartsheets.
 
 B<Accepts:> nothing
@@ -299,7 +299,7 @@ B<Returns:> an array ref of strings
 
 =over
 
-B<Definition:> returns the hashref with relId's as keys and the sheet name as 
+B<Definition:> returns the hashref with relId's as keys and the sheet name as
 values
 
 B<Accepts:> nothing
@@ -312,8 +312,8 @@ B<Returns:> a hash ref with $relId => $sheet_name combos
 
 =over
 
-B<Definition:> returns the hashref with sheet id's as keys and the sheet 
-name as values.  I beleive that Sheet ID's are the id number used in vbscript 
+B<Definition:> returns the hashref with sheet id's as keys and the sheet
+name as values.  I beleive that Sheet ID's are the id number used in vbscript
 to identify the sheet.
 
 B<Accepts:> nothing
