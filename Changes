@@ -11,6 +11,10 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 {{$NEXT}}
 
+	* Another cool change
+
+v0.16.4   2017-04-19 16:47:12-07:00 America/Los_Angeles
+
 	! Added requirement for Spreadsheet::Reader::Format v0.6.4 due to a sub dependancy of it's own
 
 v0.16.2   2017-02-13 09:45:12-08:00 America/Los_Angeles

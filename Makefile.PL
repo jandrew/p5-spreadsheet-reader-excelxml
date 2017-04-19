@@ -36,11 +36,7 @@ my %WriteMakefileArgs = (
     "MooseX::HasDefaults::RO" => 0,
     "MooseX::ShortCut::BuildInstance" => "1.040",
     "MooseX::StrictConstructor" => 0,
-<<<<<<< HEAD
     "Spreadsheet::Reader::Format" => "v0.6.4",
-=======
-    "Spreadsheet::Reader::Format" => "v0.6.2",
->>>>>>> cbde28ee5c9c56419666bf971f63564a1314efce
     "Spreadsheet::Reader::Format::FmtDefault" => 0,
     "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
     "Test::Moose" => "2.1801",
@@ -62,11 +58,7 @@ my %WriteMakefileArgs = (
     "Test::Most" => 0,
     "Test::TypeTiny" => 0
   },
-<<<<<<< HEAD
-  "VERSION" => "v0.14.2",
-=======
-  "VERSION" => "v0.16.2",
->>>>>>> cbde28ee5c9c56419666bf971f63564a1314efce
+  "VERSION" => "v0.16.4",
   "test" => {
     "TESTS" => "t/Spreadsheet/Reader/*.t t/Spreadsheet/Reader/ExcelXML/*.t t/Spreadsheet/Reader/ExcelXML/XMLReader/*.t t/Spreadsheet/Reader/ExcelXML/ZipReader/*.t t/github_issues/*.t"
   }
@@ -94,11 +86,7 @@ my %FallbackPrereqs = (
   "MooseX::ShortCut::BuildInstance" => "1.040",
   "MooseX::StrictConstructor" => 0,
   "Spreadsheet::ParseExcel" => 0,
-<<<<<<< HEAD
   "Spreadsheet::Reader::Format" => "0.6.4",
-=======
-  "Spreadsheet::Reader::Format" => "0.6.2",
->>>>>>> cbde28ee5c9c56419666bf971f63564a1314efce
   "Spreadsheet::Reader::Format::FmtDefault" => 0,
   "Spreadsheet::Reader::Format::ParseExcelFormatStrings" => 0,
   "Test::Deep" => 0,
