@@ -13,6 +13,10 @@ is to be method matched to Spreadsheet::ParseExcel prior to the v1.0 release.
 
 	* Another cool change
 
+v0.16.8   2017-04-20 05:32:31-07:00 America/Los_Angeles
+
+	+ Added perl 5.24 testing to TravisCI
+
 v0.16.6   2017-04-20 05:19:27-07:00 America/Los_Angeles
 
 	+ Added one additional test to help diagnose perl 5.16 fails on TravisCI
