@@ -1,5 +1,5 @@
 package Spreadsheet::Reader::ExcelXML;
-use version 0.77; our $VERSION = version->declare('v0.16.4');
+use version 0.77; our $VERSION = version->declare('v0.16.6');
 ###LogSD	warn "You uncovered internal logging statements for Spreadsheet::Reader::ExcelXML-$VERSION";
 
 use 5.010;
@@ -1459,11 +1459,13 @@ B<Default attribute differences>
 
 =over
 
-L<error_inst|/error_inst> =>{
-								superclasses => ['Spreadsheet::Reader::ExcelXML::Error'],
-								package => 'ErrorInstance',
-								should_warn => 1,
-							}
+L<error_inst|/error_inst> ->
+
+	error_inst =>{
+		superclasses => ['Spreadsheet::Reader::ExcelXML::Error'],
+		package => 'ErrorInstance',
+		should_warn => 1,
+	}
 
 L<show_sub_file_size|/show_sub_file_size> => 1
 
@@ -1481,11 +1483,13 @@ B<Default attribute differences>
 
 =over
 
-L<cache_positions|/cache_positions> =>{
-					shared_strings_interface => 209715200,# 200 MB
-					styles_interface => 209715200,# 200 MB
-					worksheet_interface => 209715200,# 200 MB
-				},
+L<cache_positions|/cache_positions> ->
+
+	cache_positions =>{
+		shared_strings_interface => 209715200,# 200 MB
+		styles_interface => 209715200,# 200 MB
+		worksheet_interface => 209715200,# 200 MB
+	},
 
 =back
 
@@ -1501,11 +1505,13 @@ B<Default attribute differences>
 
 =over
 
-L<cache_positions|/cache_positions> =>{
-					shared_strings_interface => 10240,# 10 KB
-					styles_interface => 10240,# 10 KB
-					worksheet_interface => 1024,# 1 KB
-				},
+L<cache_positions|/cache_positions> ->
+
+	cache_positions =>{
+		shared_strings_interface => 10240,# 10 KB
+		styles_interface => 10240,# 10 KB
+		worksheet_interface => 1024,# 1 KB
+	},
 
 =back
 
@@ -1952,7 +1958,7 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-This software is copyrighted (c) 2016 by Jed Lund
+This software is copyrighted (c) 2016, 2017 by Jed Lund
 
 =head1 DEPENDENCIES
 

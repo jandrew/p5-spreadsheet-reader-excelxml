@@ -21,7 +21,7 @@ BEGIN{
 }
 $| = 1;
 
-use	Test::Most tests => 31;
+use	Test::Most tests => 32;
 use	Test::Moose;
 use	MooseX::ShortCut::BuildInstance v1.8 qw( build_instance );#
 use	lib
@@ -94,7 +94,7 @@ my	$xml_file = $test_file;
 	$test_file .= 'TestBook.xlsx';
 ###LogSD	my	$phone = Log::Shiras::Telephone->new( name_space => 'main', );
 ###LogSD		$phone->talk( level => 'trace', message => [ "Test file is: $test_file" ] );
-my  ( 
+my  (
 			$test_instance, $error_instance, $styles_instance, $shared_strings_instance,
 			$string_type, $date_time_type, $cell, $row_ref, $offset, $workbook_instance,
 			$file_handle, $styles_handle, $shared_strings_handle, $format_instance,
@@ -118,12 +118,12 @@ lives_ok{
 								package => 'ZipWorkbookFileInterface',
 								file => $test_file,
 			###LogSD			log_space	=> 'Test',
-								add_roles_in_sequence =>[ 
+								add_roles_in_sequence =>[
 									'Spreadsheet::Reader::ExcelXML::WorkbookFileInterface',
 								],
 			);# exit 1;
 }										"Prep a Zip based WorkbookFileInterface instance";# exit 1;
-map{ 
+map{
 has_attribute_ok
 			$test_instance, $_,
 										"Check that the WorkbookFileInterface instance has the -$_- attribute"
@@ -147,12 +147,13 @@ lives_ok{
 								package => 'XMLWorkbookFileInterface',
 								file => $xml_file,
 			###LogSD			log_space	=> 'Test',
-								add_roles_in_sequence =>[ 
+								add_roles_in_sequence =>[
 									'Spreadsheet::Reader::ExcelXML::WorkbookFileInterface',
 								],
 			);# exit 1;
 }										"Prep an XML based WorkbookFileInterface instance";# exit 1;
-map{ 
+ok			$test_instance,				"Ensure there is a test instance ready";
+map{
 has_attribute_ok
 			$test_instance, $_,
 										"Check that the WorkbookFileInterface instance has the -$_- attribute"
@@ -186,7 +187,7 @@ done_testing();
 ###LogSD	}
 ###LogSD	sub add_line{
 ###LogSD		shift;
-###LogSD		my @input = ( ref $_[0]->{message} eq 'ARRAY' ) ? 
+###LogSD		my @input = ( ref $_[0]->{message} eq 'ARRAY' ) ?
 ###LogSD						@{$_[0]->{message}} : $_[0]->{message};
 ###LogSD		my ( @print_list, @initial_list );
 ###LogSD		no warnings 'uninitialized';
@@ -198,7 +199,7 @@ done_testing();
 ###LogSD			$line =~ s/\n/\n\t\t/g;
 ###LogSD			push @print_list, $line;
 ###LogSD		}
-###LogSD		printf( "| level - %-6s | name_space - %-s\n| line  - %04d   | file_name  - %-s\n\t:(\t%s ):\n", 
+###LogSD		printf( "| level - %-6s | name_space - %-s\n| line  - %04d   | file_name  - %-s\n\t:(\t%s ):\n",
 ###LogSD					$_[0]->{level}, $_[0]->{name_space},
 ###LogSD					$_[0]->{line}, $_[0]->{filename},
 ###LogSD					join( "\n\t\t", @print_list ) 	);
